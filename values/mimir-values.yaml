@@ -70,9 +70,6 @@ query_scheduler:
 
 mimir:
   structuredConfig:
-    storage:
-      backend: filesystem
-
     blocks_storage:
       backend: filesystem
       filesystem:
