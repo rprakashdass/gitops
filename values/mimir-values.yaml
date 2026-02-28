@@ -75,7 +75,6 @@ mimir:
       filesystem:
         dir: /data/tsdb
 
-    # Prevent “no useable address found for interfaces [eth0 en0]”
     distributor:
       ring:
         instance_addr: ${POD_IP}
@@ -87,12 +86,12 @@ mimir:
         instance_id: ${HOSTNAME}
 
     store_gateway:
-      sharding_ring:
+      ring:
         instance_addr: ${POD_IP}
         instance_id: ${HOSTNAME}
 
     frontend:
       scheduler_address: "mimir-query-scheduler-headless.monitoring.svc.cluster.local.:9095"
+
     frontend_worker:
-      address: ""
       scheduler_address: "mimir-query-scheduler-headless.monitoring.svc.cluster.local.:9095"
