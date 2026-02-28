@@ -89,3 +89,7 @@ mimir:
       sharding_ring:
         instance_addr: ${POD_IP}
         instance_id: ${HOSTNAME}
+
+    querier:
+      frontend_worker:
+        frontend_address: "dns:///mimir-query-frontend-headless.monitoring.svc.cluster.local.:9095"
