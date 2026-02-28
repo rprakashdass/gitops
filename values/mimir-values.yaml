@@ -1,3 +1,7 @@
+# PodSecurityPolicy API removed in Kubernetes 1.25; use non-PSP RBAC (scc skips PSP)
+rbac:
+  type: scc
+
 kafka:
   enabled: false
 minio:
