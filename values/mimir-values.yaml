@@ -1,6 +1,6 @@
-# PodSecurityPolicy API removed in Kubernetes 1.25; use non-PSP RBAC (scc skips PSP)
+# No PSP (removed in K8s 1.25) or SCC (OpenShift-only); skip chart RBAC and use default SA
 rbac:
-  type: scc
+  create: false
 
 kafka:
   enabled: false
