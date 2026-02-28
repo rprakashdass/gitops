@@ -70,13 +70,8 @@ query_scheduler:
 
 mimir:
   structuredConfig:
-    ingest_storage:
-      enabled: false
-
-    # filesystem storage for lab
-    common:
-      storage:
-        backend: filesystem
+    storage:
+      backend: filesystem
 
     blocks_storage:
       backend: filesystem
@@ -93,19 +88,12 @@ mimir:
       ring:
         instance_addr: ${POD_IP}
         instance_id: ${HOSTNAME}
-      push_grpc_method_enabled: true
 
     store_gateway:
-      ring:
+      sharding_ring:
         instance_addr: ${POD_IP}
         instance_id: ${HOSTNAME}
 
-    query_scheduler:
-      ring:
-        instance_addr: ${POD_IP}
-        instance_id: ${HOSTNAME}
-
-    # Prevent the “svc.svc.cluster.local” / double-suffix resolver mess
     frontend:
       scheduler_address: "mimir-query-scheduler-headless.monitoring.svc.cluster.local.:9095"
     frontend_worker:
