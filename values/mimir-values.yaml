@@ -94,4 +94,5 @@ mimir:
     frontend:
       scheduler_address: "mimir-query-scheduler-headless.monitoring.svc.cluster.local.:9095"
     frontend_worker:
+      address: ""
       scheduler_address: "mimir-query-scheduler-headless.monitoring.svc.cluster.local.:9095"
