@@ -1,0 +1,21 @@
+service:
+  type: ClusterIP
+
+persistence:
+  enabled: true
+  storageClassName: standard
+  size: 5Gi
+
+adminUser: admin
+adminPassword: ChangeMeStrong
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Mimir
+        type: prometheus
+        access: proxy
+        url: http://mimir-gateway.svc.cluster.local/prometheus
+        isDefault: true
+        editable: true

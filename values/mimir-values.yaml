@@ -1,0 +1,108 @@
+kafka:
+  enabled: false
+minio:
+  enabled: false
+ruler:
+  enabled: false
+alertmanager:
+  enabled: false
+zoneAwareReplication:
+  enabled: false
+
+gateway:
+  enabled: true
+
+# Use minikube standard hostpath storage
+ingester:
+  replicas: 1
+  persistentVolume:
+    enabled: true
+    storageClass: standard
+    size: 10Gi
+  extraEnv:
+    - name: POD_IP
+      valueFrom:
+        fieldRef: { fieldPath: status.podIP }
+
+store_gateway:
+  replicas: 1
+  persistentVolume:
+    enabled: true
+    storageClass: standard
+    size: 10Gi
+  extraEnv:
+    - name: POD_IP
+      valueFrom:
+        fieldRef: { fieldPath: status.podIP }
+
+distributor:
+  replicas: 1
+  extraEnv:
+    - name: POD_IP
+      valueFrom:
+        fieldRef: { fieldPath: status.podIP }
+
+querier:
+  replicas: 1
+  extraEnv:
+    - name: POD_IP
+      valueFrom:
+        fieldRef: { fieldPath: status.podIP }
+
+query_frontend:
+  replicas: 1
+  extraEnv:
+    - name: POD_IP
+      valueFrom:
+        fieldRef: { fieldPath: status.podIP }
+
+# If chart enables query-scheduler (often does), ensure it won’t try eth0/en0 auto-detect
+query_scheduler:
+  replicas: 1
+  extraEnv:
+    - name: POD_IP
+      valueFrom:
+        fieldRef: { fieldPath: status.podIP }
+
+mimir:
+  structuredConfig:
+    ingest_storage:
+      enabled: false
+
+    # filesystem storage for lab
+    common:
+      storage:
+        backend: filesystem
+
+    blocks_storage:
+      backend: filesystem
+      filesystem:
+        dir: /data/tsdb
+
+    # Prevent “no useable address found for interfaces [eth0 en0]”
+    distributor:
+      ring:
+        instance_addr: ${POD_IP}
+        instance_id: ${HOSTNAME}
+
+    ingester:
+      ring:
+        instance_addr: ${POD_IP}
+        instance_id: ${HOSTNAME}
+      push_grpc_method_enabled: true
+
+    store_gateway:
+      ring:
+        instance_addr: ${POD_IP}
+        instance_id: ${HOSTNAME}
+
+    query_scheduler:
+      ring:
+        instance_addr: ${POD_IP}
+        instance_id: ${HOSTNAME}
+
+    # Prevent the “svc.svc.cluster.local” / double-suffix resolver mess
+    frontend:
+      scheduler_address: "mimir-query-scheduler-headless.monitoring.svc.cluster.local.:9095"
+    frontend_worker:
+      scheduler_address: "mimir-query-scheduler-headless.monitoring.svc.cluster.local.:9095"
