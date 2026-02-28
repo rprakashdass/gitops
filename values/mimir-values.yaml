@@ -80,7 +80,6 @@ mimir:
       ring:
         instance_addr: ${POD_IP}
         instance_id: ${HOSTNAME}
-        replication_factor: 1
 
     ingester:
       ring:
