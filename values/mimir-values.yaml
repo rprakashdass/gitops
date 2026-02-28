@@ -91,4 +91,4 @@ mimir:
         instance_id: ${HOSTNAME}
 
     frontend_worker:
-      frontend_address: "dns:///mimir-query-frontend-headless.monitoring.svc.cluster.local.:9095"
+      frontend_address: "mimir-query-frontend-headless.monitoring.svc.cluster.local.:9095"
