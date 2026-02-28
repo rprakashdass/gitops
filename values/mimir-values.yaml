@@ -75,20 +75,24 @@ mimir:
       filesystem:
         dir: /data/tsdb
 
+    # Single-replica lab: replication_factor 1 so ring accepts one healthy instance
     distributor:
       ring:
         instance_addr: ${POD_IP}
         instance_id: ${HOSTNAME}
+        replication_factor: 1
 
     ingester:
       ring:
         instance_addr: ${POD_IP}
         instance_id: ${HOSTNAME}
+        replication_factor: 1
 
     store_gateway:
       sharding_ring:
         instance_addr: ${POD_IP}
         instance_id: ${HOSTNAME}
+        replication_factor: 1
 
     frontend_worker:
       frontend_address: "mimir-query-frontend-headless.monitoring.svc.cluster.local.:9095"
