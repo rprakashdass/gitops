@@ -86,9 +86,10 @@ mimir:
         instance_id: ${HOSTNAME}
 
     store_gateway:
-      ring:
-        instance_addr: ${POD_IP}
-        instance_id: ${HOSTNAME}
+      sharding_ring:
+        lifecycler:
+          address: ${POD_IP}
+          id: ${HOSTNAME}
 
     frontend:
       scheduler_address: "mimir-query-scheduler-headless.monitoring.svc.cluster.local.:9095"
