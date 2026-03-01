@@ -5,7 +5,7 @@ rbac:
 kafka:
   enabled: false
 minio:
-  enabled: true
+  enabled: false
 ruler:
   enabled: false
 alertmanager:
@@ -19,10 +19,10 @@ gateway:
 # Use minikube standard hostpath storage
 ingester:
   replicas: 1
-  persistentVolume:
-    enabled: true
-    storageClass: standard
-    size: 3Gi
+  # persistentVolume:
+  #   enabled: true
+  #   storageClass: standard
+  #   size: 3Gi
   extraEnv:
     - name: POD_IP
       valueFrom:
@@ -30,10 +30,10 @@ ingester:
 
 store_gateway:
   replicas: 1
-  persistentVolume:
-    enabled: true
-    storageClass: standard
-    size: 3Gi
+  # persistentVolume:
+  #   enabled: true
+  #   storageClass: standard
+  #   size: 3Gi
   extraEnv:
     - name: POD_IP
       valueFrom:
@@ -71,9 +71,14 @@ query_scheduler:
 mimir:
   structuredConfig:
     blocks_storage:
-      backend: filesystem
-      filesystem:
-        dir: /data/tsdb
+      backend: s3
+      s3:
+        endpoint: minio.monitoring.svc.cluster.local:9000
+        bucket_name: mimir-blocks
+        access_key_id: loki
+        secret_access_key: loki12345
+        insecure: true
+        bucket_lookup_type: path
 
     # Single-replica lab: replication_factor 1 so ring accepts one healthy instance
     distributor:

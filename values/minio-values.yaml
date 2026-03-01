@@ -7,7 +7,7 @@ persistence:
   enabled: true
   size: 20Gi
 
-# Create buckets Loki will use
+# Create buckets Loki and Mimir will use
 buckets:
   - name: loki-chunks
     policy: none
@@ -16,6 +16,9 @@ buckets:
     policy: none
     purge: false
   - name: loki-admin
+    policy: none
+    purge: false
+  - name: mimir-blocks
     policy: none
     purge: false
 
