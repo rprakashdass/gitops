@@ -4,7 +4,7 @@ service:
 persistence:
   enabled: true
   storageClassName: standard
-  size: 5Gi
+  size: 3Gi
 
 adminUser: admin
 adminPassword: ChangeMeStrong

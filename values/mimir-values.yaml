@@ -22,7 +22,7 @@ ingester:
   persistentVolume:
     enabled: true
     storageClass: standard
-    size: 10Gi
+    size: 3Gi
   extraEnv:
     - name: POD_IP
       valueFrom:
@@ -33,7 +33,7 @@ store_gateway:
   persistentVolume:
     enabled: true
     storageClass: standard
-    size: 10Gi
+    size: 3Gi
   extraEnv:
     - name: POD_IP
       valueFrom:
