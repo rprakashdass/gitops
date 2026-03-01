@@ -13,10 +13,19 @@ ruler:
 
 # Write component needs a volume at /var/loki for tsdb-shipper (path_prefix)
 write:
-  persistence:
-    volumeClaimsEnabled: true
-    size: 5Gi
-
+  extraInitContainers:
+    - name: fix-perms
+      image: busybox:1.36
+      command:
+        - sh
+        - -c
+        - |
+          mkdir -p /var/loki && chown -R 10001:10001 /var/loki && chmod -R g+rwX /var/loki
+      securityContext:
+        runAsUser: 0
+      volumeMounts:
+        - name: data          # <-- matches: "/var/loki from data"
+          mountPath: /var/loki
 loki:
   # So /var/loki (tsdb-shipper) is writable by Loki user 10001
   podSecurityContext:
