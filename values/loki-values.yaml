@@ -2,10 +2,20 @@
 rbac:
   create: false
 
+# Disable memcached caches (no memcached deployed) to avoid SRV lookup errors
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
+
 ruler:
   enabled: false
 
 loki:
+  # So /var/loki (tsdb-shipper) is writable by Loki user 10001
+  podSecurityContext:
+    fsGroup: 10001
+
   storage:
     type: s3
     bucketNames:
