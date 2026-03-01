@@ -78,7 +78,6 @@ mimir:
         access_key_id: loki
         secret_access_key: loki12345
         insecure: true
-        bucket_lookup_type: path
 
     # Single-replica lab: replication_factor 1 so ring accepts one healthy instance
     distributor:
