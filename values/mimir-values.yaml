@@ -5,7 +5,7 @@ rbac:
 kafka:
   enabled: false
 minio:
-  enabled: false
+  enabled: true
 ruler:
   enabled: false
 alertmanager:
