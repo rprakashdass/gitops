@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minio
+  namespace: argocd
+spec:
+  project: observability
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  sources:
+    - repoURL: https://charts.min.io/
+      chart: minio
+      targetRevision: 5.*
+      helm:
+        releaseName: minio
+        valueFiles:
+          - $values/values/minio-values.yaml
+
+    - repoURL: https://github.com/rprakashdass/gitops.git
+      targetRevision: main
+      ref: values

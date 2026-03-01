@@ -1,0 +1,24 @@
+mode: standalone
+
+rootUser: loki
+rootPassword: loki12345
+
+persistence:
+  enabled: true
+  size: 20Gi
+
+# Create buckets Loki will use
+buckets:
+  - name: loki-chunks
+    policy: none
+    purge: false
+  - name: loki-ruler
+    policy: none
+    purge: false
+  - name: loki-admin
+    policy: none
+    purge: false
+
+# Optional: enable console ingress later if you want
+# consoleIngress:
+#   enabled: true

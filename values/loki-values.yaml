@@ -5,8 +5,16 @@ rbac:
 ruler:
   enabled: false
 
-# Required by chart's commonStorageConfig helper (avoids nil pointer on .storage.bucketNames.chunks)
 loki:
   storage:
-    filesystem:
-      chunks_directory: /var/loki/chunks
+    type: s3
+    bucketNames:
+      chunks: loki-chunks
+      ruler: loki-ruler
+      admin: loki-admin
+    s3:
+      endpoint: http://minio.monitoring.svc.cluster.local:9000
+      accessKeyId: loki
+      secretAccessKey: loki12345
+      s3ForcePathStyle: true
+      insecure: true
