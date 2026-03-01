@@ -1,10 +1,10 @@
 service:
   type: ClusterIP
 
-persistence:
-  enabled: true
-  storageClassName: standard
-  size: 3Gi
+# persistence:
+#   enabled: true
+#   storageClassName: standard
+#   size: 3Gi
 
 adminUser: admin
 adminPassword: ChangeMeStrong
