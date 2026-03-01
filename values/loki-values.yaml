@@ -1,3 +1,12 @@
 # No PSP (removed in K8s 1.25) or SCC (OpenShift-only); skip chart RBAC and use default SA
 rbac:
   create: false
+
+ruler:
+  enabled: false
+
+# Required by chart's commonStorageConfig helper (avoids nil pointer on .storage.bucketNames.chunks)
+loki:
+  storage:
+    filesystem:
+      chunks_directory: /var/loki/chunks
