@@ -8,7 +8,6 @@ spec:
   source:
     repoURL: https://grafana.github.io/helm-charts
     chart: mimir
-    targetRevision: 3.0.x
     helm:
       releaseName: mimir
       valueFiles:
@@ -25,7 +24,6 @@ spec:
   sources:
     - repoURL: https://grafana.github.io/helm-charts
       chart: mimir-distributed
-      targetRevision: 3.0.x
       helm:
         releaseName: mimir
         valueFiles:
