@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://grafana.github.io/helm-charts
+    chart: loki
+    targetRevision: 6.29.0
+    helm:
+      releaseName: grafana
+      # valueFiles:
+      #   - $values/values/grafana-values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: grafana
+      targetRevision: 6.29.0
+      helm:
+        releaseName: loki
+        # valueFiles:
+        #   - $values/values/grafana-values.yaml
+    - repoURL: https://github.com/rprakashdass/gitops.git
+      targetRevision: main
+      ref: values
