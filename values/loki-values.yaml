@@ -18,3 +18,14 @@ loki:
       secretAccessKey: loki12345
       s3ForcePathStyle: true
       insecure: true
+
+  # Required: schema_config for index/object store (S3)
+  schemaConfig:
+    configs:
+      - from: "2020-10-24"
+        store: tsdb
+        object_store: s3
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
