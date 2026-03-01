@@ -1,0 +1,3 @@
+# No PSP (removed in K8s 1.25) or SCC (OpenShift-only); skip chart RBAC and use default SA
+rbac:
+  create: false
