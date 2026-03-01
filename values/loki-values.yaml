@@ -11,6 +11,12 @@ resultsCache:
 ruler:
   enabled: false
 
+# Write component needs a volume at /var/loki for tsdb-shipper (path_prefix)
+write:
+  persistence:
+    volumeClaimsEnabled: true
+    size: 5Gi
+
 loki:
   # So /var/loki (tsdb-shipper) is writable by Loki user 10001
   podSecurityContext:
