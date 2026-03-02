@@ -16,7 +16,7 @@ spec:
       targetRevision: 25.8.0
       helm:
         valueFiles:
-          - $values/monitoring/fake-metrics-values.yaml
+          - $$values/values/fake-metrics-values.yaml
 
     # 2) Values repo (ref-only)
     - repoURL: https://github.com/rprakashdass/gitops.git
