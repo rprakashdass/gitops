@@ -28,13 +28,6 @@ singleBinary:
     enabled: true
     size: 5Gi
     storageClass: standard
-  # Add writable volume at /var/loki for rules/tsdb-shipper
-  extraVolumes:
-    - name: loki-data
-      emptyDir: {}
-  extraVolumeMounts:
-    - name: loki-data
-      mountPath: /var/loki
 
 loki:
   # So /var/loki (tsdb-shipper) is writable by Loki user 10001
