@@ -28,13 +28,15 @@ singleBinary:
     enabled: true
     size: 5Gi
     storageClass: standard
-  # Init container to fix permissions on persistence volume at /var/loki
+  # Init container to create directories (runs as Loki user, fsGroup makes volume writable)
   initContainers:
-    - name: fix-permissions
+    - name: create-dirs
       image: busybox:1.36
-      command: ["sh", "-c", "mkdir -p /var/loki/tsdb-shipper-active /var/loki/tsdb-shipper-cache /var/loki/rules && chown -R 10001:10001 /var/loki && chmod -R 775 /var/loki"]
+      command: ["sh", "-c", "mkdir -p /var/loki/tsdb-shipper-active /var/loki/tsdb-shipper-cache /var/loki/rules"]
       securityContext:
-        runAsUser: 0
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
       volumeMounts:
         - name: storage
           mountPath: /var/loki
