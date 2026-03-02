@@ -47,20 +47,30 @@ deploymentMode: SingleBinary
 loki:
   auth_enabled: false
 
+# chunksCache:
+#   enabled: false
+
+# resultsCache:
+#   enabled: false
+
+# ruler:
+#   enabled: false
+
+
   commonConfig:
     replication_factor: 1
 
-  # Storage: choose one. This example uses S3.
-  storage:
-    type: s3
-    s3:
-      # Prefer IRSA / workload identity when possible; otherwise set access_key_id/secret_access_key.
-      endpoint: http://minio.monitoring.svc.cluster.local:9000
-      bucketnames: my-loki-bucket
-      accessKeyId: loki
-      secretAccessKey: loki12345
-      s3ForcePathStyle: true
-      insecure: true
+#   storage:
+#     type: s3
+#     bucketNames:
+#       chunks: loki-chunks
+#       admin: loki-admin
+#     s3:
+#       endpoint: http://minio.monitoring.svc.cluster.local:9000
+#       accessKeyId: loki
+#       secretAccessKey: loki12345
+#       s3ForcePathStyle: true
+#       insecure: true
 
   # Schema config (TSDB recommended in newer Loki setups)
   schemaConfig:
