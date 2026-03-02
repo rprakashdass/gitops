@@ -14,6 +14,14 @@ ruler:
 # Deployment mode: SingleBinary (simple), SimpleScalable (medium), Distributed (large)
 deploymentMode: SingleBinary
 
+# Explicitly set SimpleScalable components to 0 to avoid validation error
+write:
+  replicas: 0
+read:
+  replicas: 0
+backend:
+  replicas: 0
+
 singleBinary:
   replicas: 1
   persistence:
