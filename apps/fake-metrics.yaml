@@ -12,7 +12,7 @@ spec:
   sources:
     # 1) The thing you deploy (Helm chart)
     - repoURL: https://prometheus-community.github.io/helm-charts
-      chart: prometheus
+      chart: kube-prometheus-stack
       targetRevision: 25.8.0
       helm:
         valueFiles:
