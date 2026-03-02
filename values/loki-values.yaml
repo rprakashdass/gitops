@@ -28,21 +28,16 @@ singleBinary:
     enabled: true
     size: 5Gi
     storageClass: standard
-  # Init container to create directories (runs as Loki user, fsGroup makes volume writable)
-  initContainers:
-    - name: create-dirs
-      image: busybox:1.36
-      command: ["sh", "-c", "mkdir -p /var/loki/tsdb-shipper-active /var/loki/tsdb-shipper-cache /var/loki/rules"]
-      securityContext:
-        runAsUser: 10001
-        runAsGroup: 10001
-        fsGroup: 10001
-      volumeMounts:
-        - name: storage
-          mountPath: /var/loki
+  # Add emptyDir for writable Loki data (tsdb-shipper, rules) at /tmp/loki
+  extraVolumes:
+    - name: loki-writable
+      emptyDir: {}
+  extraVolumeMounts:
+    - name: loki-writable
+      mountPath: /tmp/loki
 
 loki:
-  # So /var/loki (tsdb-shipper) is writable by Loki user 10001
+  # So volumes are writable by Loki user 10001
   podSecurityContext:
     fsGroup: 10001
 
@@ -50,8 +45,8 @@ loki:
 
   commonConfig:
     replication_factor: 1
-    # Ensure path_prefix matches where volumes are mounted
-    path_prefix: /var/loki
+    # Use /tmp/loki for writable data (tsdb-shipper, rules) - emptyDir is writable
+    path_prefix: /tmp/loki
 
   storage:
     type: s3
