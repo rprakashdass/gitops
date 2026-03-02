@@ -33,3 +33,15 @@ loki:
     filesystem:
       directory: /var/loki/chunks
   useTestSchema: true
+
+volumeMounts:
+  - name: loki-data
+    mountPath: /var/loki
+volumes:
+  - name: loki-data
+    emptyDir: {}   # or pvc
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
