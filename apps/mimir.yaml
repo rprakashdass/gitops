@@ -5,23 +5,10 @@ metadata:
   namespace: argocd
 spec:
   project: observability
-  source:
-    repoURL: https://grafana.github.io/helm-charts
-    chart: mimir
-    targetRevision: 3.0.x
-    helm:
-      releaseName: mimir
-      valueFiles:
-        - $values/values/mimir-values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+
   sources:
     - repoURL: https://grafana.github.io/helm-charts
       chart: mimir-distributed
@@ -30,6 +17,7 @@ spec:
         releaseName: mimir
         valueFiles:
           - $values/values/mimir-values.yaml
+  
     - repoURL: https://github.com/rprakashdass/gitops.git
       targetRevision: main
       ref: values
