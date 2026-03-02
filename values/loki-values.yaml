@@ -1,73 +1,35 @@
-# No PSP (removed in K8s 1.25) or SCC (OpenShift-only); skip chart RBAC and use default SA
-rbac:
-  create: false
+# Deployment mode: SingleBinary (simple), SimpleScalable (medium), Distributed (large)
+deploymentMode: SingleBinary
 
-# # Disable memcached caches (no memcached deployed) to avoid SRV lookup errors
-# chunksCache:
-#   enabled: false
+# Number of replicas
+singleBinary:
+  replicas: 1
 
-# resultsCache:
-#   enabled: false
+# Component replicas
+write:
+  replicas: 0
+read:
+  replicas: 0
+backend:
+  replicas: 0
 
-# ruler:
-#   enabled: false
+# Caching
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
 
+# Helm test
+test:
+  enabled: false
 
+# All loki settings combined under one key
 loki:
   auth_enabled: false
-
   commonConfig:
     replication_factor: 1
-
   storage:
-    type: s3
-    bucketNames:
-      chunks: loki-chunks
-      ruler: loki-ruler
-      admin: loki-admin
-    s3:
-      endpoint: http://minio.monitoring.svc.cluster.local:9000
-      accessKeyId: loki
-      secretAccessKey: loki12345
-      s3ForcePathStyle: true
-      insecure: true
-
-  # Schema config (TSDB recommended in newer Loki setups)
-  schemaConfig:
-    configs:
-      - from: "2024-01-01"
-        store: tsdb
-        object_store: s3
-        schema: v13
-        index:
-          prefix: index_
-          period: 24h
-
-  # Retention (basic example)
-  limits_config:
-    retention_period: 168h          # 7 days
-    max_query_lookback: 168h
-    max_query_length: 720h
-
-  compactor:
-    retention_enabled: true
-    delete_request_store: s3
-
-
-# Expose via a Service (ClusterIP by default)
-service:
-  type: ClusterIP
-  port: 3100
-
-# Metrics / monitoring (optional)
-serviceMonitor:
-  enabled: true
-
-# Optional: Ingress (if you need outside-cluster access)
-ingress:
-  enabled: false
-  # hosts:
-  #   - host: loki.example.com
-  #     paths:
-  #       - path: /
-  #         pathType: Prefix
+    type: filesystem
+    filesystem:
+      directory: /var/loki/chunks
+  useTestSchema: true
