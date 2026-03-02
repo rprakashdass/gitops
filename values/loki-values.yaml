@@ -12,50 +12,9 @@ rbac:
 # ruler:
 #   enabled: false
 
-# loki:
-#   # So /var/loki (tsdb-shipper) is writable by Loki user 10001
-#   podSecurityContext:
-#     fsGroup: 10001
-
-#   storage:
-#     type: s3
-#     bucketNames:
-#       chunks: loki-chunks
-#       ruler: loki-ruler
-#       admin: loki-admin
-#     s3:
-#       endpoint: http://minio.monitoring.svc.cluster.local:9000
-#       accessKeyId: loki
-#       secretAccessKey: loki12345
-#       s3ForcePathStyle: true
-#       insecure: true
-
-#   # Required: schema_config for index/object store (S3)
-#   schemaConfig:
-#     configs:
-#       - from: "2020-10-24"
-#         store: tsdb
-#         object_store: s3
-#         schema: v13
-#         index:
-#           prefix: index_
-#           period: 24h
-
-
-# deploymentMode: SingleBinary
 
 loki:
   auth_enabled: false
-
-# chunksCache:
-#   enabled: false
-
-# resultsCache:
-#   enabled: false
-
-# ruler:
-#   enabled: false
-
 
   commonConfig:
     replication_factor: 1
@@ -93,18 +52,6 @@ loki:
     retention_enabled: true
     delete_request_store: s3
 
-singleBinary:
-  replicas: 1
-  resources:
-    requests:
-      cpu: 200m
-      memory: 512Mi
-    limits:
-      cpu: "1"
-      memory: 2Gi
-  persistence:
-    enabled: true
-    size: 20Gi
 
 # Expose via a Service (ClusterIP by default)
 service:
