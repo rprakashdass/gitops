@@ -1,16 +1,11 @@
 # Prometheus Helm chart values
 server:
-  # Disable persistence for fake metrics (data will be lost on restart, but avoids permission issues)
+  # Enable persistence with proper permissions
   persistentVolume:
-    enabled: false
-  # Use emptyDir for /data (writable by default)
-  extraVolumes:
-    - name: prometheus-data
-      emptyDir: {}
-  extraVolumeMounts:
-    - name: prometheus-data
-      mountPath: /data
-  # Security context
+    enabled: true
+    size: 10Gi
+    storageClass: standard
+  # Security context - fsGroup makes volume writable by Prometheus user 65534
   securityContext:
     fsGroup: 65534
   containerSecurityContext:
