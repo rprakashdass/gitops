@@ -16,11 +16,20 @@ datasources:
       - name: Mimir
         type: prometheus
         access: proxy
-        url: http://mimir-nginx.monitoring.svc.cluster.local:80/prometheus
+        url: http://mimir-gateway.monitoring.svc.cluster.local:80/prometheus
         isDefault: true
+        editable: true
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://fake-metrics-prometheus-server.monitoring.svc.cluster.local:80
         editable: true
       - name: Loki
         type: loki
         access: proxy
-        url: http://loki-gateway.monitoring.svc.cluster.local:80
+        url: http://loki.monitoring.svc.cluster.local:3100
+        jsonData:
+          httpHeaderName1: "X-Scope-OrgID"
+        secureJsonData:
+          httpHeaderValue1: "fake"
         editable: true
