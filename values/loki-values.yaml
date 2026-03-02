@@ -2,75 +2,114 @@
 rbac:
   create: false
 
-# Disable memcached caches (no memcached deployed) to avoid SRV lookup errors
-chunksCache:
-  enabled: false
-resultsCache:
-  enabled: false
+# # Disable memcached caches (no memcached deployed) to avoid SRV lookup errors
+# chunksCache:
+#   enabled: false
 
-ruler:
-  enabled: false
+# resultsCache:
+#   enabled: false
 
-write:
-  initContainers:
-    - name: fix-perms
-      image: busybox:1.36
-      command:
-        - sh
-        - -c
-        - |
-          mkdir -p /var/loki
-          chown -R 10001:10001 /var/loki
-          chmod -R u+rwX,g+rwX /var/loki
-      securityContext:
-        runAsUser: 0
-        runAsGroup: 0
-      volumeMounts:
-        - name: data
-          mountPath: /var/loki
+# ruler:
+#   enabled: false
 
-backend:
-  initContainers:
-    - name: fix-perms
-      image: busybox:1.36
-      command:
-        - sh
-        - -c
-        - |
-          mkdir -p /var/loki
-          chown -R 10001:10001 /var/loki
-          chmod -R u+rwX,g+rwX /var/loki
-      securityContext:
-        runAsUser: 0
-        runAsGroup: 0
-      volumeMounts:
-        - name: data
-          mountPath: /var/loki
+# loki:
+#   # So /var/loki (tsdb-shipper) is writable by Loki user 10001
+#   podSecurityContext:
+#     fsGroup: 10001
+
+#   storage:
+#     type: s3
+#     bucketNames:
+#       chunks: loki-chunks
+#       ruler: loki-ruler
+#       admin: loki-admin
+#     s3:
+#       endpoint: http://minio.monitoring.svc.cluster.local:9000
+#       accessKeyId: loki
+#       secretAccessKey: loki12345
+#       s3ForcePathStyle: true
+#       insecure: true
+
+#   # Required: schema_config for index/object store (S3)
+#   schemaConfig:
+#     configs:
+#       - from: "2020-10-24"
+#         store: tsdb
+#         object_store: s3
+#         schema: v13
+#         index:
+#           prefix: index_
+#           period: 24h
+
+
+deploymentMode: SingleBinary
+
 loki:
-  # So /var/loki (tsdb-shipper) is writable by Loki user 10001
-  podSecurityContext:
-    fsGroup: 10001
+  auth_enabled: false
 
+  commonConfig:
+    replication_factor: 1
+
+  # Storage: choose one. This example uses S3.
   storage:
     type: s3
-    bucketNames:
-      chunks: loki-chunks
-      ruler: loki-ruler
-      admin: loki-admin
     s3:
+      # Prefer IRSA / workload identity when possible; otherwise set access_key_id/secret_access_key.
       endpoint: http://minio.monitoring.svc.cluster.local:9000
+      bucketnames: my-loki-bucket
       accessKeyId: loki
       secretAccessKey: loki12345
       s3ForcePathStyle: true
       insecure: true
 
-  # Required: schema_config for index/object store (S3)
+  # Schema config (TSDB recommended in newer Loki setups)
   schemaConfig:
     configs:
-      - from: "2020-10-24"
+      - from: "2024-01-01"
         store: tsdb
         object_store: s3
         schema: v13
         index:
-          prefix: index_
+          prefix: loki_index_
           period: 24h
+
+  # Retention (basic example)
+  limits_config:
+    retention_period: 168h          # 7 days
+    max_query_lookback: 168h
+    max_query_length: 720h
+
+  compactor:
+    retention_enabled: true
+    delete_request_store: s3
+
+singleBinary:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 2Gi
+  persistence:
+    enabled: true
+    size: 20Gi
+
+# Expose via a Service (ClusterIP by default)
+service:
+  type: ClusterIP
+  port: 3100
+
+# Metrics / monitoring (optional)
+serviceMonitor:
+  enabled: true
+
+# Optional: Ingress (if you need outside-cluster access)
+ingress:
+  enabled: false
+  # hosts:
+  #   - host: loki.example.com
+  #     paths:
+  #       - path: /
+  #         pathType: Prefix
