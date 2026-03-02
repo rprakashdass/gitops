@@ -42,7 +42,7 @@ rbac:
 #           period: 24h
 
 
-deploymentMode: SingleBinary
+# deploymentMode: SingleBinary
 
 loki:
   auth_enabled: false
@@ -60,17 +60,17 @@ loki:
   commonConfig:
     replication_factor: 1
 
-#   storage:
-#     type: s3
-#     bucketNames:
-#       chunks: loki-chunks
-#       admin: loki-admin
-#     s3:
-#       endpoint: http://minio.monitoring.svc.cluster.local:9000
-#       accessKeyId: loki
-#       secretAccessKey: loki12345
-#       s3ForcePathStyle: true
-#       insecure: true
+  storage:
+    type: s3
+    bucketNames:
+      chunks: loki-chunks
+      admin: loki-admin
+    s3:
+      endpoint: http://minio.monitoring.svc.cluster.local:9000
+      accessKeyId: loki
+      secretAccessKey: loki12345
+      s3ForcePathStyle: true
+      insecure: true
 
   # Schema config (TSDB recommended in newer Loki setups)
   schemaConfig:
