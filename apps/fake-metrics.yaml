@@ -1,24 +1,21 @@
+# apps/prometheus.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: fake-metrics
-  namespace: argocd
+  name: prometheus
 spec:
-  project: observability
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: monitoring
-
   sources:
-    # 1) The thing you deploy (Helm chart)
     - repoURL: https://prometheus-community.github.io/helm-charts
-      chart: kube-prometheus-stack
-      targetRevision: 45.*
-      helm:
-        valueFiles:
-          - $values/values/fake-metrics-values.yaml
+      chart: prometheus
+      targetRevision: 25.8.0
 
-    # 2) Values repo (ref-only)
-    - repoURL: https://github.com/rprakashdass/gitops.git
-      targetRevision: main
-      ref: values
+# apps/promtail.yaml  
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: promtail
+spec:
+  sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: promtail
+      targetRevision: 6.*
