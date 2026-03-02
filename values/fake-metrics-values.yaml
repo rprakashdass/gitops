@@ -11,7 +11,7 @@ server:
   containerSecurityContext:
     runAsUser: 65534
     runAsGroup: 65534
-    runAsNonRoot: true
+    runAsNonRoot: false
 
 # Extra objects to deploy alongside Prometheus (log generator, promtail, metrics exporter)
 extraObjects:
