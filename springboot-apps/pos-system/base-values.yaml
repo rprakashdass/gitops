@@ -44,4 +44,13 @@ mysql:
     tag: "8.0"
     pullPolicy: IfNotPresent
 
+config:
+  database:
+    url: "jdbc:mysql://pos-db-service:3306/posdb"
+  jpa:
+    hibernate_ddl_auto: "validate"
+    show_sql: "false"
+  api:
+    base_url: "/api"
+
 CreateNamespace: true
