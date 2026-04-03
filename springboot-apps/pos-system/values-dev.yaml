@@ -23,13 +23,17 @@ frontend:
 
   resources:
     requests:
-      cpu: "500m"
+      cpu: "100m"
       memory: "250Mi"
 
   autoscaling:
     enabled: false
 
 mysql:
+  image:
+    repository: mysql
+    tag: "8.0"
+    pullPolicy: IfNotPresent
   persistence:
     size: 200Mi
 
