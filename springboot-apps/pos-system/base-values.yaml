@@ -1,0 +1,44 @@
+global:
+  namespace: pos
+  environment: dev
+
+backend:
+  replicas: 1
+  image:
+    repository: docker.io/rprakashdass/pos-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 10
+
+frontend:
+  replicas: 3
+  image:
+    repository: docker.io/rprakashdass/pos-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 10
+
+mysql:
+  image: mysql:8.0
+
+CreateNamespace: true

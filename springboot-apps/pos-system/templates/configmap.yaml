@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pos-config
+
+data:
+  # Spring Boot Database connection
+  SPRING_DATASOURCE_URL: jdbc:mysql://pos-db-service:3306/posdb
+  SPRING_JPA_HIBERNATE_DDL_AUTO: {{ .Values.config.jpa.hibernate_ddl_auto }}
+  SPRING_JPA_SHOW_SQL: {{ .Values.config.jpa.show_sql }}
+
+  NEXT_PUBLIC_API_BASE_URL: /api

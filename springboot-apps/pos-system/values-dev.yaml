@@ -1,0 +1,25 @@
+global:
+  environment: dev
+
+backend:
+  replicas: 1
+  image:
+    tag: latest
+    pullPolicy: Always
+
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "128Mi"
+
+  autoscaling:
+    enabled: false
+
+mysql:
+  persistence:
+    size: 200Mi
+
+config:
+  jpa:
+    hibernate_ddl_auto: "create-drop"
+    show_sql: true

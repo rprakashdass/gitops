@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: springboot-apps
+  namespace: argocd
+spec:
+  description: Spring Boot applications
+  sourceRepos:
+    - 'https://github.com/rprakashdass/gitops.git'
+  destinations:
+    - namespace: pos
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'

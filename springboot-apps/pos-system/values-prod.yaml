@@ -1,0 +1,24 @@
+global:
+  environment: prod
+
+backend:
+  replicas: 3
+  image:
+    tag: 0.0.1
+
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "250Mi"
+
+  autoscaling:
+    enabled: false
+
+mysql:
+  persistence:
+    size: 500Mi
+
+config:
+  jpa:
+    hibernate_ddl_auto: "create-drop"
+    show_sql: true
