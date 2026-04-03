@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: pos-frontend
-          image: {{ .Values.frontend.image }}
+          image: {{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

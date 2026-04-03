@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: pos-backend
-          image: {{ .Values.backend.image }}
+          image: {{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}
           imagePullPolicy: Always
           ports:
             - containerPort: 8082
