@@ -39,6 +39,9 @@ frontend:
     maxReplicas: 10
 
 mysql:
-  image: mysql:8.0
+  image:
+    repository: mysql
+    tag: "8.0"
+    pullPolicy: IfNotPresent
 
 CreateNamespace: true
