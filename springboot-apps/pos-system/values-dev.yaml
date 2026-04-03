@@ -15,6 +15,20 @@ backend:
   autoscaling:
     enabled: false
 
+frontend:
+  replicas: 3
+  image:
+    tag: latest
+    pullPolicy: Always
+
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "250Mi"
+
+  autoscaling:
+    enabled: false
+
 mysql:
   persistence:
     size: 200Mi

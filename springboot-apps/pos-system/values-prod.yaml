@@ -4,7 +4,20 @@ global:
 backend:
   replicas: 3
   image:
-    tag: 0.0.1
+    tag: latest
+
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "250Mi"
+
+  autoscaling:
+    enabled: false
+
+frontend::
+  replicas: 3
+  image:
+    tag: latest
 
   resources:
     requests:
