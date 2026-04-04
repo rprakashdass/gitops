@@ -29,10 +29,17 @@ frontend::
     enabled: false
 
 mysql:
+  image:
+    repository: mysql
+    tag: "8.0"
+    pullPolicy: IfNotPresent
   persistence:
-    size: 500Mi
+    size: 400Mi
+
+ingress:
+  host: pos-prod.local
 
 config:
   jpa:
-    hibernate_ddl_auto: "create-drop"
+    hibernate_ddl_auto: "validate"
     show_sql: "true"

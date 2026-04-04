@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: pos.local
+    - host: {{ .Values.ingress.host }}
       http:
         paths:
           # Backend API routes - no rewrite needed, backend already has /api context

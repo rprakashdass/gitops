@@ -30,6 +30,9 @@ frontend:
   autoscaling:
     enabled: false
 
+ingress:
+  host: pos.local
+
 mysql:
   image:
     repository: mysql
