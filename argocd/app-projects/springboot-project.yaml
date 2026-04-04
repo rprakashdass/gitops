@@ -10,6 +10,8 @@ spec:
   destinations:
     - namespace: pos
       server: https://kubernetes.default.svc
+    - namespace: pos-prod
+      server: https://kubernetes.default.svc
   clusterResourceWhitelist:
     - group: '*'
       kind: '*'
