@@ -1,5 +1,6 @@
 global:
   environment: prod
+  namespace: pos-prod
 
 backend:
   replicas: 3
