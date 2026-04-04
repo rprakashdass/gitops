@@ -30,9 +30,6 @@ frontend:
   autoscaling:
     enabled: false
 
-ingress:
-  host: pos.local
-
 mysql:
   image:
     repository: mysql
@@ -40,6 +37,9 @@ mysql:
     pullPolicy: IfNotPresent
   persistence:
     size: 200Mi
+
+ingress:
+  host: pos.local
 
 config:
   jpa:
