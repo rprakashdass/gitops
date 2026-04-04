@@ -18,6 +18,7 @@ spec:
             backend:
               service:
                 name: grafana
+                namespace: monitoring
                 port:
                   number: 80
     
@@ -30,6 +31,7 @@ spec:
             backend:
               service:
                 name: fake-metrics-prometheus-server
+                namespace: monitoring
                 port:
                   number: 80
     
@@ -42,6 +44,7 @@ spec:
             backend:
               service:
                 name: loki-gateway
+                namespace: monitoring
                 port:
                   number: 80
     
@@ -54,6 +57,7 @@ spec:
             backend:
               service:
                 name: mimir-nginx
+                namespace: monitoring
                 port:
                   number: 80
     
@@ -66,5 +70,6 @@ spec:
             backend:
               service:
                 name: minio-console
+                namespace: monitoring
                 port:
                   number: 9001
