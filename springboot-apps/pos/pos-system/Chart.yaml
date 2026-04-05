@@ -1,0 +1,5 @@
+apiVersion: v2
+name: pos-system
+version: 0.0.1
+appVersion: 0.0.1
+description: Helm chart for Spring boot applications

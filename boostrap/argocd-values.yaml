@@ -1,0 +1,93 @@
+# ArgoCD Helm Chart Values
+# Official chart: https://github.com/argoproj/argo-helm
+
+# Global settings
+global:
+  domain: argocd.local
+
+# Server configuration
+server:
+  # Service type
+  service:
+    type: NodePort
+    nodePortHttp: 30080
+    nodePortHttps: 30443
+  
+  # Run without TLS (useful behind ingress)
+  extraArgs:
+    - --insecure
+  
+  # Ingress configuration (optional)
+  ingress:
+    enabled: false
+    # ingressClassName: nginx
+    # hosts:
+    #   - argocd.local
+    # tls:
+    #   - secretName: argocd-tls
+    #     hosts:
+    #       - argocd.local
+
+# Controller configuration
+controller:
+  # Increase resource limits if needed
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# Repo server configuration  
+repoServer:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# Redis
+redis:
+  resources:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 64Mi
+
+# Dex (SSO)
+dex:
+  enabled: true
+
+# Application Set Controller
+applicationSet:
+  enabled: true
+
+# Notifications Controller
+notifications:
+  enabled: true
+
+# ArgoCD configuration
+configs:
+  params:
+    # Increase reconciliation timeout
+    timeout.reconciliation: 300s
+  
+  cm:
+    # Application instance label key
+    application.instanceLabelKey: argocd.argoproj.io/instance
+    
+    # Enable resource tracking
+    application.resourceTrackingMethod: annotation
+    
+    # Admin settings
+    admin.enabled: true
+  
+  # RBAC configuration
+  rbac:
+    policy.default: role:readonly
+    scopes: '[groups]'
