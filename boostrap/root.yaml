@@ -13,11 +13,10 @@ spec:
     path: argocd
     directory:
       recurse: true
-      exclude: "applications/root.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
   syncPolicy:
     automated:
       prune: false
-      selfHeal: true # detects drift
+      selfHeal: true

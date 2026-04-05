@@ -1,0 +1,12 @@
+apiVersion:  apps/v1
+kind: Deployment
+metadata:
+  name: invoice-backend
+  namespace: {{ .Values.global.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: invoice-backend
+  containers:
+    - image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+      pullPolicy: {{ .Values.image.pullPolicy }}
