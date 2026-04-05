@@ -10,5 +10,6 @@ data:
 
   accounts.admin: login
   accounts.dev: login
+  accounts.prakash: login
 
   timeout.reconciliation: 300s
