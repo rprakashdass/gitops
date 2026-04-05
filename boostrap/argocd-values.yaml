@@ -9,26 +9,18 @@ global:
 server:
   insecure: true
 
-  # # Service type
-  # service:
-  #   type: NodePort
-  #   nodePortHttp: 30080
-  #   nodePortHttps: 30443
-  
-  # # Run without TLS (useful behind ingress)
-  # extraArgs:
-  #   - --insecure
-  
+  service:
+    port: 80
+
   # Ingress configuration (optional)
-ingress:
-  enabled: true
-  ingressClassName: nginx
-  hosts:
-    - host: argocd.local
-      paths:
-        - path: /
-          pathType: Prefix
-  tls: []
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - host: argocd.local
+        paths:
+          - path: /
+            pathType: Prefix
 
 # Controller configuration
 controller:
@@ -72,3 +64,7 @@ applicationSet:
 # Notifications Controller
 notifications:
   enabled: true
+
+configs:
+  params:
+    server.insecure: true
