@@ -11,7 +11,7 @@ spec:
   sources:
     - repoURL: https://github.com/rprakashdass/gitops.git
       targetRevision: main
-      path: springboot-apps/pos-system
+      path: springboot-apps/pos/pos-system
       helm:
         valueFiles:
           - base-values.yaml
