@@ -1,7 +1,9 @@
 alloy:
   configMap:
+    create: false  # Don't create default ConfigMap, use our custom one
+    name: alloy-config  # Reference our ConfigMap from templates/
+    key: config.alloy  # The key in the ConfigMap data
     enableReporting: false
-    # Config is loaded from ConfigMap: templates/alloy-config-cm.yaml
 
 rbac:
   create: true
