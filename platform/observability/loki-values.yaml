@@ -25,9 +25,7 @@ backend:
 singleBinary:
   replicas: 1
   persistence:
-    enabled: true
-    size: 5Gi
-    storageClass: standard
+    enabled: false
   # Add emptyDir for writable Loki data (tsdb-shipper, rules) at /tmp/loki
   extraVolumes:
     - name: loki-writable
