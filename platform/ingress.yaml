@@ -20,19 +20,7 @@ spec:
                 name: grafana
                 port:
                   number: 80
-    
-    # Prometheus
-    - host: prometheus.local
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: fake-metrics-prometheus-server
-                port:
-                  number: 80
-    
+
     # Loki
     - host: loki.local
       http:
