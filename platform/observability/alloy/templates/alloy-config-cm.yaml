@@ -9,4 +9,76 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 data:
   config.alloy: |
-{{ .Values.alloyConfig | indent 4 }}
+    // ==========================================
+    // Grafana Alloy Configuration
+    // Purpose: Collect logs from POS applications and monitoring stack
+    // ==========================================
+
+    // Discover Kubernetes pods in the 'pos' namespace
+    discovery.kubernetes "pos_pods" {
+      role = "pod"
+      namespaces {
+        names = ["pos"]
+      }
+    }
+
+    // Discover pods in the 'monitoring' namespace
+    discovery.kubernetes "monitoring_pods" {
+      role = "pod"
+      namespaces {
+        names = ["monitoring"]
+      }
+    }
+
+    // Scrape logs from POS application pods
+    loki.source.kubernetes "pos_logs" {
+      targets    = discovery.kubernetes.pos_pods.targets
+      forward_to = [loki.process.add_labels.receiver]
+    }
+
+    // Scrape logs from monitoring stack pods
+    loki.source.kubernetes "monitoring_logs" {
+      targets    = discovery.kubernetes.monitoring_pods.targets
+      forward_to = [loki.process.add_labels.receiver]
+    }
+
+    // Add useful labels and process logs
+    loki.process "add_labels" {
+      forward_to = [loki.write.loki_endpoint.receiver]
+
+      // Extract and relabel important fields
+      stage.label_drop {
+        values = ["filename", "stream"]
+      }
+
+      // Parse JSON logs if present (for Spring Boot JSON logging)
+      stage.json {
+        expressions = {
+          level     = "level",
+          timestamp = "timestamp",
+          logger    = "logger",
+          message   = "message",
+        }
+      }
+
+      // Add extracted fields as labels
+      stage.labels {
+        values = {
+          level  = "level",
+          logger = "logger",
+        }
+      }
+    }
+
+    // Write logs to Loki
+    loki.write "loki_endpoint" {
+      endpoint {
+        url = "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
+
+        // Optional: Add basic auth if Loki requires it
+        // basic_auth {
+        //   username = "loki"
+        //   password = "your-password"
+        // }
+      }
+    }

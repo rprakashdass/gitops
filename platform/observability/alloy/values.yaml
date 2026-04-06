@@ -1,7 +1,7 @@
 alloy:
   configMap:
     enableReporting: false
-    # Config is loaded from ConfigMap created in templates/
+    # Config is loaded from ConfigMap: templates/alloy-config-cm.yaml
 
 rbac:
   create: true
@@ -10,7 +10,7 @@ serviceAccount:
   create: true
 
 controller:
-  type: "daemonset"
+  type: "daemonset"  # Run on every node for efficient log collection
   affinity:
     podAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -23,66 +23,3 @@ controller:
                 - key: app
                   operator: Exists
             topologyKey: "kubernetes.io/hostname"
-
-# Alloy configuration content
-# Loaded into ConfigMap and mounted by the Alloy pods
-alloyConfig: |
-  // ==========================================
-  // Grafana Alloy Configuration
-  // Purpose: Collect logs from POS applications
-  // ==========================================
-
-  // Discover Kubernetes pods in the 'pos' namespace
-  discovery.kubernetes "pos_pods" {
-    role = "pod"
-    namespaces {
-      names = ["pos"]
-    }
-  }
-
-  // Scrape logs from discovered pods
-  loki.source.kubernetes "pos_logs" {
-    targets    = discovery.kubernetes.pos_pods.targets
-    forward_to = [loki.process.add_labels.receiver]
-  }
-
-  // Add useful labels and process logs
-  loki.process "add_labels" {
-    forward_to = [loki.write.loki_endpoint.receiver]
-
-    // Extract and relabel important fields
-    stage.label_drop {
-      values = ["filename", "stream"]
-    }
-
-    // Parse JSON logs if present (for Spring Boot JSON logging)
-    stage.json {
-      expressions = {
-        level     = "level",
-        timestamp = "timestamp",
-        logger    = "logger",
-        message   = "message",
-      }
-    }
-
-    // Add extracted fields as labels
-    stage.labels {
-      values = {
-        level  = "level",
-        logger = "logger",
-      }
-    }
-  }
-
-  // Write logs to Loki
-  loki.write "loki_endpoint" {
-    endpoint {
-      url = "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
-      
-      // Optional: Add basic auth if Loki requires it
-      // basic_auth {
-      //   username = "loki"
-      //   password = "your-password"
-      // }
-    }
-  }
