@@ -31,6 +31,6 @@ buckets:
     policy: none
     purge: false
 
-# Optional: enable console ingress later if you want
+# Optional: enable console ingress
 # consoleIngress:
 #   enabled: true
