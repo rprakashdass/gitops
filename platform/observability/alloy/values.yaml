@@ -1,8 +1,8 @@
 alloy:
   configMap:
-    create: false  # Don't create default ConfigMap, use our custom one
-    name: alloy-config  # Reference our ConfigMap from templates/
-    key: config.alloy  # The key in the ConfigMap data
+    create: false
+    name: alloy-config
+    key: config.alloy
     enableReporting: false
 
 rbac:
@@ -12,7 +12,7 @@ serviceAccount:
   create: true
 
 controller:
-  type: "daemonset"  # Run on every node for efficient log collection
+  type: "daemonset"
   affinity:
     podAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
