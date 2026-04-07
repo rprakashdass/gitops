@@ -10,53 +10,68 @@ data:
   config.alloy: |
     // ==========================================
     // Grafana Alloy Configuration
-    // Purpose: Collect logs from POS applications and monitoring stack
+    // Purpose: Collect logs from all application pods with standard labels
     // ==========================================
 
-    // Discover Kubernetes pods in the 'pos' namespace
-    discovery.kubernetes "pos_pods" {
+    // Discover ALL pods across multiple namespaces
+    discovery.kubernetes "pods" {
       role = "pod"
       namespaces {
-        names = ["pos"]
+        names = ["pos", "pos-prod", "monitoring"]
       }
     }
 
-    // Discover pods in the 'monitoring' namespace
-    discovery.kubernetes "monitoring_pods" {
-      role = "pod"
-      namespaces {
-        names = ["monitoring"]
+    // Filter out storage/backend components
+    discovery.relabel "filtered_pods" {
+      targets = discovery.kubernetes.pods.targets
+
+      // Drop storage layer pods (loki, mimir, minio)
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+        regex         = "loki|mimir|minio"
+        action        = "drop"
+      }
+
+      // Also drop by pod name pattern as fallback
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        regex         = "loki-.*|mimir-.*|minio-.*"
+        action        = "drop"
       }
     }
 
-    // Scrape logs from POS application pods
-    loki.source.kubernetes "pos_logs" {
-      targets    = discovery.kubernetes.pos_pods.targets
-      forward_to = [loki.process.add_labels.receiver]
+    // Scrape logs from all filtered pods
+    loki.source.kubernetes "app_logs" {
+      targets    = discovery.relabel.filtered_pods.output
+      forward_to = [loki.process.add_standard_labels.receiver]
     }
 
-    // Scrape logs from monitoring stack pods
-    loki.source.kubernetes "monitoring_logs" {
-      targets    = discovery.kubernetes.monitoring_pods.targets
-      forward_to = [loki.process.add_labels.receiver]
-    }
-
-    // Add useful labels and process logs
-    loki.process "add_labels" {
+    // Add standard Kubernetes labels + parse logs
+    loki.process "add_standard_labels" {
       forward_to = [loki.write.loki_endpoint.receiver]
 
-      // Extract and relabel important fields
+      // Add standard Kubernetes labels
+      stage.labels {
+        values = {
+          pod       = "__meta_kubernetes_pod_name",
+          namespace = "__meta_kubernetes_namespace",
+          job       = "__meta_kubernetes_pod_label_app_kubernetes_io_name",
+          instance  = "__meta_kubernetes_pod_node_name",
+          container = "__meta_kubernetes_pod_container_name",
+        }
+      }
+
+      // Drop unnecessary internal labels
       stage.label_drop {
         values = ["filename", "stream"]
       }
 
-      // Try to parse Spring Boot plain text logs (current format)
-      // Format: 2026-04-06T06:21:39.838Z  INFO 1 --- [app-name] [thread] logger : message
+      // Parse Spring Boot plain text logs
       stage.regex {
-        expression = "^(?P<timestamp>\\S+)\\s+(?P<level>\\w+)\\s+.+?\\[(?P<app>[^\\]]+)\\]\\s+\\[(?P<thread>[^\\]]+)\\]\\s+(?P<logger>\\S+)\\s+:\\s+(?P<message>.+)$"
+        expression = "^(?P<timestamp>\\S+)\\s+(?P<level>\\w+)\\s+.+?\\[(?P<app_name>[^\\]]+)\\]\\s+\\[(?P<thread>[^\\]]+)\\]\\s+(?P<logger>\\S+)\\s+:\\s+(?P<message>.+)$"
       }
 
-      // Try to parse JSON logs (if configured later)
+      // Parse JSON logs (if configured)
       stage.json {
         expressions = {
           level     = "level",
@@ -66,12 +81,12 @@ data:
         }
       }
 
-      // Add extracted fields as labels (from either regex or JSON parsing)
+      // Add parsed fields as additional labels
       stage.labels {
         values = {
-          level  = "level",
-          logger = "logger",
-          app    = "app",
+          level    = "level",
+          logger   = "logger",
+          app_name = "app_name",
         }
       }
     }
@@ -80,11 +95,5 @@ data:
     loki.write "loki_endpoint" {
       endpoint {
         url = "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
-
-        // Optional: Add basic auth if Loki requires it
-        // basic_auth {
-        //   username = "loki"
-        //   password = "your-password"
-        // }
       }
     }
