@@ -5,23 +5,67 @@ alloy:
     key: config.alloy
     enableReporting: false
 
-rbac:
-  create: true
+  rbac:
+    create: true
 
-serviceAccount:
-  create: true
+  serviceAccount:
+    create: true
 
-controller:
-  type: "daemonset"
-  affinity:
-    podAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            namespaces:
-              - monitoring
-            labelSelector:
-              matchExpressions:
-                - key: app
-                  operator: Exists
-            topologyKey: "kubernetes.io/hostname"
+  controller:
+    type: "daemonset"
+    affinity:
+      podAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              namespaces:
+                - monitoring
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: Exists
+              topologyKey: "kubernetes.io/hostname"
+
+# KSM (Kube-State-Metrics) configuration
+ksm:
+  prometheusScrape: false
+  
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+  
+  service:
+    type: ClusterIP
+    port: 8080
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "8080"
+  
+  # collectors:
+  #   - certificatesigningrequests
+  #   - configmaps
+  #   - cronjobs
+  #   - daemonsets
+  #   - deployments
+  #   - endpoints
+  #   - horizontalpodautoscalers
+  #   - ingresses
+  #   - jobs
+  #   - limitranges
+  #   - namespaces
+  #   - nodes
+  #   - persistentvolumeclaims
+  #   - persistentvolumes
+  #   - poddisruptionbudgets
+  #   - pods
+  #   - replicasets
+  #   - replicationcontrollers
+  #   - resourcequotas
+  #   - secrets
+  #   - services
+  #   - statefulsets
+  #   - storageclasses

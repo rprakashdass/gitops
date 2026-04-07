@@ -10,8 +10,10 @@ data:
   config.alloy: |
     // ==========================================
     // Grafana Alloy Configuration
-    // Purpose: Collect logs from all application pods with standard labels
+    // Purpose: Collect logs AND metrics from applications
     // ==========================================
+
+    // ========== LOGS COLLECTION ==========
 
     // Discover ALL pods across multiple namespaces
     discovery.kubernetes "pods" {
@@ -95,5 +97,58 @@ data:
     loki.write "loki_endpoint" {
       endpoint {
         url = "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
+      }
+    }
+
+    // ========== METRICS COLLECTION ==========
+
+    // Discover KSM (Kube-State-Metrics) service
+    discovery.kubernetes "ksm" {
+      role = "service"
+      namespaces {
+        names = ["monitoring"]
+      }
+      selectors {
+        role  = "service"
+        label = "app.kubernetes.io/name=kube-state-metrics"
+      }
+    }
+
+    // Scrape metrics from KSM
+    prometheus.scrape "ksm_metrics" {
+      targets = discovery.kubernetes.ksm.targets
+      forward_to = [prometheus.relabel.add_cluster.receiver]
+      
+      scrape_interval = "30s"
+      scrape_timeout  = "10s"
+    }
+
+    // Add cluster label and relabel
+    prometheus.relabel "add_cluster" {
+      forward_to = [prometheus.remote_write.mimir.receiver]
+
+      // Add cluster name
+      rule {
+        target_label = "cluster"
+        replacement  = "local"
+      }
+
+      // Keep only useful labels
+      rule {
+        source_labels = ["__name__"]
+        regex         = "kube_.*"
+        action        = "keep"
+      }
+    }
+
+    // Write metrics to Mimir
+    prometheus.remote_write "mimir" {
+      endpoint {
+        url = "http://mimir-nginx.monitoring.svc.cluster.local/api/v1/push"
+        
+        // Add headers if needed
+        headers = {
+          "X-Scope-OrgID" = "anonymous"
+        }
       }
     }

@@ -9,22 +9,16 @@ spec:
     namespace: monitoring
     server: https://kubernetes.default.svc
 
-  sources:
-    # Official Grafana Alloy Helm chart
-    - repoURL: https://grafana.github.io/helm-charts
-      chart: alloy
-      targetRevision: 0.12.*
-      helm:
-        releaseName: alloy
-        valueFiles:
-          - $values/platform/observability/alloy/values.yaml
-
-    # Our Git repo with values and ConfigMap template
-    - repoURL: https://github.com/rprakashdass/gitops.git
-      targetRevision: main
-      ref: values
+  source:
+    repoURL: https://github.com/rprakashdass/gitops.git
+    targetRevision: main
+    path: platform/observability/alloy
+    helm:
+      releaseName: alloy
 
   syncPolicy:
     automated:
       prune: false
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
