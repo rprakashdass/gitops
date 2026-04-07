@@ -258,6 +258,8 @@ After installation:
 ## 📚 Resources
 
 - [ArgoCD Helm Chart](https://github.com/argoproj/argo-helm/tree/main/charts/argo-cd)
+- Local users + RBAC runbook: ARGOCD-LOCAL-USERS-RBAC.md
+- Values snippet: argocd-local-users-rbac-example.yaml
 - [Chart Values Reference](https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml)
 - [ArgoCD Documentation](https://argo-cd.readthedocs.io/)
 
@@ -273,5 +275,3 @@ After installation:
    - Monitoring (Grafana, Prometheus, Loki, Mimir, MinIO)
    - Platform Ingress
 5. ✅ Future changes via Git + `helm upgrade`
-
-**Your GitOps journey begins!** 🚀
