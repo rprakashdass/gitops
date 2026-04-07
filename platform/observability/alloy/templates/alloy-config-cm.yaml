@@ -110,7 +110,7 @@ data:
       }
       selectors {
         role  = "service"
-        label = "app.kubernetes.io/name=kube-state-metrics"
+        label = "app.kubernetes.io/name=ksm"
       }
     }
 
@@ -118,7 +118,7 @@ data:
     prometheus.scrape "ksm_metrics" {
       targets = discovery.kubernetes.ksm.targets
       forward_to = [prometheus.relabel.add_cluster.receiver]
-      
+
       scrape_interval = "30s"
       scrape_timeout  = "10s"
     }
