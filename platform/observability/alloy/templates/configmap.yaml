@@ -146,10 +146,5 @@ data:
     prometheus.remote_write "mimir" {
       endpoint {
         url = "http://mimir-nginx.monitoring.svc.cluster.local/api/v1/push"
-        
-        // Add headers if needed
-        headers = {
-          "X-Scope-OrgID" = "anonymous"
-        }
       }
     }
