@@ -17,7 +17,7 @@ server:
     enabled: true
     ingressClassName: traefik
     hosts:
-      - host: argocd.local
+      - host: argocd.rprakashdass.in
         paths:
           - path: /
             pathType: Prefix
