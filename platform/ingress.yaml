@@ -3,14 +3,10 @@ kind: Ingress
 metadata:
   name: platform-ingress-subdomains
   namespace: monitoring
-  annotations:
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
 spec:
   ingressClassName: traefik
   rules:
-    # Grafana
-    - host: grafana.local
+    - host: grafana.rprakashdass.in
       http:
         paths:
           - path: /
@@ -21,8 +17,7 @@ spec:
                 port:
                   number: 80
 
-    # Loki
-    - host: loki.local
+    - host: loki.rprakashdass.in
       http:
         paths:
           - path: /
@@ -32,9 +27,8 @@ spec:
                 name: loki-gateway
                 port:
                   number: 80
-    
-    # Mimir
-    - host: mimir.local
+
+    - host: mimir.rprakashdass.in
       http:
         paths:
           - path: /
@@ -44,9 +38,8 @@ spec:
                 name: mimir-nginx
                 port:
                   number: 80
-    
-    # MinIO Console
-    - host: minio.local
+
+    - host: minio.rprakashdass.in
       http:
         paths:
           - path: /
