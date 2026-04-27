@@ -3,7 +3,7 @@
 
 # Global settings
 global:
-  domain: argocd.local
+  domain: argocd.rprakashdass.in
 
 # Server configuration
 server:
