@@ -6,5 +6,13 @@ service:
 #   storageClassName: standard
 #   size: 3Gi
 
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 150m
+    memory: 256Mi
+
 adminUser: admin
 adminPassword: ChangeMeStrong

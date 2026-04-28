@@ -16,7 +16,7 @@ spec:
       helm:
         releaseName: minio
         valueFiles:
-          - $values/platform/observability/minio-values.yaml
+          - $values/platform/observability/minio/values.yaml
 
     - repoURL: https://github.com/rprakashdass/gitops.git
       targetRevision: main

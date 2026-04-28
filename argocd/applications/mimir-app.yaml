@@ -16,7 +16,7 @@ spec:
       helm:
         releaseName: mimir
         valueFiles:
-          - $values/platform/observability/mimir-values.yaml
+          - $values/platform/observability/mimir/values.yaml
   
     - repoURL: https://github.com/rprakashdass/gitops.git
       targetRevision: main

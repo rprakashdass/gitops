@@ -14,12 +14,26 @@ zoneAwareReplication:
 
 gateway:
   enabled: true
+  resources:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      cpu: 50m
+      memory: 64Mi
 
 # Run without PVC dependencies; store long-term blocks in MinIO (S3)
 ingester:
   replicas: 1
   persistentVolume:
     enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 300m
+      memory: 768Mi
   extraEnv:
     - name: POD_IP
       valueFrom:
@@ -29,6 +43,13 @@ store_gateway:
   replicas: 1
   persistentVolume:
     enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 150m
+      memory: 256Mi
   extraEnv:
     - name: POD_IP
       valueFrom:
@@ -37,9 +58,23 @@ store_gateway:
 compactor:
   persistentVolume:
     enabled: false
+  resources:
+    requests:
+      cpu: 30m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
 
 distributor:
   replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
   extraEnv:
     - name: POD_IP
       valueFrom:
@@ -47,6 +82,13 @@ distributor:
 
 querier:
   replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
   extraEnv:
     - name: POD_IP
       valueFrom:
@@ -54,14 +96,27 @@ querier:
 
 query_frontend:
   replicas: 1
+  resources:
+    requests:
+      cpu: 30m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
   extraEnv:
     - name: POD_IP
       valueFrom:
         fieldRef: { fieldPath: status.podIP }
 
-# If chart enables query-scheduler (often does), ensure it won’t try eth0/en0 auto-detect
 query_scheduler:
   replicas: 1
+  resources:
+    requests:
+      cpu: 30m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
   extraEnv:
     - name: POD_IP
       valueFrom:

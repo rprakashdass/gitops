@@ -26,6 +26,13 @@ singleBinary:
   replicas: 1
   persistence:
     enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
   # Add emptyDir for writable Loki data (tsdb-shipper, rules) at /tmp/loki
   extraVolumes:
     - name: loki-writable
