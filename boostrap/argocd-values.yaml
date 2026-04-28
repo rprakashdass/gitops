@@ -1,18 +1,15 @@
 # ArgoCD Helm Chart Values
 # Official chart: https://github.com/argoproj/argo-helm
 
-# Global settings
 global:
   domain: argocd.rprakashdass.in
 
-# Server configuration
 server:
   insecure: true
 
   service:
     port: 80
 
-  # Ingress configuration (optional)
   ingress:
     enabled: true
     ingressClassName: traefik
@@ -22,40 +19,42 @@ server:
           - path: /
             pathType: Prefix
 
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
+
 # Controller configuration
 controller:
-  # Increase resource limits if needed
-  resources:
-    limits:
-      cpu: 200m
-      memory: 258Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
 
-# Repo server configuration  
 repoServer:
-  resources:
-    limits:
-      cpu: 200m
-      memory: 258Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
 
-# Redis
 redis:
-  resources:
-    limits:
-      cpu: 200m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 64Mi
-
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+    
 # Dex (SSO)
 dex:
-  enabled: true
+  enabled: false
 
 # Application Set Controller
 applicationSet:
@@ -63,7 +62,7 @@ applicationSet:
 
 # Notifications Controller
 notifications:
-  enabled: true
+  enabled: false
 
 configs:
   params:
