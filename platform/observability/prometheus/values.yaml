@@ -1,0 +1,49 @@
+server:
+  retention: 15d
+  persistentVolume:
+    enabled: true
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi
+
+# Useful for learning alerting rules
+alertmanager:
+  enabled: true
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      cpu: 50m
+      memory: 64Mi
+
+# Scrapes node-level metrics (CPU, memory, disk)
+prometheus-node-exporter:
+  resources:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      cpu: 50m
+      memory: 64Mi
+
+# Scrapes k8s object metrics (pods, deployments, etc.)
+kube-state-metrics:
+  resources:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      cpu: 50m
+      memory: 64Mi
+
+# Not needed for practice
+prometheus-pushgateway:
+  enabled: false
