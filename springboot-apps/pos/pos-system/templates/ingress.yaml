@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: {{ .Values.ingress.host }}
+    - host: pos.{{ .Values.global.domain }}
       http:
         paths:
           # Backend API routes - no rewrite needed, backend already has /api context

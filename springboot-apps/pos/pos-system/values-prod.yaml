@@ -37,9 +37,6 @@ mysql:
   persistence:
     size: 400Mi
 
-ingress:
-  host: pos-prod.local
-
 config:
   jpa:
     hibernate_ddl_auto: "validate"

@@ -39,9 +39,6 @@ mysql:
   persistence:
     size: 200Mi
 
-ingress:
-  host: pos.local
-
 config:
   jpa:
     hibernate_ddl_auto: "create-drop"
