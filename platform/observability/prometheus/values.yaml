@@ -13,7 +13,7 @@ server:
 
 # Useful for learning alerting rules
 alertmanager:
-  enabled: true
+  enabled: false
   persistence:
     enabled: false
   resources:
