@@ -1,3 +1,4 @@
+{{- if .Values.global.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -10,3 +11,4 @@ spec:
       port: 8082
       targetPort: 8082
   type: ClusterIP
+{{- end }}

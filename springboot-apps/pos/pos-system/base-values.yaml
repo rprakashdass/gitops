@@ -1,4 +1,5 @@
 global:
+  enabled: false
   namespace: pos
   environment: dev
 

@@ -1,3 +1,4 @@
+{{- if .Values.global.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -48,3 +49,4 @@ spec:
             storage: 1Gi
           requests:
             storage: 500Mi
+{{- end }}

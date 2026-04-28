@@ -1,3 +1,4 @@
+{{- if .Values.global.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -10,3 +11,4 @@ data:
   SPRING_JPA_SHOW_SQL: {{ .Values.config.jpa.show_sql | quote }}
 
   NEXT_PUBLIC_API_BASE_URL: {{ .Values.config.api.base_url }}
+{{- end }}
