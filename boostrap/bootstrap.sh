@@ -81,7 +81,14 @@ REPO_URL="$(normalize_repo_url "$REPO_URL")"
 
 VALUES_FILE="$SCRIPT_DIR/argocd-values.yaml"
 
-echo "[1/4] Installing/Upgrading Argo CD via Helm"
+echo "[1/5] Installing/Upgrading ingress-nginx"
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx >/dev/null 2>&1 || true
+helm repo update >/dev/null
+helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace
+
+echo "[2/5] Installing/Upgrading Argo CD via Helm"
 helm repo add argo https://argoproj.github.io/argo-helm >/dev/null 2>&1 || true
 helm repo update >/dev/null
 helm upgrade --install "$ARGOCD_RELEASE" argo/argo-cd \
@@ -89,13 +96,13 @@ helm upgrade --install "$ARGOCD_RELEASE" argo/argo-cd \
   --create-namespace \
   --values "$VALUES_FILE"
 
-echo "[2/4] Waiting for Argo CD API server to be ready"
+echo "[3/5] Waiting for Argo CD API server to be ready"
 kubectl rollout status "deployment/${ARGOCD_RELEASE}-server" -n "$ARGOCD_NAMESPACE" --timeout=300s
 
-echo "[3/4] Applying root app (App-of-Apps)"
+echo "[4/5] Applying root app (App-of-Apps)"
 kubectl apply -f "$SCRIPT_DIR/root.yaml"
 
-echo "[4/4] Done"
+echo "[5/5] Done"
 echo "Argo CD should now create/sync AppProjects and Applications automatically."
 echo
 kubectl get applications -n "$ARGOCD_NAMESPACE" || true

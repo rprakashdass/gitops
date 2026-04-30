@@ -2,7 +2,7 @@
 # Official chart: https://github.com/argoproj/argo-helm
 
 global:
-  domain: argocd.rprakashdass.in
+  domain: argocd.local
 
 server:
   insecure: true
@@ -14,7 +14,7 @@ server:
     enabled: true
     ingressClassName: traefik
     hosts:
-      - host: argocd.rprakashdass.in
+      - host: argocd.local
         paths:
           - path: /
             pathType: Prefix
