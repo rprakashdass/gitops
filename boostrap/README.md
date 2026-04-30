@@ -2,7 +2,23 @@
 
 Install ArgoCD using its **official Helm chart** for easy customization and GitOps management.
 
-## 🚀 Quick Installation
+## 🚀 Quick Installation (Starter Kit)
+
+This starter kit is designed to be **one command** for new clusters.
+
+```bash
+chmod +x boostrap/bootstrap.sh
+./boostrap/bootstrap.sh
+```
+
+By default it auto-detects your `git remote origin` repo URL and applies the root app.
+To override:
+
+```bash
+./boostrap/bootstrap.sh --repo-url https://github.com/<you>/<repo>.git --revision main
+```
+
+## 🔧 Manual Installation (Step-by-step)
 
 ```bash
 # 1. Add ArgoCD Helm repo
@@ -34,7 +50,7 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 # https://localhost:8080
 
 # 6. Deploy root app (activate GitOps!)
-kubectl apply -f boostrap/root-app.yaml
+kubectl apply -f boostrap/root.yaml
 
 # 7. Watch applications being created
 kubectl get applications -n argocd -w
@@ -49,7 +65,8 @@ kubectl get applications -n argocd -w
 | `argocd-namespace.yaml` | Creates argocd namespace |
 | `argocd-values.yaml` | **Helm values** - customize ArgoCD here |
 | `argocd-install.yaml` | Installation commands reference |
-| `root-app.yaml` | Root application (App-of-Apps) |
+| `root.yaml` | Root application (App-of-Apps) |
+| `bootstrap.sh` | One-command bootstrap for new clusters |
 | `README.md` | This file |
 
 ---

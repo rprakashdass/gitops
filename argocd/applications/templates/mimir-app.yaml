@@ -20,7 +20,7 @@ spec:
         valueFiles:
           - $values/platform/observability/mimir/values.yaml
     - repoURL: https://github.com/rprakashdass/gitops.git
-      targetRevision: main
+      targetRevision: local-server
       ref: values
   syncPolicy:
     automated:

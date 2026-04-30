@@ -21,7 +21,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 ARGOCD_NAMESPACE="${ARGOCD_NAMESPACE:-argocd}"
 ARGOCD_RELEASE="${ARGOCD_RELEASE:-argocd}"
-TARGET_REVISION="${TARGET_REVISION:-main}"
+TARGET_REVISION="${TARGET_REVISION:-local-server}"
 REPO_URL="${REPO_URL:-}"
 
 while [[ $# -gt 0 ]]; do

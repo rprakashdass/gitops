@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Namespace","metadata":{"annotations":{},"name":"monitoring"},"spec":{},"status":{}}
+  creationTimestamp: "2026-04-05T13:01:51Z"
+  deletionTimestamp: "2026-04-30T18:46:04Z"
+  labels:
+    kubernetes.io/metadata.name: monitoring
+  name: monitoring
+  resourceVersion: "140425"
+  uid: b2f80e17-2c30-402e-bcf2-0d5d304b3f46
+spec:
+  finalizers:
+  - 
+status:
+  conditions:
+  - lastTransitionTime: "2026-04-30T19:06:23Z"
+    message: 'Discovery failed for some groups, 1 failing: unable to retrieve the
+      complete list of server APIs: metrics.k8s.io/v1beta1: stale GroupVersion discovery:
+      metrics.k8s.io/v1beta1'
+    reason: DiscoveryFailed
+    status: "True"
+    type: NamespaceDeletionDiscoveryFailure
+  - lastTransitionTime: "2026-04-30T18:46:10Z"
+    message: All legacy kube types successfully parsed
+    reason: ParsedGroupVersions
+    status: "False"
+    type: NamespaceDeletionGroupVersionParsingFailure
+  - lastTransitionTime: "2026-04-30T19:09:35Z"
+    message: All content successfully deleted, may be waiting on finalization
+    reason: ContentDeleted
+    status: "False"
+    type: NamespaceDeletionContentFailure
+  - lastTransitionTime: "2026-04-30T19:09:35Z"
+    message: 'Some resources are remaining: jobs.batch has 1 resource instances'
+    reason: SomeResourcesRemain
+    status: "True"
+    type: NamespaceContentRemaining
+  - lastTransitionTime: "2026-04-30T19:09:35Z"
+    message: 'Some content in the namespace has finalizers remaining: argocd.argoproj.io/hook-finalizer
+      in 1 resource instances'
+    reason: SomeFinalizersRemain
+    status: "True"
+    type: NamespaceFinalizersRemaining
+  phase: Terminating

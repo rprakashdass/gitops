@@ -10,7 +10,7 @@ spec:
   project: observability
   source:
     repoURL: https://github.com/rprakashdass/gitops.git
-    targetRevision: main
+    targetRevision: local-server
     path: platform
     directory:
       include: "ingress.yaml"

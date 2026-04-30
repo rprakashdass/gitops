@@ -9,13 +9,13 @@ spec:
   project: default
   sources:
     - repoURL: https://github.com/rprakashdass/gitops.git
-      targetRevision: main
+      targetRevision: local-server
       path: argocd
       directory:
         recurse: true
         exclude: 'applications/**'
     - repoURL: https://github.com/rprakashdass/gitops.git
-      targetRevision: main
+      targetRevision: local-server
       path: argocd/applications
       helm:
         releaseName: argocd-apps

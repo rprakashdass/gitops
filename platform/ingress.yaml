@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: grafana.rprakashdass.in
+    - host: grafana.local
       http:
         paths:
           - path: /
@@ -17,7 +17,7 @@ spec:
                 port:
                   number: 80
 
-    - host: loki.rprakashdass.in
+    - host: loki.local
       http:
         paths:
           - path: /
@@ -28,7 +28,7 @@ spec:
                 port:
                   number: 80
 
-    - host: mimir.rprakashdass.in
+    - host: mimir.local
       http:
         paths:
           - path: /
@@ -39,7 +39,7 @@ spec:
                 port:
                   number: 80
 
-    - host: minio.rprakashdass.in
+    - host: minio.local
       http:
         paths:
           - path: /

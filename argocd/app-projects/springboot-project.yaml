@@ -3,6 +3,8 @@ kind: AppProject
 metadata:
   name: springboot-apps
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   description: Spring Boot applications
   sourceRepos:

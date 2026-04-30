@@ -2,7 +2,7 @@ global:
   enabled: false
   namespace: pos
   environment: dev
-  domain: rprakashdass.in
+  domain: local
 
 backend:
   replicas: 1

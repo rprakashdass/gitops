@@ -13,7 +13,7 @@ spec:
     namespace: pos-prod
   sources:
     - repoURL: https://github.com/rprakashdass/gitops.git
-      targetRevision: main
+      targetRevision: local-server
       path: springboot-apps/pos/pos-system
       helm:
         valueFiles:
