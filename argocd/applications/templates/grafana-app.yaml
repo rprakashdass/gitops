@@ -1,3 +1,4 @@
+{{- if .Values.apps.grafana.enabled }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -8,7 +9,6 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
-
   sources:
     - repoURL: https://grafana.github.io/helm-charts
       chart: grafana
@@ -16,7 +16,8 @@ spec:
       helm:
         releaseName: grafana
         valueFiles:
-          - $values/platform/observability/grafana/values.yaml
+          - $values/platform/observability/grafana-values.yaml
     - repoURL: https://github.com/rprakashdass/gitops.git
       targetRevision: main
       ref: values
+{{- end }}

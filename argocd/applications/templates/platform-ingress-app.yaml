@@ -1,8 +1,11 @@
+{{- if .Values.apps.platformIngress.enabled }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: platform-ingress
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: observability
   source:
@@ -16,7 +19,8 @@ spec:
     namespace: monitoring
   syncPolicy:
     automated:
-      prune: true
+      prune: false
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+{{- end }}

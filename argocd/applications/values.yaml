@@ -1,0 +1,19 @@
+apps:
+  alloy:
+    enabled: true
+  argoCdRbac:
+    enabled: true
+  grafana:
+    enabled: true
+  loki:
+    enabled: false
+  mimir:
+    enabled: true
+  minio:
+    enabled: true
+  platformIngress:
+    enabled: true
+  posSystem:
+    enabled: true
+  posSystemProd:
+    enabled: false

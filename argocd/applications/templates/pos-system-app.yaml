@@ -1,13 +1,16 @@
+{{- if .Values.apps.posSystem.enabled }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: pos-system-prod
+  name: pos-system
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: springboot-apps
   destination:
     server: https://kubernetes.default.svc
-    namespace: pos-prod
+    namespace: pos
   sources:
     - repoURL: https://github.com/rprakashdass/gitops.git
       targetRevision: main
@@ -15,10 +18,8 @@ spec:
       helm:
         valueFiles:
           - base-values.yaml
-          - values-prod.yaml
+          - values-dev.yaml
   syncPolicy:
-    automated:
-      prune: false
-      selfHeal: true
     syncOptions:
       - CreateNamespace=true
+{{- end }}

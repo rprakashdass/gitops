@@ -1,0 +1,5 @@
+apiVersion: v2
+name: observability-platform-apps
+description: GitOps-managed application bundle for a Kubernetes platform with integrated metrics, logs, and traces using OpenTelemetry, designed to be AIOps-ready
+type: application
+version: 1.0.0

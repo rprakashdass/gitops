@@ -1,24 +1,26 @@
+{{- if .Values.apps.alloy.enabled }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: alloy
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: observability
   destination:
     namespace: monitoring
     server: https://kubernetes.default.svc
-
   source:
     repoURL: https://github.com/rprakashdass/gitops.git
     targetRevision: main
     path: platform/observability/alloy
     helm:
       releaseName: alloy
-
   syncPolicy:
     automated:
       prune: false
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+{{- end }}
