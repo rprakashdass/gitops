@@ -25,8 +25,7 @@ backend:
 singleBinary:
   replicas: 1
   persistence:
-    enabled: true
-    size: 10Gi
+    enabled: false
   resources:
     requests:
       cpu: 100m
@@ -34,8 +33,16 @@ singleBinary:
     limits:
       cpu: 200m
       memory: 512Mi
+  # Add emptyDir for writable Loki data (tsdb-shipper, rules) at /tmp/loki
+  extraVolumes:
+    - name: loki-writable
+      emptyDir: {}
+  extraVolumeMounts:
+    - name: loki-writable
+      mountPath: /tmp/loki
 
 loki:
+  # So volumes are writable by Loki user 10001
   podSecurityContext:
     fsGroup: 10001
 
@@ -43,16 +50,28 @@ loki:
 
   commonConfig:
     replication_factor: 1
-    path_prefix: /var/loki
+    # Use /tmp/loki for writable data (tsdb-shipper, rules) - emptyDir is writable
+    path_prefix: /tmp/loki
 
   storage:
-    type: filesystem
+    type: s3
+    bucketNames:
+      chunks: loki-chunks
+      ruler: loki-ruler
+      admin: loki-admin
+    s3:
+      endpoint: http://minio.monitoring.svc.cluster.local:9000
+      accessKeyId: loki
+      secretAccessKey: loki12345
+      s3ForcePathStyle: true
+      insecure: true
 
+  # Required: schema_config for index/object store (S3)
   schemaConfig:
     configs:
       - from: "2020-10-24"
         store: tsdb
-        object_store: filesystem
+        object_store: s3
         schema: v13
         index:
           prefix: index_
