@@ -33,33 +33,28 @@ alloy:
               topologyKey: "kubernetes.io/hostname"
 
 alloy-receiver:
-  configMap:
-    create: false
-    enableReporting: false
+  alloy:
+    configMap:
+      create: false
+      enableReporting: false
 
-  extraPorts:
-    - name: otlp-grpc
-      port: 4317
-      targetPort: 4317
-      protocol: TCP
-    - name: otlp-http
-      port: 4318
-      targetPort: 4318
-      protocol: TCP
+    extraPorts:
+      - name: otlp-grpc
+        port: 4317
+        targetPort: 4317
+        protocol: TCP
+      - name: otlp-http
+        port: 4318
+        targetPort: 4318
+        protocol: TCP
 
-  resources:
-    requests:
-      cpu: 50m
-      memory: 128Mi
-    limits:
-      cpu: 150m
-      memory: 256Mi
-
-  rbac:
-    create: true
-
-  serviceAccount:
-    create: true
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 150m
+        memory: 256Mi
 
   controller:
     type: "deployment"
