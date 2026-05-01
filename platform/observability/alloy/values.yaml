@@ -32,7 +32,7 @@ alloy:
                     operator: Exists
               topologyKey: "kubernetes.io/hostname"
 
-alloy-receiver:
+receiver:
   alloy:
     configMap:
       create: false
