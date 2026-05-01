@@ -154,32 +154,39 @@ data:
     // ==========================================
 
     otelcol.receiver.otlp "default" {
-      grpc {}
-      http {}
+      grpc {
+        endpoint = "0.0.0.0:4317"
+      }
+      http {
+        endpoint = "0.0.0.0:4318"
+      }
+      output {
+        metrics = [otelcol.processor.batch.default.input]
+        logs    = [otelcol.processor.batch.default.input]
+        traces  = [otelcol.processor.batch.default.input]
+      }
+    }
+
+    otelcol.processor.batch "default" {
+      send_batch_size = 100
+      timeout = "10s"
+      output {
+        metrics = [otelcol.exporter.prometheus.mimir.input]
+        logs    = [otelcol.exporter.loki.default.input]
+        traces  = [otelcol.exporter.otlp.default.input]
+      }
     }
 
     otelcol.exporter.prometheus "mimir" {
-      endpoint {
-        url = "http://mimir-nginx.monitoring.svc.cluster.local/api/v1/push"
+      forward_to = [prometheus.remote_write.mimir.receiver]
+    }
+
+    otelcol.exporter.loki "default" {
+      forward_to = [loki.write.loki_endpoint.receiver]
+    }
+
+    otelcol.exporter.otlp "default" {
+      client {
+        endpoint = "http://mimir-nginx.monitoring.svc.cluster.local"
       }
-    }
-
-    otelcol.exporter.loki "loki" {
-      endpoint {
-        url = "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
-      }
-    }
-
-    otelcol.processor.batch "default" {}
-
-    otelcol.pipeline.logs "default" {
-      receivers = [otelcol.receiver.otlp.default]
-      processors = [otelcol.processor.batch.default]
-      exporters = [otelcol.exporter.loki.loki]
-    }
-
-    otelcol.pipeline.metrics "default" {
-      receivers = [otelcol.receiver.otlp.default]
-      processors = [otelcol.processor.batch.default]
-      exporters = [otelcol.exporter.prometheus.mimir]
     }
