@@ -2,6 +2,7 @@ global:
   enabled: true
   environment: prod
   namespace: pos-prod
+  domain: pos.local
 
 backend:
   replicas: 3
@@ -45,5 +46,5 @@ config:
     exporter:
       otlp:
         endpoint: "http://alloy.monitoring.svc.cluster.local:4317"
-    service_name: "pos-backend-dev"
+    service_name: "pos-backend-prod"
   java_tool_options: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.javaagent.debug=true"

@@ -2,6 +2,7 @@ global:
   enabled: true
   environment: dev
   namespace: pos
+  domain: pos-dev.local
 
 backend:
   replicas: 2
