@@ -18,7 +18,7 @@ spec:
           image: {{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}
           imagePullPolicy: Always
           ports:
-            - containerPort: 8082
+            - containerPort: {{ .Values.backend.probes.port }}
           env:
             - name: SPRING_DATASOURCE_URL
               valueFrom:
@@ -67,27 +67,28 @@ spec:
                   key: OTEL_EXPORTER_OTLP_PROTOCOL
           resources:
             {{- toYaml .Values.backend.resources | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.backend.probes.path }}
+              port: {{ .Values.backend.probes.port }}
+            initialDelaySeconds: {{ .Values.backend.probes.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.backend.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.backend.probes.startup.timeoutSeconds }}
+            failureThreshold: {{ .Values.backend.probes.startup.failureThreshold }}
+
           readinessProbe:
             httpGet:
-              path: /api/health
-              port: 8082
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 6
+              path: {{ .Values.backend.probes.path }}
+              port: {{ .Values.backend.probes.port }}
+            periodSeconds: {{ .Values.backend.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.backend.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.backend.probes.readiness.failureThreshold }}
 
           livenessProbe:
             httpGet:
-              path: /api/health
-              port: 8082
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 6
-
-          startupProbe:
-            httpGet:
-              path: /api/health
-              port: 8082
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 45
+              path: {{ .Values.backend.probes.path }}
+              port: {{ .Values.backend.probes.port }}
+            periodSeconds: {{ .Values.backend.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.backend.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.backend.probes.liveness.failureThreshold }}
 {{- end }}

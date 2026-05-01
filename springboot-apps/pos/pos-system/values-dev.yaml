@@ -15,6 +15,10 @@ backend:
       cpu: "50m"
       memory: "128Mi"
 
+  probes:
+    startup:
+      initialDelaySeconds: 60
+
   autoscaling:
     enabled: false
 

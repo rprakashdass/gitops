@@ -14,18 +14,22 @@ backend:
       cpu: "200m"
       memory: "250Mi"
 
+  probes:
+    startup:
+      initialDelaySeconds: 90
+
   autoscaling:
     enabled: false
 
 frontend::
-  replicas: 3
+  replicas: 2
   image:
     tag: latest
 
   resources:
     requests:
-      cpu: "200m"
-      memory: "250Mi"
+      cpu: "100m"
+      memory: "150Mi"
 
   autoscaling:
     enabled: false
@@ -45,6 +49,6 @@ config:
   otel:
     exporter:
       otlp:
-        endpoint: "http://alloy.monitoring.svc.cluster.local:4317"
+        endpoint: "http://alloy-receiver.monitoring.svc.cluster.local:4317"
     service_name: "pos-backend-prod"
-  java_tool_options: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.javaagent.debug=true"
+  java_tool_options: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.javaagent.debug=false"

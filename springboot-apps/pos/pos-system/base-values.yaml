@@ -21,6 +21,22 @@ backend:
     enabled: false
     minReplicas: 2
     maxReplicas: 10
+  probes:
+    port: 8083
+    path: /api/health
+    startup:
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 30    # 30 * 10s = 5 min max startup window
+    readiness:
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3     # fail fast, just pulls from LB
+    liveness:
+      periodSeconds: 20
+      timeoutSeconds: 5
+      failureThreshold: 6     # conservative, avoids thrashing restarts
 
 frontend:
   replicas: 3
