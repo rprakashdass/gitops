@@ -47,5 +47,5 @@ config:
     exporter:
       otlp:
         endpoint: "http://alloy.monitoring.svc.cluster.local:4317"
-    service_name: "pos-backend"
-  java_tool_options: "-javaagent:/app/otel-javaagent.jar otel.javaagent.debug=true"
+    service_name: "pos-backend-dev"
+  java_tool_options: "-javaagent:/app/otel-javaagent.jar -Dotel.javaagent.debug=true"
