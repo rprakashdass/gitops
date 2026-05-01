@@ -13,4 +13,5 @@ data:
   OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.config.otel.exporter.otlp.endpoint }}
   OTEL_SERVICE_NAME: {{ .Values.config.otel.service_name }}
   JAVA_TOOL_OPTIONS: {{ .Values.config.java_tool_options | quote }}
+  OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
 {{- end }}

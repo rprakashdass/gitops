@@ -20,7 +20,7 @@ data:
     discovery.kubernetes "pods" {
       role = "pod"
       namespaces {
-        names = ["pos", "pos-prod", "monitoring"]
+        names = ["pos", "pos-prod"]
       }
     }
 

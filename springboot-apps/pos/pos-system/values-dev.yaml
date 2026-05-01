@@ -48,4 +48,4 @@ config:
       otlp:
         endpoint: "http://alloy.monitoring.svc.cluster.local:4317"
     service_name: "pos-backend-dev"
-  java_tool_options: "-javaagent:/app/otel/opentelemetry-javaagent.jar -Dotel.javaagent.debug=true"
+  java_tool_options: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.javaagent.debug=true"
