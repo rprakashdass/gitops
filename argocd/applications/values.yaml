@@ -6,7 +6,7 @@ apps:
   grafana:
     enabled: true
   loki:
-    enabled: false
+    enabled: true
   mimir:
     enabled: true
   minio:
