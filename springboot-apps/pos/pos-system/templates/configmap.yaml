@@ -9,8 +9,8 @@ data:
   SPRING_DATASOURCE_URL: {{ .Values.config.database.url }}
   SPRING_JPA_HIBERNATE_DDL_AUTO: {{ .Values.config.jpa.hibernate_ddl_auto }}
   SPRING_JPA_SHOW_SQL: {{ .Values.config.jpa.show_sql | quote }}
-  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.config.otel.exporter.otlp.endpoint }}
   NEXT_PUBLIC_API_BASE_URL: {{ .Values.config.api.base_url }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.config.otel.exporter.otlp.endpoint }}
   OTEL_SERVICE_NAME: {{ .Values.config.otel.service_name }}
   JAVA_TOOL_OPTIONS: {{ .Values.config.java_tool_options | quote }}
 {{- end }}
