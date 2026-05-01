@@ -148,3 +148,20 @@ data:
         url = "http://mimir-nginx.monitoring.svc.cluster.local/api/v1/push"
       }
     }
+
+    otelcol.receiver.otlp. "default" {
+      grpc {}
+      http {}
+    }
+
+    otelcol.exporter.prometheusremotewrite "mimir" {
+      endpoint {
+        url = "http://mimir-nginx.monitoring.svc.cluster.local/api/v1/push"
+      }
+    }
+
+    otelcol.exporter.loki "loki" {
+      endpoint {
+        url = "http://loki.monitoring.svc.cluster.local/api/v1/push"
+      }
+    }
