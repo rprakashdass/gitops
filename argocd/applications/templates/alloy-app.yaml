@@ -17,6 +17,8 @@ spec:
     path: platform/observability/alloy
     helm:
       releaseName: alloy
+      valuesFiles:
+        - values.yaml
   syncPolicy:
     automated:
       prune: false
