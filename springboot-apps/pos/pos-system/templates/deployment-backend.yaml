@@ -60,6 +60,11 @@ spec:
                 configMapKeyRef:
                   name: pos-config
                   key: JAVA_TOOL_OPTIONS
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-config
+                  key: OTEL_EXPORTER_OTLP_PROTOCOL
           resources:
             {{- toYaml .Values.backend.resources | nindent 12 }}
           readinessProbe:
