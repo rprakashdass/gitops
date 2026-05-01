@@ -149,7 +149,7 @@ data:
       }
     }
 
-    otelcol.receiver.otlp. "default" {
+    otelcol.receiver.otlp "default" {
       grpc {}
       http {}
     }
@@ -162,6 +162,23 @@ data:
 
     otelcol.exporter.loki "loki" {
       endpoint {
-        url = "http://loki.monitoring.svc.cluster.local/api/v1/push"
+        url = "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
+      }
+    }
+
+    otelcol.processor.batch "default" {}
+
+    otelcol.service "default" {
+      pipelines {
+        logs {
+          receivers = [otelcol.receiver.otlp.default]
+          processors = [otelcol.processor.batch.default]
+          exporters = [otelcol.exporter.loki.loki]
+        }
+        metrics {
+          receivers = [otelcol.receiver.otlp.default]
+          processors = [otelcol.processor.batch.default]
+          exporters = [otelcol.exporter.prometheusremotewrite.mimir]
+        }
       }
     }

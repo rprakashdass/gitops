@@ -41,3 +41,9 @@ config:
   jpa:
     hibernate_ddl_auto: "validate"
     show_sql: "true"
+  otel:
+    exporter:
+      otlp:
+        endpoint: "http://alloy.monitoring.svc.cluster.local:4317"
+    service:
+      name: "pos-system"
