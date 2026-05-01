@@ -1,5 +1,5 @@
 global:
-  enabled: false
+  enabled: true
   environment: prod
   namespace: pos-prod
 
