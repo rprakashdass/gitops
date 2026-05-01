@@ -158,7 +158,7 @@ data:
       http {}
     }
 
-    otelcol.exporter.prometheusremotewrite "mimir" {
+    otelcol.exporter.prometheus "mimir" {
       endpoint {
         url = "http://mimir-nginx.monitoring.svc.cluster.local/api/v1/push"
       }
@@ -172,17 +172,14 @@ data:
 
     otelcol.processor.batch "default" {}
 
-    otelcol.service "default" {
-      pipelines {
-        logs {
-          receivers = [otelcol.receiver.otlp.default]
-          processors = [otelcol.processor.batch.default]
-          exporters = [otelcol.exporter.loki.loki]
-        }
-        metrics {
-          receivers = [otelcol.receiver.otlp.default]
-          processors = [otelcol.processor.batch.default]
-          exporters = [otelcol.exporter.prometheusremotewrite.mimir]
-        }
-      }
+    otelcol.pipeline.logs "default" {
+      receivers = [otelcol.receiver.otlp.default]
+      processors = [otelcol.processor.batch.default]
+      exporters = [otelcol.exporter.loki.loki]
+    }
+
+    otelcol.pipeline.metrics "default" {
+      receivers = [otelcol.receiver.otlp.default]
+      processors = [otelcol.processor.batch.default]
+      exporters = [otelcol.exporter.prometheus.mimir]
     }
