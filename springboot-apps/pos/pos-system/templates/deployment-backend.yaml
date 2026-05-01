@@ -45,6 +45,21 @@ spec:
                 configMapKeyRef:
                   name: pos-config
                   key: SPRING_JPA_SHOW_SQL
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-config
+                  key: OTEL_EXPORTER_OTLP_ENDPOINT
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-config
+                  key: OTEL_SERVICE_NAME
+            - name: JAVA_TOOL_OPTIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-config
+                  key: JAVA_TOOL_OPTIONS
           resources:
             {{- toYaml .Values.backend.resources | nindent 12 }}
           readinessProbe:

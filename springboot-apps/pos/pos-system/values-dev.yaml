@@ -49,3 +49,4 @@ config:
         endpoint: "http://alloy.monitoring.svc.cluster.local:4317"
     service:
       name: "pos-system"
+  java_tool_options: "-javaagent:/app/otel-javaagent.jar otel.javaagent.debug=true"

@@ -149,6 +149,10 @@ data:
       }
     }
 
+    ###############################################
+    // Opentelemetry Collector Configuration
+    ################################################
+
     otelcol.receiver.otlp "default" {
       grpc {}
       http {}
