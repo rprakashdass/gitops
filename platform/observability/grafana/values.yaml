@@ -36,6 +36,10 @@ dashboards:
       gnetId: 13332
       revision: 12
       datasource: Mimir
+    kubernetes-cluster-monitoring:
+      gnetId: 15661
+      revision: 2
+      datasource: Mimir
 
 datasources:
   datasources.yaml:
