@@ -1,4 +1,4 @@
-{{- if .Values.frontend.autoscaling.keda.enabled }}
+{{- if eq .Values.frontend.autoscaling.mode "keda" }}
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
@@ -11,10 +11,10 @@ spec:
   triggers:
     - type: cron
       metadata:
-        timezone: "UTC"
-        start: "0 22 * * *"   # 10 PM UTC
-        end: "0 8 * * *"    # 8 AM UTC
-        desiredReplicas: "0"
+        timezone: {{ .Values.frontend.autoscaling.keda.timezone | default "UTC" | quote }}
+        start: {{ .Values.frontend.autoscaling.keda.start | default "0 22 * * *" | quote }}
+        end: {{ .Values.frontend.autoscaling.keda.end | default "0 8 * * *" | quote }}
+        desiredReplicas: {{ .Values.frontend.autoscaling.keda.desiredReplicas | default "0" | quote }}
     - type: cpu
       metadata:
         type: Utilization

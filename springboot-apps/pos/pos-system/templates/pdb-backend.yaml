@@ -1,0 +1,15 @@
+{{- if .Values.backend.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pos-backend-pdb
+spec:
+  {{- if hasKey .Values.backend.pdb "minAvailable" }}
+  minAvailable: {{ .Values.backend.pdb.minAvailable }}
+  {{- else }}
+  maxUnavailable: {{ .Values.backend.pdb.maxUnavailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: pos-backend
+{{- end }}

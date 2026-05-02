@@ -6,6 +6,10 @@ global:
 
 backend:
   replicas: 2
+  pdb:
+    enabled: true
+    minAvailable: 0
+    maxUnavailable: 1
   image:
     tag: latest
     pullPolicy: Always
@@ -45,10 +49,22 @@ backend:
             - type: Pods
               value: 1
               periodSeconds: 15
-    keda: {}
+    keda:
+      minReplicaCount: 1
+      maxReplicaCount: 6
+      cpuAverageUtilization: 80
+      memoryAverageUtilization: 85
+      timezone: "UTC"
+      start: "0 22 * * *"
+      end: "0 8 * * *"
+      desiredReplicas: "0"
 
 frontend:
   replicas: 1
+  pdb:
+    enabled: true
+    minAvailable: 0
+    maxUnavailable: 1
   image:
     tag: latest
     pullPolicy: Always
@@ -83,7 +99,15 @@ frontend:
             - type: Pods
               value: 1
               periodSeconds: 15
-    keda: {}
+    keda:
+      minReplicaCount: 1
+      maxReplicaCount: 4
+      cpuAverageUtilization: 70
+      memoryAverageUtilization: 75
+      timezone: "UTC"
+      start: "0 22 * * *"
+      end: "0 8 * * *"
+      desiredReplicas: "0"
 
 mysql:
   image:

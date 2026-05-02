@@ -6,6 +6,10 @@ global:
 
 backend:
   replicas: 3
+  pdb:
+    enabled: true
+    minAvailable: 1
+    maxUnavailable: 1
   image:
     tag: latest
 
@@ -49,9 +53,17 @@ backend:
       maxReplicaCount: 10
       cpuAverageUtilization: 70
       memoryAverageUtilization: 80
+      timezone: "UTC"
+      start: "0 22 * * *"
+      end: "0 8 * * *"
+      desiredReplicas: "0"
 
 frontend:
   replicas: 2
+  pdb:
+    enabled: true
+    minAvailable: 1
+    maxUnavailable: 1
   image:
     tag: latest
 
@@ -90,6 +102,10 @@ frontend:
       maxReplicaCount: 8
       cpuAverageUtilization: 70
       memoryAverageUtilization: 80
+      timezone: "UTC"
+      start: "0 22 * * *"
+      end: "0 8 * * *"
+      desiredReplicas: "1"
 
 mysql:
   image:

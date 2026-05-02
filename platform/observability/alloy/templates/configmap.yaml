@@ -18,86 +18,86 @@ data:
 
     // Discover ALL pods across multiple namespaces
     discovery.kubernetes "pods" {
-      role = "pod",
+      role = "pod"
       namespaces {
-        names = ["pos", "pos-prod"],
+        names = ["pos", "pos-prod"]
       }
     }
 
     // Filter out storage/backend components
     discovery.relabel "filtered_pods" {
-      targets = discovery.kubernetes.pods.targets,
+      targets = discovery.kubernetes.pods.targets
 
       // Drop storage layer pods (loki, mimir, minio)
       rule {
-        source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"],
-        regex         = "loki|mimir|minio",
-        action        = "drop",
+        source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+        regex         = "loki|mimir|minio"
+        action        = "drop"
       }
 
       // Also drop by pod name pattern as fallback
       rule {
-        source_labels = ["__meta_kubernetes_pod_name"],
-        regex         = "loki-.*|mimir-.*|minio-.*",
-        action        = "drop",
+        source_labels = ["__meta_kubernetes_pod_name"]
+        regex         = "loki-.*|mimir-.*|minio-.*"
+        action        = "drop"
       }
     }
 
     // Scrape logs from all filtered pods
     loki.source.kubernetes "app_logs" {
-      targets    = discovery.relabel.filtered_pods.output,
-      forward_to = [loki.process.add_standard_labels.receiver],
+      targets    = discovery.relabel.filtered_pods.output
+      forward_to = [loki.process.add_standard_labels.receiver]
     }
 
     // Add standard Kubernetes labels + parse logs
     loki.process "add_standard_labels" {
-      forward_to = [loki.write.loki_endpoint.receiver],
+      forward_to = [loki.write.loki_endpoint.receiver]
 
       // Add standard Kubernetes labels
       stage.labels {
         values = {
-          pod       = "__meta_kubernetes_pod_name",
-          namespace = "__meta_kubernetes_namespace",
-          job       = "__meta_kubernetes_pod_label_app_kubernetes_io_name",
-          instance  = "__meta_kubernetes_pod_node_name",
-          container = "__meta_kubernetes_pod_container_name",
-        },
+          pod       = "__meta_kubernetes_pod_name"
+          namespace = "__meta_kubernetes_namespace"
+          job       = "__meta_kubernetes_pod_label_app_kubernetes_io_name"
+          instance  = "__meta_kubernetes_pod_node_name"
+          container = "__meta_kubernetes_pod_container_name"
+        }
       }
 
       // Drop unnecessary internal labels
       stage.label_drop {
-        values = ["filename", "stream"],
+        values = ["filename", "stream"]
       }
 
       // Parse Spring Boot plain text logs
       stage.regex {
-        expression = "^(?P<timestamp>\\S+)\\s+(?P<level>\\w+)\\s+.+?\\[(?P<app_name>[^\\]]+)\\]\\s+\\[(?P<thread>[^\\]]+)\\]\\s+(?P<logger>\\S+)\\s+:\\s+(?P<message>.+)$",
+        expression = "^(?P<timestamp>\\S+)\\s+(?P<level>\\w+)\\s+.+?\\[(?P<app_name>[^\\]]+)\\]\\s+\\[(?P<thread>[^\\]]+)\\]\\s+(?P<logger>\\S+)\\s+:\\s+(?P<message>.+)$"
       }
 
       // Parse JSON logs (if configured)
       stage.json {
         expressions = {
-          level     = "level",
-          timestamp = "timestamp",
-          logger    = "logger",
-          message   = "message",
-        },
+          level     = "level"
+          timestamp = "timestamp"
+          logger    = "logger"
+          message   = "message"
+        }
       }
 
       // Add parsed fields as additional labels
       stage.labels {
         values = {
-          level    = "level",
-          logger   = "logger",
-          app_name = "app_name",
-        },
+          level    = "level"
+          logger   = "logger"
+          app_name = "app_name"
+        }
       }
     }
 
     // Write logs to Loki
     loki.write "loki_endpoint" {
       endpoint {
-        url = "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push",
+        url = "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
       }
     }
 
@@ -105,47 +105,47 @@ data:
 
     // Discover KSM (Kube-State-Metrics) service
     discovery.kubernetes "ksm" {
-      role = "service",
+      role = "service"
       namespaces {
-        names = ["monitoring"],
+        names = ["monitoring"]
       }
       selectors {
-        role  = "service",
-        label = "app.kubernetes.io/name=ksm",
+        role  = "service"
+        label = "app.kubernetes.io/name=ksm"
       }
     }
 
     // Scrape metrics from KSM
     prometheus.scrape "ksm_metrics" {
-      targets = discovery.kubernetes.ksm.targets,
-      forward_to = [prometheus.relabel.add_cluster.receiver],
+      targets = discovery.kubernetes.ksm.targets
+      forward_to = [prometheus.relabel.add_cluster.receiver]
 
-      scrape_interval = "30s",
-      scrape_timeout  = "10s",
+      scrape_interval = "30s"
+      scrape_timeout  = "10s"
     }
 
     // Add cluster label and relabel
     prometheus.relabel "add_cluster" {
-      forward_to = [prometheus.remote_write.mimir.receiver],
+      forward_to = [prometheus.remote_write.mimir.receiver]
 
       // Add cluster name
       rule {
-        target_label = "cluster",
-        replacement  = "local",
+        target_label = "cluster"
+        replacement  = "local"
       }
 
       // Keep only useful labels
       rule {
-        source_labels = ["__name__"],
-        regex         = "kube_.*",
-        action        = "keep",
+        source_labels = ["__name__"]
+        regex         = "kube_.*"
+        action        = "keep"
       }
     }
 
     // Write metrics to Mimir
     prometheus.remote_write "mimir" {
       endpoint {
-        url = "http://mimir-nginx.monitoring.svc.cluster.local/api/v1/push",
+        url = "http://mimir-nginx.monitoring.svc.cluster.local/api/v1/push"
       }
     }
 
