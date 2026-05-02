@@ -22,6 +22,27 @@ backend:
 
   autoscaling:
     enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    cpuAverageUtilization: 80
+    memoryAverageUtilization: 85
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policy:
+          type: Percent
+          value: 50
+          periodSeconds: 15
+      scaleUp:
+        stabilizationWindowSeconds: 0
+        selectPolicy: Max
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+          - type: Pods
+            value: 1
+            periodSeconds: 15
 
 frontend:
   replicas: 1
@@ -36,6 +57,27 @@ frontend:
 
   autoscaling:
     enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    cpuAverageUtilization: 80
+    memoryAverageUtilization: 85
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policy:
+          type: Percent
+          value: 50
+          periodSeconds: 15
+      scaleUp:
+        stabilizationWindowSeconds: 0
+        selectPolicy: Max
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+          - type: Pods
+            value: 1
+            periodSeconds: 15
 
 mysql:
   image:

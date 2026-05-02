@@ -1,0 +1,43 @@
+{{- if .Values.backend.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backend-hpa
+spec:
+  minReplicas: {{ .Values.backend.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.backend.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.backend.autoscaling.cpuAverageUtilization }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.backend.autoscaling.memoryAverageUtilization }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.backend.autoscaling.behavior.scaleDown.stabilizationWindowSeconds }}
+      policies:
+        - type: {{ .Values.backend.autoscaling.behavior.scaleDown.policy.type }}
+          value: {{ .Values.backend.autoscaling.behavior.scaleDown.policy.value }}
+          periodSeconds: {{ .Values.backend.autoscaling.behavior.scaleDown.policy.periodSeconds }}
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.backend.autoscaling.behavior.scaleUp.stabilizationWindowSeconds }}
+      policies:
+        - type: {{ (index .Values.backend.autoscaling.behavior.scaleUp.policies 0).type }}
+          value: {{ (index .Values.backend.autoscaling.behavior.scaleUp.policies 0).value }}
+          periodSeconds: {{ (index .Values.backend.autoscaling.behavior.scaleUp.policies 0).periodSeconds }}
+        - type: {{ (index .Values.backend.autoscaling.behavior.scaleUp.policies 1).type }}
+          value: {{ (index .Values.backend.autoscaling.behavior.scaleUp.policies 1).value }}
+          periodSeconds: {{ (index .Values.backend.autoscaling.behavior.scaleUp.policies 1).periodSeconds }}
+      selectPolicy: {{ .Values.backend.autoscaling.behavior.scaleUp.selectPolicy }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pos-backend
+{{- end }}
