@@ -4,38 +4,38 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: backend-hpa
 spec:
-  minReplicas: {{ .Values.backend.autoscaling.minReplicas }}
-  maxReplicas: {{ .Values.backend.autoscaling.maxReplicas }}
+  minReplicas: {{ .Values.backend.autoscaling.hpa.minReplicas }}
+  maxReplicas: {{ .Values.backend.autoscaling.hpa.maxReplicas }}
   metrics:
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: {{ .Values.backend.autoscaling.cpuAverageUtilization }}
+          averageUtilization: {{ .Values.backend.autoscaling.hpa.cpuAverageUtilization }}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
-          averageUtilization: {{ .Values.backend.autoscaling.memoryAverageUtilization }}
+          averageUtilization: {{ .Values.backend.autoscaling.hpa.memoryAverageUtilization }}
   behavior:
     scaleDown:
-      stabilizationWindowSeconds: {{ .Values.backend.autoscaling.behavior.scaleDown.stabilizationWindowSeconds }}
+      stabilizationWindowSeconds: {{ .Values.backend.autoscaling.hpa.behavior.scaleDown.stabilizationWindowSeconds }}
       policies:
-        - type: {{ .Values.backend.autoscaling.behavior.scaleDown.policy.type }}
-          value: {{ .Values.backend.autoscaling.behavior.scaleDown.policy.value }}
-          periodSeconds: {{ .Values.backend.autoscaling.behavior.scaleDown.policy.periodSeconds }}
+        - type: {{ .Values.backend.autoscaling.hpa.behavior.scaleDown.policy.type }}
+          value: {{ .Values.backend.autoscaling.hpa.behavior.scaleDown.policy.value }}
+          periodSeconds: {{ .Values.backend.autoscaling.hpa.behavior.scaleDown.policy.periodSeconds }}
     scaleUp:
-      stabilizationWindowSeconds: {{ .Values.backend.autoscaling.behavior.scaleUp.stabilizationWindowSeconds }}
+      stabilizationWindowSeconds: {{ .Values.backend.autoscaling.hpa.behavior.scaleUp.stabilizationWindowSeconds }}
       policies:
-        - type: {{ (index .Values.backend.autoscaling.behavior.scaleUp.policies 0).type }}
-          value: {{ (index .Values.backend.autoscaling.behavior.scaleUp.policies 0).value }}
-          periodSeconds: {{ (index .Values.backend.autoscaling.behavior.scaleUp.policies 0).periodSeconds }}
-        - type: {{ (index .Values.backend.autoscaling.behavior.scaleUp.policies 1).type }}
-          value: {{ (index .Values.backend.autoscaling.behavior.scaleUp.policies 1).value }}
-          periodSeconds: {{ (index .Values.backend.autoscaling.behavior.scaleUp.policies 1).periodSeconds }}
-      selectPolicy: {{ .Values.backend.autoscaling.behavior.scaleUp.selectPolicy }}
+        - type: {{ (index .Values.backend.autoscaling.hpa.behavior.scaleUp.policies 0).type }}
+          value: {{ (index .Values.backend.autoscaling.hpa.behavior.scaleUp.policies 0).value }}
+          periodSeconds: {{ (index .Values.backend.autoscaling.hpa.behavior.scaleUp.policies 0).periodSeconds }}
+        - type: {{ (index .Values.backend.autoscaling.hpa.behavior.scaleUp.policies 1).type }}
+          value: {{ (index .Values.backend.autoscaling.hpa.behavior.scaleUp.policies 1).value }}
+          periodSeconds: {{ (index .Values.backend.autoscaling.hpa.behavior.scaleUp.policies 1).periodSeconds }}
+      selectPolicy: {{ .Values.backend.autoscaling.hpa.behavior.scaleUp.selectPolicy }}
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
