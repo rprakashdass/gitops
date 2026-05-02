@@ -17,3 +17,5 @@ apps:
     enabled: true
   posSystemProd:
     enabled: true
+  tempo:
+    enabled: true
