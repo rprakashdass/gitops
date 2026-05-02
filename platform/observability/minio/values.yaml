@@ -16,7 +16,7 @@ persistence:
   enabled: true
   size: 20Gi
 
-# Create buckets Loki and Mimir will use
+# Create buckets Loki, Mimir, and Tempo will use
 buckets:
   - name: loki-chunks
     policy: none
@@ -28,6 +28,9 @@ buckets:
     policy: none
     purge: false
   - name: mimir-blocks
+    policy: none
+    purge: false
+  - name: tempo
     policy: none
     purge: false
 
