@@ -4,13 +4,13 @@ global:
 labels:
   app: tempo
 tempo:
-  reportingEnabled: true
-storage:
-  trace:
-    backend: s3
-    s3:
-      bucket: tempo
-      endpoint: minio.minio.svc.cluster.local:9000
-      accessKey: loki
-      secretKey: loki12345
-      insecure: true
+  reportingEnabled: false
+  storage:
+    trace:
+      backend: s3
+      s3:
+        bucket: tempo
+        endpoint: minio.minio.svc.cluster.local:9000
+        accessKey: loki
+        secretKey: loki12345
+        insecure: true
