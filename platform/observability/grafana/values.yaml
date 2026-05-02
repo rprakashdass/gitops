@@ -40,7 +40,6 @@ dashboards:
       gnetId: 15661
       revision: 2
       datasource: Mimir
-    
 
 datasources:
   datasources.yaml:

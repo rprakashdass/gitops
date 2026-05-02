@@ -21,4 +21,4 @@ apps:
     enabled: true
   vpa:
     enabled: true
-    chartVersion: "1.9.3"
+    chartVersion: "4.11.0"
