@@ -1,0 +1,33 @@
+{{- if .Values.apps.vpa.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vpa
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"  # Deploy before everything else
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  sources:
+    - repoURL: https://charts.fairwinds.com/stable
+      chart: vpa
+      targetRevision: "{{ .Values.apps.vpa.chartVersion }}"
+      helm:
+        releaseName: vpa
+        values: |
+          recommender:
+            enabled: true
+          updater:
+            enabled: false
+          admissionController:
+            enabled: true
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}

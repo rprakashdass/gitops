@@ -19,3 +19,6 @@ apps:
     enabled: true
   tempo:
     enabled: true
+  vpa:
+    enabled: true
+    chartVersion: "1.9.3"
