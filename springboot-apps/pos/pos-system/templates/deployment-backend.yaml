@@ -4,7 +4,9 @@ kind: Deployment
 metadata:
   name: pos-backend
 spec:
+{{- if not .Values.backend.autoscaling.enabled }}
   replicas: {{ .Values.backend.replicas }}
+{{- end }}
   selector:
     matchLabels:
       app: pos-backend
