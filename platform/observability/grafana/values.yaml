@@ -40,6 +40,7 @@ dashboards:
       gnetId: 15661
       revision: 2
       datasource: Mimir
+    
 
 datasources:
   datasources.yaml:
@@ -55,3 +56,8 @@ datasources:
         access: proxy
         url: http://mimir-nginx.monitoring.svc.cluster.local/prometheus
         isDefault: true
+      - name: Tempo
+        type: tempo
+        access: proxy
+        url: http://tempo.monitoring.svc.cluster.local:3100
+        isDefault: false
