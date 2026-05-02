@@ -23,7 +23,7 @@ backend:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 3
+    maxReplicas: 6
     cpuAverageUtilization: 80
     memoryAverageUtilization: 85
     behavior:
@@ -58,7 +58,7 @@ frontend:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 3
+    maxReplicas: 4
     cpuAverageUtilization: 80
     memoryAverageUtilization: 85
     behavior:
