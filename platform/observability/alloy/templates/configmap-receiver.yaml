@@ -48,7 +48,7 @@ data:
 
     otelcol.exporter.otlphttp "tempo" {
       client {
-        endpoint = "http://tempo.monitoring.svc.cluster.local:3100"
+        endpoint = "http://tempo.monitoring.svc.cluster.local:4318"
       }
     }
 
