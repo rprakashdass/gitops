@@ -99,6 +99,14 @@ helm upgrade --install "$ARGOCD_RELEASE" argo/argo-cd \
 echo "[3/5] Waiting for Argo CD API server to be ready"
 kubectl rollout status "deployment/${ARGOCD_RELEASE}-server" -n "$ARGOCD_NAMESPACE" --timeout=300s
 
+echo "[3.5/5] Installing/Upgrading KEDA"
+helm repo add kedacore https://kedacore.github.io/charts >/dev/null 2>&1 || true
+helm repo update >/dev/null
+helm upgrade --install keda kedacore/keda \
+  --namespace keda \
+  --create-namespace \
+  --set installCRDs=true
+
 echo "[4/5] Applying root app (App-of-Apps)"
 kubectl apply -f "$SCRIPT_DIR/root.yaml"
 

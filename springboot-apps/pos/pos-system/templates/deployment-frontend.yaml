@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: pos-frontend
 spec:
-{{- if not .Values.frontend.autoscaling.enabled }}
+{{- if or (not .Values.frontend.autoscaling.enabled) (and (eq .Values.frontend.autoscaling.mode "keda") (not .Values.frontend.autoscaling.keda.enabled)) }}
   replicas: {{ .Values.frontend.replicas }}
 {{- end }}
   selector:

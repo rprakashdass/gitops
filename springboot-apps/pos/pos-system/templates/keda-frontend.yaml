@@ -1,0 +1,26 @@
+{{- if .Values.frontend.autoscaling.keda.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: pos-frontend-scaledobject
+spec:
+  scaleTargetRef:
+    name: pos-frontend
+  minReplicaCount: {{ .Values.frontend.autoscaling.keda.minReplicaCount }}
+  maxReplicaCount: {{ .Values.frontend.autoscaling.keda.maxReplicaCount }}
+  triggers:
+    - type: cron
+      metadata:
+        timezone: "UTC"
+        start: "0 22 * * *"   # 10 PM UTC
+        end: "0 8 * * *"    # 8 AM UTC
+        desiredReplicas: "0"
+    - type: cpu
+      metadata:
+        type: Utilization
+        value: "{{ .Values.frontend.autoscaling.keda.cpuAverageUtilization }}"
+    - type: memory
+      metadata:
+        type: Utilization
+        value: "{{ .Values.frontend.autoscaling.keda.memoryAverageUtilization }}"
+{{- end }}

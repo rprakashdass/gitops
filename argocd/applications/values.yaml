@@ -20,5 +20,5 @@ apps:
   tempo:
     enabled: true
   vpa:
-    enabled: true
+    enabled: false
     chartVersion: "4.11.0"
