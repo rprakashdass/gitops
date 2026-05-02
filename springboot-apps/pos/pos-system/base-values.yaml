@@ -22,7 +22,7 @@ backend:
     minReplicas: 2
     maxReplicas: 10
   probes:
-    port: 8083
+    port: 8082
     path: /api/health
     startup:
       initialDelaySeconds: 10

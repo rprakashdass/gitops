@@ -16,6 +16,7 @@ backend:
       memory: "128Mi"
 
   probes:
+    port: 8082
     startup:
       initialDelaySeconds: 60
 
