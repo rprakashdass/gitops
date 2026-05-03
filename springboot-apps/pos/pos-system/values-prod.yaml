@@ -4,9 +4,6 @@ global:
   namespace: pos-prod
   domain: pos.local
 
-ingress:
-  enabled: true
-
 backend:
   replicas: 3
   pdb:
@@ -19,7 +16,7 @@ backend:
   resources:
     requests:
       cpu: "200m"
-      memory: "250Mi"
+      memory: "350Mi"
 
   probes:
     port: 8082
@@ -94,7 +91,7 @@ mysql:
     tag: "8.0"
     pullPolicy: IfNotPresent
   persistence:
-    size: 400Mi
+    size: 500Mi
 
 config:
   jpa:

@@ -4,9 +4,6 @@ global:
   namespace: pos
   domain: pos-dev.local
 
-ingress:
-  enabled: false
-
 backend:
   replicas: 2
   pdb:
@@ -20,7 +17,7 @@ backend:
   resources:
     requests:
       cpu: "150m"
-      memory: "128Mi"
+      memory: "256Mi"
 
   probes:
     port: 8082
@@ -47,9 +44,9 @@ backend:
           - type: Percent
             value: 100
             periodSeconds: 15
-          # - type: Pods
-          #   value: 1
-          #   periodSeconds: 15
+          - type: Pods
+            value: 1
+            periodSeconds: 15
 
 frontend:
   replicas: 1
