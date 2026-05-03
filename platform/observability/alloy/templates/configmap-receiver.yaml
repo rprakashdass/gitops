@@ -56,32 +56,32 @@ data:
     otelcol.processor.attributes "metrics" {
       action {
         key = "job"
-        from_attribute = "service.name"
+        from_resource_attribute = "service.name"
         action = "upsert"
       }
       action {
         key = "pod"
-        from_attribute = "k8s.pod.name"
+        from_resource_attribute = "k8s.pod.name"
         action = "upsert"
       }
       action {
         key = "namespace"
-        from_attribute = "k8s.namespace.name"
+        from_resource_attribute = "k8s.namespace.name"
         action = "upsert"
       }
       action {
         key = "version"
-        from_attribute = "service.version"
+        from_resource_attribute = "service.version"
         action = "upsert"
       }
       action {
         key = "env"
-        from_attribute = "env"
+        from_resource_attribute = "env"
         action = "upsert"
       }
       action {
         key = "instance"
-        from_attribute = "k8s.pod.name"
+        from_resource_attribute = "k8s.pod.name"
         action = "upsert"
       }
       output {
@@ -93,27 +93,27 @@ data:
     otelcol.processor.attributes "logs" {
       action {
         key = "job"
-        from_attribute = "service.name"
+        from_resource_attribute = "service.name"
         action = "upsert"
       }
       action {
         key = "pod"
-        from_attribute = "k8s.pod.name"
+        from_resource_attribute = "k8s.pod.name"
         action = "upsert"
       }
       action {
         key = "namespace"
-        from_attribute = "k8s.namespace.name"
+        from_resource_attribute = "k8s.namespace.name"
         action = "upsert"
       }
       action {
         key = "version"
-        from_attribute = "service.version"
+        from_resource_attribute = "service.version"
         action = "upsert"
       }
       action {
         key = "env"
-        from_attribute = "env"
+        from_resource_attribute = "env"
         action = "upsert"
       }
       output {
@@ -125,27 +125,27 @@ data:
     otelcol.processor.attributes "traces" {
       action {
         key = "job"
-        from_attribute = "service.name"
+        from_resource_attribute = "service.name"
         action = "upsert"
       }
       action {
         key = "pod"
-        from_attribute = "k8s.pod.name"
+        from_resource_attribute = "k8s.pod.name"
         action = "upsert"
       }
       action {
         key = "namespace"
-        from_attribute = "k8s.namespace.name"
+        from_resource_attribute = "k8s.namespace.name"
         action = "upsert"
       }
       action {
         key = "version"
-        from_attribute = "service.version"
+        from_resource_attribute = "service.version"
         action = "upsert"
       }
       action {
         key = "env"
-        from_attribute = "env"
+        from_resource_attribute = "env"
         action = "upsert"
       }
       output {
