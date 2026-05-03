@@ -4,6 +4,9 @@ global:
   namespace: pos-prod
   domain: pos.local
 
+ingress:
+  enabled: true
+
 backend:
   replicas: 3
   pdb:

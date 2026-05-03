@@ -11,14 +11,16 @@ spec:
   triggers:
     - type: cpu
       metadata:
-        type: Utilization
+        metricType: Utilization
         value: "{{ .Values.frontend.autoscaling.cpuAverageUtilization }}"
     - type: memory
       metadata:
-        type: Utilization
+        metricType: Utilization
         value: "{{ .Values.frontend.autoscaling.memoryAverageUtilization }}"
   {{- if .Values.frontend.autoscaling.behavior }}
-  behavior:
-{{ toYaml .Values.frontend.autoscaling.behavior | indent 4 }}
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+{{ toYaml .Values.frontend.autoscaling.behavior | indent 8 }}
   {{- end }}
 {{- end }}

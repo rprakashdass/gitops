@@ -4,6 +4,9 @@ global:
   namespace: pos
   domain: pos-dev.local
 
+ingress:
+  enabled: false
+
 backend:
   replicas: 2
   pdb:
@@ -26,7 +29,7 @@ backend:
 
   autoscaling:
     enabled: true
-    minReplicaCount: 0
+    minReplicaCount: 1
     maxReplicaCount: 6
     cpuAverageUtilization: 80
     memoryAverageUtilization: 85
