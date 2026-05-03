@@ -10,12 +10,12 @@ spec:
   maxReplicaCount: {{ .Values.backend.autoscaling.maxReplicaCount }}
   triggers:
     - type: cpu
+      metricType: Utilization
       metadata:
-        metricType: Utilization
         value: "{{ .Values.backend.autoscaling.cpuAverageUtilization }}"
     - type: memory
+      metricType: Utilization
       metadata:
-        metricType: Utilization
         value: "{{ .Values.backend.autoscaling.memoryAverageUtilization }}"
   {{- if .Values.backend.autoscaling.behavior }}
   advanced:
