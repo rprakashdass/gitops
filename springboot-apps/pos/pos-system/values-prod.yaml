@@ -1,6 +1,6 @@
 global:
   enabled: true
-  environment: prod
+  env: prod
   namespace: pos-prod
   domain: pos.local
 
@@ -18,10 +18,30 @@ backend:
       cpu: "200m"
       memory: "350Mi"
 
+  envs:
+    SPRING_PROFILES_ACTIVE: "{{ .Values.global.env }}"
+    JAVA_XMS: "224m"
+    JAVA_XMX: "300m"
+    JAVA_MAX_THREADS: "500"
+    JAVA_GC_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+    JAVA_TOOL_OPTIONS: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.javaagent.debug=false"
+    OTEL_RESOURCE_ATTRIBUTES: "env={{ .Values.global.env }},service.version=latest"
+
   probes:
     port: 8082
     startup:
       initialDelaySeconds: 90
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 30
+    readiness:
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    liveness:
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
 
   autoscaling:
     enabled: true
@@ -94,12 +114,16 @@ mysql:
     size: 500Mi
 
 config:
+  database:
+    url: "jdbc:mysql://pos-db-service:3306/posdb"
   jpa:
     hibernate_ddl_auto: "validate"
     show_sql: "true"
+  api:
+    base_url: "/api"
   otel:
     exporter:
       otlp:
         endpoint: "http://alloy-receiver.monitoring.svc.cluster.local:4317"
-    service_name: "pos-backend-prod"
+    service_name: "pos-backend"
   java_tool_options: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.javaagent.debug=false"

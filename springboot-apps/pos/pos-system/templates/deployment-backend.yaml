@@ -22,6 +22,11 @@ spec:
           ports:
             - containerPort: {{ .Values.backend.probes.port }}
           env:
+            {{- $envs := .Values.backend.envs | default dict }}
+            {{- range $name := keys $envs | sortAlpha }}
+            - name: {{ $name }}
+              value: {{ tpl (index $envs $name) $ | quote }}
+            {{- end }}
             - name: SPRING_DATASOURCE_URL
               valueFrom:
                 configMapKeyRef:
@@ -57,11 +62,6 @@ spec:
                 configMapKeyRef:
                   name: pos-config
                   key: OTEL_SERVICE_NAME
-            - name: JAVA_TOOL_OPTIONS
-              valueFrom:
-                configMapKeyRef:
-                  name: pos-config
-                  key: JAVA_TOOL_OPTIONS
             - name: OTEL_EXPORTER_OTLP_PROTOCOL
               valueFrom:
                 configMapKeyRef:

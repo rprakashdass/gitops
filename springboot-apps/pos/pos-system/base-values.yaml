@@ -1,7 +1,7 @@
 global:
   enabled: false
   namespace: pos
-  environment: dev
+  env: dev
   domain: pos.local
 
 backend:
@@ -48,18 +48,26 @@ backend:
     port: 8082
     path: /api/health
     startup:
-      initialDelaySeconds: 10
-      periodSeconds: 10
+      initialDelaySeconds: 60
+      periodSeconds: 15
       timeoutSeconds: 5
       failureThreshold: 30    # 30 * 10s = 5 min max startup window
     readiness:
-      periodSeconds: 10
+      periodSeconds: 15
       timeoutSeconds: 5
       failureThreshold: 3     # fail fast, just pulls from LB
     liveness:
       periodSeconds: 20
       timeoutSeconds: 5
       failureThreshold: 6     # conservative, avoids thrashing restarts
+  envs:
+    SPRING_PROFILES_ACTIVE: "prod"
+    JAVA_XMS: "224m"
+    JAVA_XMX: "300m"
+    JAVA_MAX_THREADS: "500"
+    JAVA_GC_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+    JAVA_TOOL_OPTIONS: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.javaagent.debug=false"
+    OTEL_RESOURCE_ATTRIBUTES: "env=prod,service.version=latest"
 
 frontend:
   replicas: 3
