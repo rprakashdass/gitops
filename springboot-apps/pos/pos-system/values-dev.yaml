@@ -16,7 +16,7 @@ backend:
 
   resources:
     requests:
-      cpu: "50m"
+      cpu: "150m"
       memory: "128Mi"
 
   probes:
@@ -26,38 +26,27 @@ backend:
 
   autoscaling:
     enabled: true
-    mode: keda
-    hpa:
-      minReplicas: 1
-      maxReplicas: 6
-      cpuAverageUtilization: 80
-      memoryAverageUtilization: 85
-      behavior:
-        scaleDown:
-          stabilizationWindowSeconds: 300
-          policy:
-            type: Percent
+    minReplicaCount: 0
+    maxReplicaCount: 6
+    cpuAverageUtilization: 80
+    memoryAverageUtilization: 85
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+          - type: Percent
             value: 50
             periodSeconds: 15
-        scaleUp:
-          stabilizationWindowSeconds: 0
-          selectPolicy: Max
-          policies:
-            - type: Percent
-              value: 100
-              periodSeconds: 15
-            - type: Pods
-              value: 1
-              periodSeconds: 15
-    keda:
-      minReplicaCount: 1
-      maxReplicaCount: 6
-      cpuAverageUtilization: 80
-      memoryAverageUtilization: 85
-      timezone: "UTC"
-      start: "0 22 * * *"
-      end: "0 8 * * *"
-      desiredReplicas: "0"
+      scaleUp:
+        stabilizationWindowSeconds: 0
+        selectPolicy: Max
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+          # - type: Pods
+          #   value: 1
+          #   periodSeconds: 15
 
 frontend:
   replicas: 1
@@ -76,38 +65,27 @@ frontend:
 
   autoscaling:
     enabled: true
-    mode: keda
-    hpa:
-      minReplicas: 1
-      maxReplicas: 4
-      cpuAverageUtilization: 80
-      memoryAverageUtilization: 85
-      behavior:
-        scaleDown:
-          stabilizationWindowSeconds: 300
-          policy:
-            type: Percent
+    minReplicaCount: 1
+    maxReplicaCount: 4
+    cpuAverageUtilization: 70
+    memoryAverageUtilization: 75
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+          - type: Percent
             value: 50
             periodSeconds: 15
-        scaleUp:
-          stabilizationWindowSeconds: 0
-          selectPolicy: Max
-          policies:
-            - type: Percent
-              value: 100
-              periodSeconds: 15
-            - type: Pods
-              value: 1
-              periodSeconds: 15
-    keda:
-      minReplicaCount: 1
-      maxReplicaCount: 4
-      cpuAverageUtilization: 70
-      memoryAverageUtilization: 75
-      timezone: "UTC"
-      start: "0 22 * * *"
-      end: "0 8 * * *"
-      desiredReplicas: "0"
+      scaleUp:
+        stabilizationWindowSeconds: 0
+        selectPolicy: Max
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+          - type: Pods
+            value: 1
+            periodSeconds: 15
 
 mysql:
   image:

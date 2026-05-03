@@ -1,4 +1,4 @@
-{{- if eq .Values.backend.autoscaling.mode "keda" }}
+{{- if .Values.backend.autoscaling.enabled }}
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
@@ -6,21 +6,19 @@ metadata:
 spec:
   scaleTargetRef:
     name: pos-backend
-  minReplicaCount: {{ .Values.backend.autoscaling.keda.minReplicaCount }}
-  maxReplicaCount: {{ .Values.backend.autoscaling.keda.maxReplicaCount }}
+  minReplicaCount: {{ .Values.backend.autoscaling.minReplicaCount }}
+  maxReplicaCount: {{ .Values.backend.autoscaling.maxReplicaCount }}
   triggers:
-    - type: cron
-      metadata:
-        timezone: {{ .Values.backend.autoscaling.keda.timezone | default "UTC" | quote }}
-        start: {{ .Values.backend.autoscaling.keda.start | default "0 22 * * *" | quote }}
-        end: {{ .Values.backend.autoscaling.keda.end | default "0 8 * * *" | quote }}
-        desiredReplicas: {{ .Values.backend.autoscaling.keda.desiredReplicas | default "0" | quote }}
     - type: cpu
       metadata:
         type: Utilization
-        value: "{{ .Values.backend.autoscaling.keda.cpuAverageUtilization }}"
+        value: "{{ .Values.backend.autoscaling.cpuAverageUtilization }}"
     - type: memory
       metadata:
         type: Utilization
-        value: "{{ .Values.backend.autoscaling.keda.memoryAverageUtilization }}"
+        value: "{{ .Values.backend.autoscaling.memoryAverageUtilization }}"
+  {{- if .Values.backend.autoscaling.behavior }}
+  behavior:
+{{ toYaml .Values.backend.autoscaling.behavior | indent 4 }}
+  {{- end }}
 {{- end }}
