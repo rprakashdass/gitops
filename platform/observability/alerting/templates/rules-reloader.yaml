@@ -15,46 +15,28 @@ spec:
     spec:
       serviceAccountName: mimir-rules-reloader
       containers:
-      - name: k8s-sidecar
-        image: kiwigrid/k8s-sidecar:latest
-        env:
-        - name: LABEL
-          value: "app"
-        - name: LABEL_VALUE
-          value: "mimir-rules"
-        - name: FOLDER
-          value: /rules
-        - name: NAMESPACE
-          value: monitoring
-        - name: METHOD
-          value: WATCH
-        volumeMounts:
-        - name: rules
-          mountPath: /rules
-
-      - name: mimirtool
-        image: {{ .Values.mimir.mimirtoolImage }}
-        command: ["/bin/sh", "-c"]
+      - name: reloader
+        image: bitnami/kubectl:latest
+        command: ["/bin/bash", "-c"]
         args:
         - |
-          sleep 30
           while true; do
-            set -- /rules/*.yaml
-            if [ -f "$1" ]; then
-              mimirtool rules load \
-                --address={{ .Values.mimir.address }} \
-                --id={{ .Values.mimir.tenantId }} \
-                "$@" && echo "Rules synced"
+            CMS=$(kubectl get cm -n monitoring -l app=mimir-rules \
+              -o jsonpath='{.items[*].metadata.name}')
+            if [ -z "$CMS" ]; then
+              echo "No rule ConfigMaps found"
             else
-              echo "No rules found, skipping"
+              for cm in $CMS; do
+                namespace="${cm#rule-}"
+                kubectl get cm -n monitoring "$cm" \
+                  -o jsonpath='{.data.*}' | \
+                curl -sf -X POST \
+                  "{{ .Values.mimir.address }}/api/v1/rules/${namespace}" \
+                  -H "X-Scope-OrgID: {{ .Values.mimir.tenantId }}" \
+                  -H "Content-Type: application/yaml" \
+                  --data-binary @- \
+                && echo "Synced: ${namespace}"
+              done
             fi
             sleep {{ .Values.rulesSync.intervalSeconds }}
           done
-        volumeMounts:
-        - name: rules
-          mountPath: /rules
-          readOnly: true
-
-      volumes:
-      - name: rules
-        emptyDir: {}
