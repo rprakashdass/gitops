@@ -1,0 +1,23 @@
+{{- if .Values.apps.prometheus-alertmanager.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus-alertmanager
+  namespace: argocd
+spec:
+  project: observability
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: prometheus-alertmanager
+      targetRevision: 10.5.15
+      helm:
+        releaseName: prometheus-alertmanager
+        valueFiles:
+          - $values/platform/observability/prometheus/values.yaml
+    - repoURL: https://github.com/rprakashdass/gitops.git
+      targetRevision: local-server
+      ref: values
+{{- end }}
