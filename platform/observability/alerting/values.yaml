@@ -1,5 +1,5 @@
 mimir:
-  address: http://mimir-nginx.monitoring.svc.cluster.local
+  address: http://mimir-ruler.monitoring.svc.cluster.local:8080
   tenantId: anonymous
   mimirtoolImage: grafana/mimirtool:2.2.0
 
