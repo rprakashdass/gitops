@@ -24,6 +24,5 @@ apps:
     chartVersion: "4.11.0"
   prometheus-alertmanager:
     enabled: true
-  alertingRules:
-    enabled: true
-    env: production
+  alertingConfig:
+    rulesEnv: production

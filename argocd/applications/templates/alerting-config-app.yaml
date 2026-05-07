@@ -7,13 +7,18 @@ metadata:
     argocd.argoproj.io/sync-wave: "1"
 spec:
   project: observability
-  source:
-    repoURL: https://github.com/rprakashdass/gitops.git
+  sources:
+  - repoURL: https://github.com/rprakashdass/gitops.git
     targetRevision: local-server
     path: platform/observability/alerting
     helm:
       valueFiles:
         - values.yaml
+  - repoURL: https://github.com/rprakashdass/gitops.git
+    targetRevision: local-server
+    path: platform/alerting/{{ .Values.apps.alertingConfig.rulesEnv }}
+    directory:
+      recurse: false
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring

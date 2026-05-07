@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mimir-rules-reloader
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mimir-rules-reloader
+  template:
+    metadata:
+      labels:
+        app: mimir-rules-reloader
+    spec:
+      serviceAccountName: mimir-rules-reloader
+      containers:
+      - name: k8s-sidecar
+        image: kiwigrid/k8s-sidecar:latest
+        env:
+        - name: LABEL
+          value: "app"
+        - name: LABEL_VALUE
+          value: "mimir-rules"
+        - name: FOLDER
+          value: /rules
+        - name: NAMESPACE
+          value: monitoring
+        - name: METHOD
+          value: WATCH
+        volumeMounts:
+        - name: rules
+          mountPath: /rules
+
+      - name: mimirtool
+        image: {{ .Values.mimir.mimirtoolImage }}
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          while true; do
+            sleep {{ .Values.rulesSync.intervalSeconds }}
+            if ls /rules/*.yaml 2>/dev/null 1>&2; then
+              mimirtool rules load \
+                --address={{ .Values.mimir.address }} \
+                --id={{ .Values.mimir.tenantId }} \
+                /rules/*.yaml && echo "Rules synced"
+            else
+              echo "No rules found, skipping"
+            fi
+          done
+        volumeMounts:
+        - name: rules
+          mountPath: /rules
+          readOnly: true
+
+      volumes:
+      - name: rules
+        emptyDir: {}

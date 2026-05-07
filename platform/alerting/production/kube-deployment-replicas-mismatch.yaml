@@ -5,7 +5,6 @@ metadata:
   namespace: monitoring
   labels:
     app: mimir-rules
-    env: production
 data:
   kube-deployment-replicas-mismatch.yaml: |
     groups:
