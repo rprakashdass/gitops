@@ -1,4 +1,3 @@
-{{- if .Values.apps.prometheus-alertmanager.enabled }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -12,12 +11,16 @@ spec:
   sources:
     - repoURL: https://prometheus-community.github.io/helm-charts
       chart: alertmanager
-      targetRevision: 0.23.0 # A specific, stable version
+      targetRevision: 1.10.0
       helm:
-        releaseName: prometheus-alertmanager
         valueFiles:
           - $values/platform/observability/prometheus/values.yaml
-    - repoURL: https://github.com/rprakashdass/gitops.git
+    - repoURL: https://github.com/prakash-d-s/gitops.git
       targetRevision: local-server
       ref: values
-{{- end }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
