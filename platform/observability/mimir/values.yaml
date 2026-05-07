@@ -5,10 +5,6 @@ kafka:
   enabled: false
 minio:
   enabled: false
-ruler:
-  enabled: false
-alertmanager:
-  enabled: false
 zoneAwareReplication:
   enabled: false
 
@@ -153,3 +149,47 @@ mimir:
 
     frontend_worker:
       frontend_address: "mimir-query-frontend-headless.monitoring.svc.cluster.local.:9095"
+
+    alertmanager:
+      data_dir: /data/alertmanager
+      config_file: /etc/alertmanager/alertmanager.yaml
+
+    ruler:
+      rule_path: /rules
+      alertmanager_url: http://localhost:8080/alertmanager
+
+alertmanager:
+  enabled: true
+  # Load configuration from the alerting directory
+  config:
+    path: /etc/alertmanager-config/
+
+  # Mount the alerting config as a volume
+  extraVolumes:
+  - name: alertmanager-config
+    configMap:
+      name: alertmanager-config
+  - name: alertmanager-slack-secret
+    secret:
+      secretName: alertmanager-slack
+
+  extraVolumeMounts:
+  - name: alertmanager-config
+    mountPath: /etc/alertmanager-config
+    readOnly: true
+  - name: alertmanager-slack-secret
+    mountPath: /etc/alertmanager/secrets
+    readOnly: true
+
+ruler:
+  enabled: true
+  # Load alerting rules from the alerting directory
+  extraVolumes:
+  - name: prometheus-rules
+    configMap:
+      name: prometheus-rules
+
+  extraVolumeMounts:
+  - name: prometheus-rules
+    mountPath: /etc/prometheus-rules
+    readOnly: true

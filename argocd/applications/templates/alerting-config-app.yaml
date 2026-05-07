@@ -11,6 +11,8 @@ spec:
     repoURL: https://github.com/rprakashdass/gitops.git
     targetRevision: local-server
     path: platform/observability/alerting
+    directory:
+      recurse: true
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
