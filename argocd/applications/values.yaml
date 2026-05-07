@@ -22,3 +22,5 @@ apps:
   vpa:
     enabled: false
     chartVersion: "4.11.0"
+  prometheus-alertmanager:
+    enabled: true

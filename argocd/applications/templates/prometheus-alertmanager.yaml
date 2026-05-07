@@ -1,4 +1,4 @@
-{{- if .Values.apps.prometheus-alertmanager.enabled }}
+{{- if .Values.apps.prometheus-alertmanager.enabled -}}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
