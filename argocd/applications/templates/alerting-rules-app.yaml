@@ -1,7 +1,8 @@
+{{- if .Values.apps.alertingRules.enabled }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: alerting-config
+  name: alerting-rules-{{ .Values.apps.alertingRules.env }}
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "1"
@@ -10,10 +11,9 @@ spec:
   source:
     repoURL: https://github.com/rprakashdass/gitops.git
     targetRevision: local-server
-    path: platform/observability/alerting
-    helm:
-      valueFiles:
-        - values.yaml
+    path: platform/alerting/{{ .Values.apps.alertingRules.env }}
+    directory:
+      recurse: false
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
@@ -23,3 +23,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+{{- end }}

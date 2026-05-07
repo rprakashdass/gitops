@@ -27,6 +27,9 @@ buckets:
   - name: mimir-blocks
     policy: none
     purge: false
+  - name: mimir-ruler
+    policy: none
+    purge: false
   - name: tempo
     policy: none
     purge: false

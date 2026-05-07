@@ -159,9 +159,13 @@ mimir:
       alertmanager_url: http://mimir-alertmanager.monitoring.svc.cluster.local:8080/alertmanager
 
     ruler_storage:
-      backend: local
-      local:
-        directory: /rules
+      backend: s3
+      s3:
+        endpoint: minio.monitoring.svc.cluster.local:9000
+        bucket_name: mimir-ruler
+        access_key_id: loki
+        secret_access_key: loki12345
+        insecure: true
 
 alertmanager:
   enabled: true
@@ -184,15 +188,9 @@ alertmanager:
 ruler:
   enabled: true
   extraVolumes:
-  - name: prometheus-rules
-    configMap:
-      name: prometheus-rules
   - name: ruler-tmp
     emptyDir: {}
 
   extraVolumeMounts:
-  - name: prometheus-rules
-    mountPath: /rules/anonymous
-    readOnly: true
   - name: ruler-tmp
     mountPath: /ruler-tmp

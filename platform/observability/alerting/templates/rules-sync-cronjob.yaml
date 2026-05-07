@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mimir-rules-sync
+  namespace: monitoring
+spec:
+  schedule: {{ .Values.rulesSync.schedule | quote }}
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 120
+      template:
+        spec:
+          serviceAccountName: mimir-rules-sync
+          restartPolicy: OnFailure
+          initContainers:
+          - name: collect-rules
+            image: bitnami/kubectl:latest
+            command: ["/bin/sh", "-c"]
+            args:
+            - |
+              set -e
+              mkdir -p /rules
+              for cm in $(kubectl get cm -n monitoring -l app=mimir-rules -o jsonpath='{.items[*].metadata.name}'); do
+                kubectl get cm -n monitoring "$cm" -o jsonpath='{.data.*}' > "/rules/${cm#rule-}.yaml"
+                echo "Collected $cm"
+              done
+            volumeMounts:
+            - name: rules-tmp
+              mountPath: /rules
+          containers:
+          - name: mimirtool
+            image: {{ .Values.mimir.mimirtoolImage }}
+            command: ["/bin/sh", "-c"]
+            args:
+            - |
+              mimirtool rules load \
+                --address={{ .Values.mimir.address }} \
+                --id={{ .Values.mimir.tenantId }} \
+                /rules/*.yaml
+            volumeMounts:
+            - name: rules-tmp
+              mountPath: /rules
+              readOnly: true
+          volumes:
+          - name: rules-tmp
+            emptyDir: {}
