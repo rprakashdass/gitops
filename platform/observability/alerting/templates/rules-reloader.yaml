@@ -37,13 +37,14 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
         - |
-          sleep 15
+          sleep 30
           while true; do
-            if ls /rules/*.yaml 2>/dev/null 1>&2; then
+            set -- /rules/*.yaml
+            if [ -f "$1" ]; then
               mimirtool rules load \
                 --address={{ .Values.mimir.address }} \
                 --id={{ .Values.mimir.tenantId }} \
-                /rules/*.yaml && echo "Rules synced"
+                "$@" && echo "Rules synced"
             else
               echo "No rules found, skipping"
             fi
