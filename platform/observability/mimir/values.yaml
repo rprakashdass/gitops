@@ -152,19 +152,19 @@ mimir:
 
     alertmanager:
       data_dir: /data/alertmanager
-      config_file: /etc/alertmanager/alertmanager.yaml
+      fallback_config_file: /etc/alertmanager/config/alertmanager.yaml
 
     ruler:
-      rule_path: /rules
-      alertmanager_url: http://localhost:8080/alertmanager
+      rule_path: /tmp/rules
+      alertmanager_url: http://mimir-alertmanager.monitoring.svc.cluster.local:8080/alertmanager
+
+    ruler_storage:
+      backend: local
+      local:
+        directory: /rules
 
 alertmanager:
   enabled: true
-  # Load configuration from the alerting directory
-  config:
-    path: /etc/alertmanager-config/
-
-  # Mount the alerting config as a volume
   extraVolumes:
   - name: alertmanager-config
     configMap:
@@ -175,7 +175,7 @@ alertmanager:
 
   extraVolumeMounts:
   - name: alertmanager-config
-    mountPath: /etc/alertmanager-config
+    mountPath: /etc/alertmanager/config
     readOnly: true
   - name: alertmanager-slack-secret
     mountPath: /etc/alertmanager/secrets
@@ -183,7 +183,6 @@ alertmanager:
 
 ruler:
   enabled: true
-  # Load alerting rules from the alerting directory
   extraVolumes:
   - name: prometheus-rules
     configMap:
@@ -191,5 +190,5 @@ ruler:
 
   extraVolumeMounts:
   - name: prometheus-rules
-    mountPath: /etc/prometheus-rules
+    mountPath: /rules/anonymous
     readOnly: true

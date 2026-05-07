@@ -4,7 +4,7 @@ metadata:
   name: alerting-config
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "1" # Deploy before prometheus
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: observability
   source:
@@ -12,7 +12,7 @@ spec:
     targetRevision: local-server
     path: platform/observability/alerting
     directory:
-      recurse: true
+      recurse: false
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
