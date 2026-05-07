@@ -21,9 +21,6 @@ buckets:
   - name: loki-chunks
     policy: none
     purge: false
-  - name: loki-ruler
-    policy: none
-    purge: false
   - name: loki-admin
     policy: none
     purge: false
