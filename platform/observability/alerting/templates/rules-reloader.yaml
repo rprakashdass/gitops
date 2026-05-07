@@ -32,7 +32,7 @@ spec:
                   -o jsonpath='{.data.*}' | \
                   sed -e '/^groups:$/d' -e '/^- name:/s/^- //' -e 's/^  //' | \
                   curl -s -o /tmp/resp -w "%{http_code}" -X POST \
-                    "{{ .Values.mimir.address }}/api/v1/rules/${namespace}" \
+                    "{{ .Values.mimir.address }}/prometheus/config/v1/rules/${namespace}" \
                     -H "X-Scope-OrgID: {{ .Values.mimir.tenantId }}" \
                     -H "Content-Type: application/yaml" \
                     --data-binary @-)
