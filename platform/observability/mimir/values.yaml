@@ -155,6 +155,7 @@ mimir:
       fallback_config_file: /etc/alertmanager/config/alertmanager.yaml
 
     ruler:
+      enable_api: true
       rule_path: /ruler-tmp/rules
       alertmanager_url: http://mimir-alertmanager.monitoring.svc.cluster.local:8080/alertmanager
 
