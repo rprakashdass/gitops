@@ -195,4 +195,4 @@ ruler:
     mountPath: /rules/anonymous
     readOnly: true
   - name: ruler-tmp
-    mountPath: /var/mimir/ruler
+    mountPath: /var/mimir
