@@ -37,8 +37,8 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
         - |
+          sleep 15
           while true; do
-            sleep {{ .Values.rulesSync.intervalSeconds }}
             if ls /rules/*.yaml 2>/dev/null 1>&2; then
               mimirtool rules load \
                 --address={{ .Values.mimir.address }} \
@@ -47,6 +47,7 @@ spec:
             else
               echo "No rules found, skipping"
             fi
+            sleep {{ .Values.rulesSync.intervalSeconds }}
           done
         volumeMounts:
         - name: rules
