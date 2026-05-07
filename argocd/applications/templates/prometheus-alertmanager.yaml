@@ -15,7 +15,7 @@ spec:
       helm:
         valueFiles:
           - $values/platform/observability/prometheus/values.yaml
-    - repoURL: https://github.com/prakashdass/gitops.git
+    - repoURL: https://github.com/rprakashdass/gitops.git
       targetRevision: local-server
       ref: values
   syncPolicy:
