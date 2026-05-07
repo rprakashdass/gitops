@@ -155,7 +155,7 @@ mimir:
       fallback_config_file: /etc/alertmanager/config/alertmanager.yaml
 
     ruler:
-      rule_path: /tmp/rules
+      rule_path: /var/mimir/ruler
       alertmanager_url: http://mimir-alertmanager.monitoring.svc.cluster.local:8080/alertmanager
 
     ruler_storage:
@@ -187,8 +187,12 @@ ruler:
   - name: prometheus-rules
     configMap:
       name: prometheus-rules
+  - name: ruler-tmp
+    emptyDir: {}
 
   extraVolumeMounts:
   - name: prometheus-rules
     mountPath: /rules/anonymous
     readOnly: true
+  - name: ruler-tmp
+    mountPath: /var/mimir/ruler
