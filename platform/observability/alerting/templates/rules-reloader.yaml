@@ -28,14 +28,19 @@ spec:
             else
               for cm in $CMS; do
                 namespace="${cm#rule-}"
-                kubectl get cm -n monitoring "$cm" \
+                response=$(kubectl get cm -n monitoring "$cm" \
                   -o jsonpath='{.data.*}' | \
-                curl -sf -X POST \
-                  "{{ .Values.mimir.address }}/api/v1/rules/${namespace}" \
-                  -H "X-Scope-OrgID: {{ .Values.mimir.tenantId }}" \
-                  -H "Content-Type: application/yaml" \
-                  --data-binary @- \
-                && echo "Synced: ${namespace}"
+                  sed -e '/^groups:$/d' -e '/^- name:/s/^- //' -e 's/^  //' | \
+                  curl -s -o /tmp/resp -w "%{http_code}" -X POST \
+                    "{{ .Values.mimir.address }}/api/v1/rules/${namespace}" \
+                    -H "X-Scope-OrgID: {{ .Values.mimir.tenantId }}" \
+                    -H "Content-Type: application/yaml" \
+                    --data-binary @-)
+                if [ "$response" = "202" ] || [ "$response" = "200" ]; then
+                  echo "Synced: ${namespace}"
+                else
+                  echo "FAILED ${namespace}: HTTP ${response} - $(cat /tmp/resp)"
+                fi
               done
             fi
             sleep {{ .Values.rulesSync.intervalSeconds }}
