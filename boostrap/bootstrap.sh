@@ -108,7 +108,36 @@ helm upgrade --install keda kedacore/keda \
   --set installCRDs=true
 
 echo "[4/5] Applying root app (App-of-Apps)"
-kubectl apply -f "$SCRIPT_DIR/root.yaml"
+cat <<EOF | kubectl apply -f -
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: ${ARGOCD_NAMESPACE}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: ${REPO_URL}
+      targetRevision: ${TARGET_REVISION}
+      path: argocd
+      directory:
+        recurse: true
+        exclude: 'applications/**'
+    - repoURL: ${REPO_URL}
+      targetRevision: ${TARGET_REVISION}
+      path: argocd/applications
+      helm:
+        releaseName: argocd-apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ${ARGOCD_NAMESPACE}
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+EOF
 
 echo "[5/5] Done"
 echo "Argo CD should now create/sync AppProjects and Applications automatically."

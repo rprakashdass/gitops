@@ -8,14 +8,19 @@ metadata:
 spec:
   project: observability
   sources:
-  - repoURL: https://github.com/rprakashdass/gitops.git
-    targetRevision: local-server
+  - repoURL: {{ .Values.global.repoURL }}
+    targetRevision: {{ .Values.global.targetRevision }}
     path: platform/observability/alerting
     helm:
       valueFiles:
         - values.yaml
-  - repoURL: https://github.com/rprakashdass/gitops.git
-    targetRevision: local-server
+  - repoURL: {{ .Values.global.repoURL }}
+    targetRevision: {{ .Values.global.targetRevision }}
+    path: platform/alerting/global
+    directory:
+      recurse: false
+  - repoURL: {{ .Values.global.repoURL }}
+    targetRevision: {{ .Values.global.targetRevision }}
     path: platform/alerting/{{ .Values.apps.alertingConfig.rulesEnv }}
     directory:
       recurse: false

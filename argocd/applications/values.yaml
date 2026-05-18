@@ -1,3 +1,7 @@
+global:
+  repoURL: https://github.com/rprakashdass/gitops.git
+  targetRevision: main
+
 apps:
   alloy:
     enabled: true

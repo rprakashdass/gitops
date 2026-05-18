@@ -17,7 +17,7 @@ spec:
         releaseName: grafana
         valueFiles:
           - $values/platform/observability/grafana/values.yaml
-    - repoURL: https://github.com/rprakashdass/gitops.git
-      targetRevision: local-server
+    - repoURL: {{ .Values.global.repoURL }}
+      targetRevision: {{ .Values.global.targetRevision }}
       ref: values
 {{- end }}

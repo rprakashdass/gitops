@@ -19,8 +19,8 @@ spec:
         releaseName: minio
         valueFiles:
           - $values/platform/observability/minio/values.yaml
-    - repoURL: https://github.com/rprakashdass/gitops.git
-      targetRevision: local-server
+    - repoURL: {{ .Values.global.repoURL }}
+      targetRevision: {{ .Values.global.targetRevision }}
       ref: values
   syncPolicy:
     automated:

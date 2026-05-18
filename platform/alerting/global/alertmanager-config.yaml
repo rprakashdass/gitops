@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: monitoring
+data:
+  alertmanager.yaml: |
+    global:
+      resolve_timeout: 5m
+
+    route:
+      receiver: 'null'
+      group_by: ['alertname', 'cluster', 'service']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      routes:
+      - receiver: 'slack-notifications'
+        matchers:
+        - severity =~ "warning|critical"
+
+    receivers:
+    - name: 'slack-notifications'
+      slack_configs:
+      - channel: '#alerts'
+        send_resolved: true
+        api_url_file: /etc/alertmanager/secrets/slack_url
+        title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ len .Alerts.Firing }}{{ end }}] {{ .CommonLabels.alertname }}'
+        text: |
+          {{ range .Alerts -}}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Details:*
+            {{ range .Labels.SortedPairs }}• *{{ .Name }}:* `{{ .Value }}`
+            {{ end }}
+          {{- end }}
+    - name: 'null'

@@ -12,8 +12,8 @@ spec:
     server: https://kubernetes.default.svc
     namespace: pos
   sources:
-    - repoURL: https://github.com/rprakashdass/gitops.git
-      targetRevision: local-server
+    - repoURL: {{ .Values.global.repoURL }}
+      targetRevision: {{ .Values.global.targetRevision }}
       path: springboot-apps/pos/pos-system
       helm:
         valueFiles:

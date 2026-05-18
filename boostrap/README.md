@@ -193,7 +193,7 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 # https://localhost:8080 (admin + password)
 
 # Step 4: Deploy root app
-kubectl apply -f boostrap/root-app.yaml
+kubectl apply -f boostrap/root.yaml
 
 # Step 5: Everything else syncs automatically!
 ```

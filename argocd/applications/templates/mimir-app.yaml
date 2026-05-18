@@ -19,8 +19,8 @@ spec:
         releaseName: mimir
         valueFiles:
           - $values/platform/observability/mimir/values.yaml
-    - repoURL: https://github.com/rprakashdass/gitops.git
-      targetRevision: local-server
+    - repoURL: {{ .Values.global.repoURL }}
+      targetRevision: {{ .Values.global.targetRevision }}
       ref: values
   syncPolicy:
     automated:

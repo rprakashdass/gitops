@@ -9,8 +9,8 @@ metadata:
 spec:
   project: observability
   source:
-    repoURL: https://github.com/rprakashdass/gitops.git
-    targetRevision: local-server
+    repoURL: {{ .Values.global.repoURL }}
+    targetRevision: {{ .Values.global.targetRevision }}
     path: platform
     directory:
       include: "ingress.yaml"

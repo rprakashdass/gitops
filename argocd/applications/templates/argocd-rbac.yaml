@@ -12,8 +12,8 @@ spec:
     namespace: argocd
     server: https://kubernetes.default.svc
   source:
-    repoURL: https://github.com/rprakashdass/gitops.git
-    targetRevision: local-server
+    repoURL: {{ .Values.global.repoURL }}
+    targetRevision: {{ .Values.global.targetRevision }}
     path: argocd/rbac
   syncPolicy:
     automated:
