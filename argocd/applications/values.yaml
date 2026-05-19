@@ -10,7 +10,7 @@ apps:
   grafana:
     enabled: true
   loki:
-    enabled: false
+    enabled: true
   mimir:
     enabled: true
   minio:
@@ -22,7 +22,7 @@ apps:
   posSystemProd:
     enabled: false
   tempo:
-    enabled: false
+    enabled: true
   vpa:
     enabled: false
     chartVersion: "4.11.0"
