@@ -1,6 +1,6 @@
 global:
   repoURL: https://github.com/rprakashdass/gitops.git
-  targetRevision: main
+  targetRevision: local-server
 
 apps:
   alloy:
@@ -27,6 +27,6 @@ apps:
     enabled: false
     chartVersion: "4.11.0"
   prometheus-alertmanager:
-    enabled: true
+    enabled: false
   alertingConfig:
     rulesEnv: production

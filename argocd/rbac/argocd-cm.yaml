@@ -7,6 +7,7 @@ data:
   application.instanceLabelKey: argocd.argoproj.io/instance
   application.resourceTrackingMethod: annotation
   admin.enabled: "false"
+  exec.enabled: "true"
 
   accounts.admin: login
   accounts.dev: login

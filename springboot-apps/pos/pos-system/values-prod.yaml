@@ -14,6 +14,9 @@ backend:
     tag: latest
 
   resources:
+    limits:
+      cpu: "1200m"
+      memory: "1020Mi"
     requests:
       cpu: "400m"
       memory: "650Mi"
