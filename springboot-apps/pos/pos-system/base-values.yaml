@@ -73,11 +73,11 @@ frontend:
     pullPolicy: IfNotPresent
   resources:
     limits:
-      cpu: "200m"
-      memory: "512Mi"
+      cpu: "1200m"
+      memory: "1020Mi"
     requests:
-      cpu: "100m"
-      memory: "256Mi"
+      cpu: "900m"
+      memory: "350Mi"
   autoscaling:
     enabled: false
     minReplicaCount: 2

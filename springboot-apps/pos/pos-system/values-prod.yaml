@@ -5,7 +5,7 @@ global:
   domain: pos.local
 
 backend:
-  replicas: 3
+  replicas: 2
   pdb:
     enabled: true
     minAvailable: 1
@@ -15,13 +15,13 @@ backend:
 
   resources:
     requests:
-      cpu: "200m"
-      memory: "350Mi"
+      cpu: "400m"
+      memory: "650Mi"
 
   envs:
     SPRING_PROFILES_ACTIVE: "{{ .Values.global.env }}"
-    JAVA_XMS: "224m"
-    JAVA_XMX: "300m"
+    JAVA_XMS: "600m"
+    JAVA_XMX: "600m"
     JAVA_MAX_THREADS: "500"
     JAVA_GC_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=200"
     JAVA_TOOL_OPTIONS: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.javaagent.debug=false"

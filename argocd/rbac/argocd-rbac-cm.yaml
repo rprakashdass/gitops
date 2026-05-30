@@ -7,11 +7,12 @@ data:
   policy.default: role:readonly
 
   policy.csv: |
-    p, role:admin, applications, *, */*, allow
+    p, role:admin, *, *, */*, allow
 
     p, role:dev, applications, get, springboot-apps/*, allow
     p, role:dev, applications, sync, springboot-apps/*, allow
     p, role:dev, logs, get, springboot-apps/*, allow
+    p, role:dev, exec, create, springboot-apps/*, allow
     p, role:dev, projects, get, springboot-apps, allow
 
     g, admin, role:admin
