@@ -24,7 +24,7 @@ data:
       }
     }
 
-    // Filter out storage/backend components
+    // Filter, drop noise, and promote all Kubernetes metadata as labels
     discovery.relabel "filtered_pods" {
       targets = discovery.kubernetes.pods.targets
 
@@ -41,30 +41,58 @@ data:
         regex         = "loki-.*|mimir-.*|minio-.*"
         action        = "drop"
       }
-    }
 
-    // Scrape logs from all filtered pods
-    loki.source.kubernetes "app_logs" {
-      targets    = discovery.relabel.filtered_pods.output
-      forward_to = [loki.process.add_standard_labels.receiver]
-    }
-
-    // Add standard Kubernetes labels + parse logs
-    loki.process "add_standard_labels" {
-      forward_to = [loki.write.loki_endpoint.receiver]
-
-      // Add standard Kubernetes labels
-      stage.labels {
-        values = {
-          pod       = "__meta_kubernetes_pod_name",
-          namespace = "__meta_kubernetes_namespace",
-          job       = "__meta_kubernetes_pod_label_app_kubernetes_io_name",
-          instance  = "__meta_kubernetes_pod_node_name",
-          container = "__meta_kubernetes_pod_container_name",
-        }
+      // Promote core Kubernetes metadata to log labels
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        target_label  = "pod"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_namespace"]
+        target_label  = "namespace"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_container_name"]
+        target_label  = "container"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        target_label  = "instance"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_app"]
+        target_label  = "job"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_app"]
+        target_label  = "deploy"
       }
 
-      // Drop unnecessary internal labels
+      // env: use pod label if set, else fall back to namespace
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_env"]
+        target_label  = "env"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_env", "__meta_kubernetes_namespace"]
+        separator     = ";"
+        regex         = ";(.*)"
+        target_label  = "env"
+        replacement   = "$1"
+      }
+    }
+
+    // Collect logs from filtered pods
+    loki.source.kubernetes "app_logs" {
+      targets    = discovery.relabel.filtered_pods.output
+      forward_to = [loki.process.parse_logs.receiver]
+    }
+
+    // Parse log content only — Kubernetes labels are already set above
+    loki.process "parse_logs" {
+      forward_to = [loki.write.loki_endpoint.receiver]
+
+      // Drop internal labels added by Alloy
       stage.label_drop {
         values = ["filename", "stream"]
       }
@@ -84,7 +112,7 @@ data:
         }
       }
 
-      // Add parsed fields as additional labels
+      // Promote parsed log fields to labels
       stage.labels {
         values = {
           level    = "level",
@@ -111,21 +139,21 @@ data:
       }
       selectors {
         role  = "service"
-        label = "app.kubernetes.io/name=ksm"
+        label = "app.kubernetes.io/name=kube-state-metrics"
       }
     }
 
     // Scrape metrics from KSM
     prometheus.scrape "ksm_metrics" {
       targets = discovery.kubernetes.ksm.targets
-      forward_to = [prometheus.relabel.add_cluster.receiver]
+      forward_to = [prometheus.relabel.ksm_relabel.receiver]
 
       scrape_interval = "30s"
       scrape_timeout  = "10s"
     }
 
-    // Add cluster label and relabel
-    prometheus.relabel "add_cluster" {
+    // KSM-specific relabel: add cluster label and keep only kube_* metrics
+    prometheus.relabel "ksm_relabel" {
       forward_to = [prometheus.remote_write.mimir.receiver]
 
       // Add cluster name

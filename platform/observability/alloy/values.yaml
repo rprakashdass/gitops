@@ -61,6 +61,7 @@ receiver:
 
 # KSM (Kube-State-Metrics) configuration
 ksm:
+  nameOverride: kube-state-metrics
   prometheusScrape: false
   
   resources:

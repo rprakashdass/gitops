@@ -33,7 +33,13 @@ data:
       auth_type = "serviceAccount"
       passthrough = false
       extract {
-        metadata = ["k8s.namespace.name", "k8s.pod.name", "k8s.node.name"]
+        metadata = [
+          "k8s.namespace.name",
+          "k8s.pod.name",
+          "k8s.node.name",
+          "k8s.deployment.name",
+          "k8s.container.name",
+        ]
       }
       output {
         metrics = [otelcol.processor.batch.default.input]
@@ -84,6 +90,16 @@ data:
         from_attribute = "k8s.pod.name"
         action = "upsert"
       }
+      action {
+        key = "deploy"
+        from_attribute = "k8s.deployment.name"
+        action = "upsert"
+      }
+      action {
+        key = "container"
+        from_attribute = "k8s.container.name"
+        action = "upsert"
+      }
       output {
         metrics = [otelcol.exporter.prometheus.mimir.input]
       }
@@ -116,6 +132,21 @@ data:
         from_attribute = "env"
         action = "upsert"
       }
+      action {
+        key = "instance"
+        from_attribute = "k8s.pod.name"
+        action = "upsert"
+      }
+      action {
+        key = "deploy"
+        from_attribute = "k8s.deployment.name"
+        action = "upsert"
+      }
+      action {
+        key = "container"
+        from_attribute = "k8s.container.name"
+        action = "upsert"
+      }
       output {
         logs = [otelcol.exporter.loki.default.input]
       }
@@ -146,6 +177,21 @@ data:
       action {
         key = "env"
         from_attribute = "env"
+        action = "upsert"
+      }
+      action {
+        key = "instance"
+        from_attribute = "k8s.pod.name"
+        action = "upsert"
+      }
+      action {
+        key = "deploy"
+        from_attribute = "k8s.deployment.name"
+        action = "upsert"
+      }
+      action {
+        key = "container"
+        from_attribute = "k8s.container.name"
         action = "upsert"
       }
       output {
