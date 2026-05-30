@@ -15,10 +15,10 @@ backend:
 
   resources:
     limits:
-      cpu: "1200m"
+      cpu: "1500m"
       memory: "1020Mi"
     requests:
-      cpu: "400m"
+      cpu: "500m"
       memory: "650Mi"
 
   envs:

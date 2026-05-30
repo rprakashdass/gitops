@@ -10,7 +10,7 @@ spec:
   sourceRepos:
     - 'https://github.com/rprakashdass/gitops.git'
   destinations:
-    - namespace: pos
+    - namespace: pos-dev
       server: https://kubernetes.default.svc
     - namespace: pos-prod
       server: https://kubernetes.default.svc

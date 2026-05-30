@@ -17,15 +17,15 @@ backend:
   resources:
     limits:
       cpu: "800m"
-      memory: "920Mi"
+      memory: "1024Mi"
     requests:
       cpu: "250m"
-      memory: "400Mi"
+      memory: "512Mi"
 
   envs:
     SPRING_PROFILES_ACTIVE: "{{ .Values.global.env }}"
-    JAVA_XMS: "256m"
-    JAVA_XMX: "384m"
+    JAVA_XMS: "320m"
+    JAVA_XMX: "512m"
     JAVA_MAX_THREADS: "250"
     JAVA_GC_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=200"
     JAVA_TOOL_OPTIONS: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.javaagent.debug=false"

@@ -43,8 +43,25 @@ data:
       }
       output {
         metrics = [otelcol.processor.batch.default.input]
-        logs    = [otelcol.processor.batch.default.input]
+        logs    = [otelcol.processor.filter.drop_noisy_logs.input]
         traces  = [otelcol.processor.batch.default.input]
+      }
+    }
+
+    // Drop INFO and below from noisy framework packages — keep app-level logs intact
+    otelcol.processor.filter "drop_noisy_logs" {
+      error_mode = "ignore"
+      logs {
+        log_record = [
+          `IsMatch(instrumentation_scope.name, "org\\.springframework\\..*") and severity_number < SEVERITY_NUMBER_WARN`,
+          `IsMatch(instrumentation_scope.name, "org\\.hibernate\\..*") and severity_number < SEVERITY_NUMBER_WARN`,
+          `IsMatch(instrumentation_scope.name, "com\\.zaxxer\\.hikari\\..*") and severity_number < SEVERITY_NUMBER_WARN`,
+          `IsMatch(instrumentation_scope.name, "org\\.apache\\.catalina\\..*") and severity_number < SEVERITY_NUMBER_WARN`,
+          `IsMatch(instrumentation_scope.name, "org\\.apache\\.tomcat\\..*") and severity_number < SEVERITY_NUMBER_WARN`,
+        ]
+      }
+      output {
+        logs = [otelcol.processor.batch.default.input]
       }
     }
 

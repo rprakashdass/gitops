@@ -10,7 +10,7 @@ spec:
   project: springboot-apps
   destination:
     server: https://kubernetes.default.svc
-    namespace: pos
+    namespace: pos-dev
   sources:
     - repoURL: {{ .Values.global.repoURL }}
       targetRevision: {{ .Values.global.targetRevision }}
