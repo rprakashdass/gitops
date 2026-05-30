@@ -52,150 +52,65 @@ data:
       send_batch_size = 100
       timeout = "10s"
       output {
-        metrics = [otelcol.processor.attributes.metrics.input]
-        logs    = [otelcol.processor.attributes.logs.input]
-        traces  = [otelcol.processor.attributes.traces.input]
+        metrics = [otelcol.processor.transform.enrich.input]
+        logs    = [otelcol.processor.transform.enrich.input]
+        traces  = [otelcol.processor.transform.enrich.input]
       }
     }
 
-    // ========== Add Standard Labels to Metrics ==========
-    otelcol.processor.attributes "metrics" {
-      action {
-        key = "job"
-        from_attribute = "service.name"
-        action = "upsert"
+    // ========== Promote resource attributes into signal scope ==========
+    // otelcol.processor.attributes "from_attribute" cannot cross resource→datapoint
+    // scope for metrics (works for logs by accident). otelcol.processor.transform
+    // uses OTTL which can explicitly read resource.attributes from any context.
+    otelcol.processor.transform "enrich" {
+      error_mode = "ignore"
+
+      metric_statements {
+        context = "datapoint"
+        statements = [
+          `set(attributes["job"],       resource.attributes["service.name"])`,
+          `set(attributes["version"],   resource.attributes["service.version"])`,
+          `set(attributes["env"],       resource.attributes["env"])`,
+          `set(attributes["pod"],       resource.attributes["k8s.pod.name"])`,
+          `set(attributes["namespace"], resource.attributes["k8s.namespace.name"])`,
+          `set(attributes["deploy"],    resource.attributes["k8s.deployment.name"])`,
+          `set(attributes["container"], resource.attributes["k8s.container.name"])`,
+          `set(attributes["instance"],  resource.attributes["k8s.pod.name"])`,
+        ]
       }
-      action {
-        key = "pod"
-        from_attribute = "k8s.pod.name"
-        action = "upsert"
+
+      log_statements {
+        context = "log"
+        statements = [
+          `set(attributes["job"],       resource.attributes["service.name"])`,
+          `set(attributes["version"],   resource.attributes["service.version"])`,
+          `set(attributes["env"],       resource.attributes["env"])`,
+          `set(attributes["pod"],       resource.attributes["k8s.pod.name"])`,
+          `set(attributes["namespace"], resource.attributes["k8s.namespace.name"])`,
+          `set(attributes["deploy"],    resource.attributes["k8s.deployment.name"])`,
+          `set(attributes["container"], resource.attributes["k8s.container.name"])`,
+          `set(attributes["instance"],  resource.attributes["k8s.pod.name"])`,
+        ]
       }
-      action {
-        key = "namespace"
-        from_attribute = "k8s.namespace.name"
-        action = "upsert"
+
+      trace_statements {
+        context = "span"
+        statements = [
+          `set(attributes["job"],       resource.attributes["service.name"])`,
+          `set(attributes["version"],   resource.attributes["service.version"])`,
+          `set(attributes["env"],       resource.attributes["env"])`,
+          `set(attributes["pod"],       resource.attributes["k8s.pod.name"])`,
+          `set(attributes["namespace"], resource.attributes["k8s.namespace.name"])`,
+          `set(attributes["deploy"],    resource.attributes["k8s.deployment.name"])`,
+          `set(attributes["container"], resource.attributes["k8s.container.name"])`,
+          `set(attributes["instance"],  resource.attributes["k8s.pod.name"])`,
+        ]
       }
-      action {
-        key = "version"
-        from_attribute = "service.version"
-        action = "upsert"
-      }
-      action {
-        key = "env"
-        from_attribute = "env"
-        action = "upsert"
-      }
-      action {
-        key = "instance"
-        from_attribute = "k8s.pod.name"
-        action = "upsert"
-      }
-      action {
-        key = "deploy"
-        from_attribute = "k8s.deployment.name"
-        action = "upsert"
-      }
-      action {
-        key = "container"
-        from_attribute = "k8s.container.name"
-        action = "upsert"
-      }
+
       output {
         metrics = [otelcol.exporter.prometheus.mimir.input]
-      }
-    }
-
-    // ========== Add Standard Labels to Logs ==========
-    otelcol.processor.attributes "logs" {
-      action {
-        key = "job"
-        from_attribute = "service.name"
-        action = "upsert"
-      }
-      action {
-        key = "pod"
-        from_attribute = "k8s.pod.name"
-        action = "upsert"
-      }
-      action {
-        key = "namespace"
-        from_attribute = "k8s.namespace.name"
-        action = "upsert"
-      }
-      action {
-        key = "version"
-        from_attribute = "service.version"
-        action = "upsert"
-      }
-      action {
-        key = "env"
-        from_attribute = "env"
-        action = "upsert"
-      }
-      action {
-        key = "instance"
-        from_attribute = "k8s.pod.name"
-        action = "upsert"
-      }
-      action {
-        key = "deploy"
-        from_attribute = "k8s.deployment.name"
-        action = "upsert"
-      }
-      action {
-        key = "container"
-        from_attribute = "k8s.container.name"
-        action = "upsert"
-      }
-      output {
-        logs = [otelcol.exporter.loki.default.input]
-      }
-    }
-
-    // ========== Add Standard Labels to Traces ==========
-    otelcol.processor.attributes "traces" {
-      action {
-        key = "job"
-        from_attribute = "service.name"
-        action = "upsert"
-      }
-      action {
-        key = "pod"
-        from_attribute = "k8s.pod.name"
-        action = "upsert"
-      }
-      action {
-        key = "namespace"
-        from_attribute = "k8s.namespace.name"
-        action = "upsert"
-      }
-      action {
-        key = "version"
-        from_attribute = "service.version"
-        action = "upsert"
-      }
-      action {
-        key = "env"
-        from_attribute = "env"
-        action = "upsert"
-      }
-      action {
-        key = "instance"
-        from_attribute = "k8s.pod.name"
-        action = "upsert"
-      }
-      action {
-        key = "deploy"
-        from_attribute = "k8s.deployment.name"
-        action = "upsert"
-      }
-      action {
-        key = "container"
-        from_attribute = "k8s.container.name"
-        action = "upsert"
-      }
-      output {
-        traces = [otelcol.exporter.otlphttp.tempo.input]
+        logs    = [otelcol.exporter.loki.default.input]
+        traces  = [otelcol.exporter.otlphttp.tempo.input]
       }
     }
 
