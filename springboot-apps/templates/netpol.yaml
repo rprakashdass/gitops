@@ -13,6 +13,9 @@ spec:
   policyTypes:
     - Ingress
   ingress:
+    - ports:
+        - protocol: TCP
+          port: {{ .Values.backend.probes.port }}
     - from:
         - podSelector:
             matchLabels:

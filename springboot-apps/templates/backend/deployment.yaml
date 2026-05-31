@@ -21,7 +21,9 @@ spec:
         app.kubernetes.io/component: backend
         app: pos-backend
     spec:
+      {{- if .Values.serviceAccount.create }}
       serviceAccountName: {{ .Values.serviceAccount.name }}
+      {{- end }}
       terminationGracePeriodSeconds: {{ .Values.backend.terminationGracePeriodSeconds }}
       {{- if .Values.backend.topologySpreadConstraints }}
       topologySpreadConstraints:
@@ -34,6 +36,14 @@ spec:
           ports:
             - containerPort: {{ .Values.backend.probes.port }}
           env:
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: HAZELCAST_KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
             {{- $envs := .Values.backend.envs | default dict }}
             {{- range $name := keys $envs | sortAlpha }}
             - name: {{ $name }}
