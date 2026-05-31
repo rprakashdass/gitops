@@ -3,8 +3,12 @@ apiVersion: v1
 kind: Service
 metadata:
   name: pos-db-service
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "pos.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: database
 spec:
-  clusterIP: None  # Headless service for stateful sets
+  clusterIP: None
   selector:
     app: pos-db
   ports:

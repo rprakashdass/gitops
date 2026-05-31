@@ -1,0 +1,23 @@
+{{- if .Values.global.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hazelcast-member-policy
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "pos.commonLabels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: pos-backend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: pos-backend
+      ports:
+        - protocol: TCP
+          port: 5701
+{{- end }}

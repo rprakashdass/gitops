@@ -3,6 +3,10 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: pos-frontend-pdb
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "pos.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
 spec:
   {{- if hasKey .Values.frontend.pdb "minAvailable" }}
   minAvailable: {{ .Values.frontend.pdb.minAvailable }}

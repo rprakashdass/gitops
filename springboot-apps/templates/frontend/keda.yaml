@@ -3,8 +3,14 @@ apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
   name: pos-frontend-scaledobject
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "pos.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
 spec:
   scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
     name: pos-frontend
   minReplicaCount: {{ .Values.frontend.autoscaling.minReplicaCount }}
   maxReplicaCount: {{ .Values.frontend.autoscaling.maxReplicaCount }}
@@ -21,6 +27,6 @@ spec:
   advanced:
     horizontalPodAutoscalerConfig:
       behavior:
-{{ toYaml .Values.frontend.autoscaling.behavior | indent 8 }}
+        {{- toYaml .Values.frontend.autoscaling.behavior | nindent 8 }}
   {{- end }}
 {{- end }}

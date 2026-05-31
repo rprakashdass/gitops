@@ -3,22 +3,28 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: pos-db
+  namespace: {{ .Values.global.namespace }}
   labels:
+    {{- include "pos.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: database
     app: pos-db
 spec:
   serviceName: "pos-db"
-  replicas: 1
+  replicas: {{ .Values.mysql.replicas }}
   selector:
     matchLabels:
       app: pos-db
   template:
     metadata:
       labels:
+        {{- include "pos.commonLabels" . | nindent 8 }}
+        app.kubernetes.io/component: database
         app: pos-db
     spec:
       containers:
         - name: mysql
           image: {{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}
+          imagePullPolicy: {{ .Values.mysql.image.pullPolicy }}
           ports:
             - containerPort: 3306
           env:
@@ -28,25 +34,18 @@ spec:
                   name: pos-secret
                   key: pos_db_password
             - name: MYSQL_DATABASE
-              value: posdb
+              value: {{ .Values.mysql.database }}
           volumeMounts:
             - name: mysql-data
               mountPath: /var/lib/mysql
           resources:
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-            requests:
-              memory: "256Mi"
-              cpu: "250m"
+            {{- toYaml .Values.mysql.resources | nindent 12 }}
   volumeClaimTemplates:
     - metadata:
         name: mysql-data
       spec:
-        accessModes: [ "ReadWriteOnce" ]
+        accessModes: ["ReadWriteOnce"]
         resources:
-          limits:
-            storage: 1Gi
           requests:
-            storage: 500Mi
+            storage: {{ .Values.mysql.persistence.size }}
 {{- end }}

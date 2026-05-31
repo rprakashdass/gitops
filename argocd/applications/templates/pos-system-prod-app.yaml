@@ -14,11 +14,13 @@ spec:
   sources:
     - repoURL: {{ .Values.global.repoURL }}
       targetRevision: {{ .Values.global.targetRevision }}
-      path: springboot-apps/pos/pos-system
+      ref: values
+    - repoURL: {{ .Values.global.repoURL }}
+      targetRevision: {{ .Values.global.targetRevision }}
+      path: springboot-apps
       helm:
         valueFiles:
-          - base-values.yaml
-          - values-prod.yaml
+          - $values/values/values-prod.yaml
   syncPolicy:
     syncOptions:
       - CreateNamespace=true

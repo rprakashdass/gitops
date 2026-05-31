@@ -1,40 +1,36 @@
 global:
   enabled: true
-  env: prod
-  namespace: pos-prod
-  domain: pos.local
+  env: dev
+  namespace: pos-dev
+  domain: pos-dev.local
 
 backend:
+  enabled: true
   replicas: 2
   pdb:
     enabled: true
-    minAvailable: 1
     maxUnavailable: 1
   image:
     tag: latest
-
+    pullPolicy: Always
   resources:
     limits:
-      cpu: "1500m"
-      memory: "1020Mi"
+      cpu: "800m"
+      memory: "1024Mi"
     requests:
-      cpu: "500m"
-      memory: "650Mi"
-
+      cpu: "250m"
+      memory: "512Mi"
   envs:
     SPRING_PROFILES_ACTIVE: "{{ .Values.global.env }}"
-    JAVA_XMS: "600m"
-    JAVA_XMX: "600m"
-    JAVA_MAX_THREADS: "500"
+    JAVA_XMS: "320m"
+    JAVA_XMX: "512m"
+    JAVA_MAX_THREADS: "250"
     JAVA_GC_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=200"
     JAVA_TOOL_OPTIONS: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.javaagent.debug=false"
     OTEL_RESOURCE_ATTRIBUTES: "env={{ .Values.global.env }},service.version=latest"
-    OTEL_ENDPOINT: "http://alloy-receiver.observability.svc.cluster.local:4317"
-
   probes:
-    port: 8082
     startup:
-      initialDelaySeconds: 90
+      initialDelaySeconds: 60
       periodSeconds: 10
       timeoutSeconds: 5
       failureThreshold: 30
@@ -46,51 +42,12 @@ backend:
       periodSeconds: 10
       timeoutSeconds: 5
       failureThreshold: 3
-
   autoscaling:
     enabled: true
-    minReplicaCount: 2
-    maxReplicaCount: 10
-    cpuAverageUtilization: 70
-    memoryAverageUtilization: 80
-    behavior:
-      scaleDown:
-        stabilizationWindowSeconds: 300
-        policies:
-          - type: Percent
-            value: 50
-            periodSeconds: 15
-      scaleUp:
-        stabilizationWindowSeconds: 0
-        selectPolicy: Max
-        policies:
-          - type: Percent
-            value: 100
-            periodSeconds: 15
-          # - type: Pods
-          #   value: 2
-          #   periodSeconds: 15
-
-frontend:
-  replicas: 2
-  pdb:
-    enabled: true
-    minAvailable: 1
-    maxUnavailable: 1
-  image:
-    tag: latest
-
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "150Mi"
-
-  autoscaling:
-    enabled: true
-    minReplicaCount: 2
-    maxReplicaCount: 8
-    cpuAverageUtilization: 70
-    memoryAverageUtilization: 80
+    minReplicaCount: 1
+    maxReplicaCount: 6
+    cpuAverageUtilization: 80
+    memoryAverageUtilization: 85
     behavior:
       scaleDown:
         stabilizationWindowSeconds: 300
@@ -106,16 +63,58 @@ frontend:
             value: 100
             periodSeconds: 15
           - type: Pods
-            value: 2
+            value: 1
             periodSeconds: 15
 
-mysql:
+frontend:
+  enabled: true
+  replicas: 1
+  pdb:
+    enabled: true
+    maxUnavailable: 1
   image:
-    repository: mysql
-    tag: "8.0"
-    pullPolicy: IfNotPresent
+    tag: latest
+    pullPolicy: Always
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "250Mi"
+  autoscaling:
+    enabled: true
+    minReplicaCount: 1
+    maxReplicaCount: 4
+    cpuAverageUtilization: 70
+    memoryAverageUtilization: 75
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+          - type: Percent
+            value: 50
+            periodSeconds: 15
+      scaleUp:
+        stabilizationWindowSeconds: 0
+        selectPolicy: Max
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+          - type: Pods
+            value: 1
+            periodSeconds: 15
+
+invoice:
+  enabled: false
+
+mysql:
+  auth:
+    username: root
+    password: rootpass
   persistence:
-    size: 500Mi
+    size: 200Mi
 
 config:
   database:
@@ -123,11 +122,12 @@ config:
   jpa:
     hibernate_ddl_auto: "validate"
     show_sql: "true"
-  api:
-    base_url: "/api"
   otel:
     exporter:
       otlp:
         endpoint: "http://alloy-receiver.monitoring.svc.cluster.local:4317"
     service_name: "pos-backend"
-  java_tool_options: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.javaagent.debug=false"
+
+serviceAccount:
+  create: true
+  name: pos-sa

@@ -1,0 +1,250 @@
+global:
+  enabled: false
+  namespace: pos
+  env: dev
+  domain: pos.local
+  ingressClassName: traefik
+
+backend:
+  enabled: false
+  replicas: 1
+  terminationGracePeriodSeconds: 60
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  image:
+    repository: docker.io/rprakashdass/pos-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    port: 8082
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+  autoscaling:
+    enabled: false
+    minReplicaCount: 2
+    maxReplicaCount: 10
+    cpuAverageUtilization: 70
+    memoryAverageUtilization: 80
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+          - type: Percent
+            value: 50
+            periodSeconds: 15
+      scaleUp:
+        stabilizationWindowSeconds: 0
+        selectPolicy: Max
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+          - type: Pods
+            value: 2
+            periodSeconds: 15
+  probes:
+    port: 8082
+    path: /api/health
+    startup:
+      initialDelaySeconds: 60
+      periodSeconds: 15
+      timeoutSeconds: 5
+      failureThreshold: 30
+    readiness:
+      periodSeconds: 15
+      timeoutSeconds: 5
+      failureThreshold: 3
+    liveness:
+      periodSeconds: 20
+      timeoutSeconds: 5
+      failureThreshold: 6
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app: pos-backend
+
+frontend:
+  enabled: false
+  replicas: 1
+  terminationGracePeriodSeconds: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  image:
+    repository: docker.io/rprakashdass/pos-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    port: 3000
+  resources:
+    limits:
+      cpu: "1200m"
+      memory: "1024Mi"
+    requests:
+      cpu: "900m"
+      memory: "550Mi"
+  autoscaling:
+    enabled: false
+    minReplicaCount: 2
+    maxReplicaCount: 8
+    cpuAverageUtilization: 70
+    memoryAverageUtilization: 80
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+          - type: Percent
+            value: 50
+            periodSeconds: 15
+      scaleUp:
+        stabilizationWindowSeconds: 0
+        selectPolicy: Max
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+          - type: Pods
+            value: 2
+            periodSeconds: 15
+  probes:
+    port: 3000
+    path: /
+    startup:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 12
+    readiness:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    liveness:
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app: pos-frontend
+
+invoice:
+  enabled: false
+  replicas: 1
+  terminationGracePeriodSeconds: 60
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  image:
+    repository: docker.io/rprakashdass/pos-invoice
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    port: 8083
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+  autoscaling:
+    enabled: false
+    minReplicaCount: 1
+    maxReplicaCount: 6
+    cpuAverageUtilization: 70
+    memoryAverageUtilization: 80
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+          - type: Percent
+            value: 50
+            periodSeconds: 15
+      scaleUp:
+        stabilizationWindowSeconds: 0
+        selectPolicy: Max
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+          - type: Pods
+            value: 2
+            periodSeconds: 15
+  probes:
+    port: 8083
+    path: /api/health
+    startup:
+      initialDelaySeconds: 60
+      periodSeconds: 15
+      timeoutSeconds: 5
+      failureThreshold: 30
+    readiness:
+      periodSeconds: 15
+      timeoutSeconds: 5
+      failureThreshold: 3
+    liveness:
+      periodSeconds: 20
+      timeoutSeconds: 5
+      failureThreshold: 6
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app: pos-invoice
+
+mysql:
+  replicas: 1
+  database: posdb
+  auth:
+    username: root
+    password: rootpass
+  image:
+    repository: mysql
+    tag: "8.0"
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+  persistence:
+    size: 500Mi
+
+config:
+  database:
+    url: "jdbc:mysql://pos-db-service:3306/posdb"
+  jpa:
+    hibernate_ddl_auto: "validate"
+    show_sql: "false"
+  api:
+    base_url: "/api"
+  otel:
+    exporter:
+      otlp:
+        endpoint: "http://alloy-receiver.observability.svc.cluster.local:4317"
+        protocol: "grpc"
+    service_name: "pos-backend"
+
+serviceAccount:
+  create: false
+  name: pos-sa
+
+CreateNamespace: true

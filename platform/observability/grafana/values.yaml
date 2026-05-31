@@ -11,8 +11,8 @@ resources:
     cpu: 50m
     memory: 128Mi
   limits:
-    cpu: 150m
-    memory: 256Mi
+    cpu: 450m
+    memory: 656Mi
 
 adminUser: admin
 adminPassword: ChangeMeStrong
@@ -29,6 +29,14 @@ dashboardProviders:
         editable: true
         options:
           path: /var/lib/grafana/dashboards/default
+      - name: jvm
+        orgId: 1
+        folder: jvm
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/jvm
 
 dashboards:
   default:
@@ -39,6 +47,11 @@ dashboards:
     kubernetes-cluster-monitoring:
       gnetId: 15661
       revision: 2
+      datasource: Mimir
+  jvm:
+    jvm-overview-opentelemetry:
+      gnetId: 18812
+      revision: 1
       datasource: Mimir
 
 datasources:

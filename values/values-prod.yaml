@@ -1,40 +1,36 @@
 global:
   enabled: true
-  env: dev
-  namespace: pos
-  domain: pos-dev.local
+  env: prod
+  namespace: pos-prod
+  domain: pos.local
 
 backend:
+  enabled: true
   replicas: 2
   pdb:
     enabled: true
-    minAvailable: 0
-    maxUnavailable: 1
+    minAvailable: 1
   image:
     tag: latest
-    pullPolicy: Always
-
+    pullPolicy: IfNotPresent
   resources:
     limits:
-      cpu: "800m"
+      cpu: "1500m"
       memory: "1024Mi"
     requests:
-      cpu: "250m"
-      memory: "512Mi"
-
+      cpu: "500m"
+      memory: "650Mi"
   envs:
     SPRING_PROFILES_ACTIVE: "{{ .Values.global.env }}"
-    JAVA_XMS: "320m"
-    JAVA_XMX: "512m"
-    JAVA_MAX_THREADS: "250"
+    JAVA_XMS: "600m"
+    JAVA_XMX: "600m"
+    JAVA_MAX_THREADS: "500"
     JAVA_GC_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=200"
     JAVA_TOOL_OPTIONS: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.javaagent.debug=false"
     OTEL_RESOURCE_ATTRIBUTES: "env={{ .Values.global.env }},service.version=latest"
-
   probes:
-    port: 8082
     startup:
-      initialDelaySeconds: 60
+      initialDelaySeconds: 90
       periodSeconds: 10
       timeoutSeconds: 5
       failureThreshold: 30
@@ -46,13 +42,12 @@ backend:
       periodSeconds: 10
       timeoutSeconds: 5
       failureThreshold: 3
-
   autoscaling:
     enabled: true
-    minReplicaCount: 1
-    maxReplicaCount: 6
-    cpuAverageUtilization: 80
-    memoryAverageUtilization: 85
+    minReplicaCount: 2
+    maxReplicaCount: 10
+    cpuAverageUtilization: 70
+    memoryAverageUtilization: 80
     behavior:
       scaleDown:
         stabilizationWindowSeconds: 300
@@ -66,32 +61,30 @@ backend:
         policies:
           - type: Percent
             value: 100
-            periodSeconds: 15
-          - type: Pods
-            value: 1
             periodSeconds: 15
 
 frontend:
-  replicas: 1
+  enabled: true
+  replicas: 2
   pdb:
     enabled: true
-    minAvailable: 0
-    maxUnavailable: 1
+    minAvailable: 1
   image:
     tag: latest
-    pullPolicy: Always
-
+    pullPolicy: IfNotPresent
   resources:
+    limits:
+      cpu: "800m"
+      memory: "512Mi"
     requests:
       cpu: "100m"
-      memory: "250Mi"
-
+      memory: "150Mi"
   autoscaling:
     enabled: true
-    minReplicaCount: 1
-    maxReplicaCount: 4
+    minReplicaCount: 2
+    maxReplicaCount: 8
     cpuAverageUtilization: 70
-    memoryAverageUtilization: 75
+    memoryAverageUtilization: 80
     behavior:
       scaleDown:
         stabilizationWindowSeconds: 300
@@ -107,28 +100,31 @@ frontend:
             value: 100
             periodSeconds: 15
           - type: Pods
-            value: 1
+            value: 2
             periodSeconds: 15
 
+invoice:
+  enabled: false
+
 mysql:
-  image:
-    repository: mysql
-    tag: "8.0"
-    pullPolicy: IfNotPresent
+  auth:
+    username: root
+    password: rootpass
   persistence:
-    size: 200Mi
+    size: 500Mi
 
 config:
   database:
     url: "jdbc:mysql://pos-db-service:3306/posdb"
   jpa:
     hibernate_ddl_auto: "validate"
-    show_sql: "true"
-  api:
-    base_url: "/api"
+    show_sql: "false"
   otel:
     exporter:
       otlp:
-        endpoint: "http://alloy-receiver.monitoring.svc.cluster.local:4317"
+        endpoint: "http://alloy-receiver.observability.svc.cluster.local:4317"
     service_name: "pos-backend"
-  java_tool_options: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.javaagent.debug=false"
+
+serviceAccount:
+  create: true
+  name: pos-sa

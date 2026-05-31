@@ -1,0 +1,17 @@
+{{- if .Values.global.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pos-backend-config
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "pos.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+data:
+  SPRING_DATASOURCE_URL: {{ .Values.config.database.url | quote }}
+  SPRING_JPA_HIBERNATE_DDL_AUTO: {{ .Values.config.jpa.hibernate_ddl_auto | quote }}
+  SPRING_JPA_SHOW_SQL: {{ .Values.config.jpa.show_sql | quote }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.config.otel.exporter.otlp.endpoint | quote }}
+  OTEL_EXPORTER_OTLP_PROTOCOL: {{ .Values.config.otel.exporter.otlp.protocol | quote }}
+  OTEL_SERVICE_NAME: {{ .Values.config.otel.service_name | quote }}
+{{- end }}

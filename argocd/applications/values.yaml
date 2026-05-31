@@ -20,7 +20,7 @@ apps:
   posSystem:
     enabled: true
   posSystemProd:
-    enabled: true
+    enabled: false
   tempo:
     enabled: true
   vpa:
