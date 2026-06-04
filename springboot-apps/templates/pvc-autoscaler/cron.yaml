@@ -1,3 +1,4 @@
+{{- if .Values.pvcAutoscaler.enabled }}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
