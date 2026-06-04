@@ -251,8 +251,8 @@ pvcAutoscaler:
   enabled: false
   name: pvc-autoscaler-sa
   image:
-    repository: python
-    tag: "3.11-slim"
+    repository: docker.io/rprakashdass/pvc-autoscaler
+    tag: latest
   schedule: "0 * * * *"
   namespace: pos
 

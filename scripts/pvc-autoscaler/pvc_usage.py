@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+import os
+import sys
+from datetime import datetime, timezone
+
+try:
+    from kubernetes import client, config
+except ImportError:
+    print("ERROR: kubernetes package not installed", flush=True)
+    sys.exit(1)
+
+
+def fmt(size_str):
+    return size_str if size_str else "N/A"
+
+
+def main():
+    config.load_incluster_config()
+    v1 = client.CoreV1Api()
+
+    namespace = os.getenv("NAMESPACE", "pos-dev")
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+
+    print(f"\n{'='*80}")
+    print(f"  PVC Storage Usage Report — {now}")
+    print(f"  Namespace: {namespace}")
+    print(f"{'='*80}")
+
+    pvcs = v1.list_namespaced_persistent_volume_claim(namespace=namespace)
+
+    if not pvcs.items:
+        print("  No PersistentVolumeClaims found.")
+        print(f"{'='*80}\n")
+        return
+
+    col = "{:<35} {:<12} {:<12} {:<12}"
+    print(col.format("PVC NAME", "STATUS", "CAPACITY", "ACCESS MODES"))
+    print("-" * 80)
+
+    for pvc in sorted(pvcs.items, key=lambda p: p.metadata.name):
+        name     = pvc.metadata.name
+        phase    = pvc.status.phase or "Unknown"
+        capacity = "N/A"
+        if pvc.status.capacity:
+            capacity = fmt(pvc.status.capacity.get("storage"))
+        elif pvc.spec.resources and pvc.spec.resources.requests:
+            capacity = fmt(pvc.spec.resources.requests.get("storage"))
+        modes = ", ".join(pvc.spec.access_modes) if pvc.spec.access_modes else "N/A"
+
+        print(col.format(name, phase, capacity, modes))
+
+    print("-" * 80)
+    print(f"Total PVCs: {len(pvcs.items)}")
+    print(f"{'='*80}\n")
+
+
+if __name__ == "__main__":
+    main()
