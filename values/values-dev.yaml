@@ -131,3 +131,12 @@ config:
 serviceAccount:
   create: true
   name: pos-sa
+
+
+pvcAutoscaler:
+  enabled: true
+  name: pvc-autoscaler-sa
+  image:
+    repository: python
+    tag: "3.11-slim"
+  schedule: "0 * * * *"
