@@ -21,10 +21,10 @@ backend:
   resources:
     limits:
       cpu: "200m"
-      memory: "512Mi"
+      memory: "812Mi"
     requests:
       cpu: "100m"
-      memory: "256Mi"
+      memory: "456Mi"
   autoscaling:
     enabled: false
     minReplicaCount: 2
@@ -246,5 +246,14 @@ config:
 serviceAccount:
   create: false
   name: pos-sa
+
+pvcAutoscaler:
+  enabled: false
+  name: pvc-autoscaler-sa
+  image:
+    repository: python
+    tag: "3.11-slim"
+  schedule: "0 * * * *"
+  namespace: pos
 
 CreateNamespace: true

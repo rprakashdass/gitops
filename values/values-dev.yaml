@@ -78,10 +78,10 @@ frontend:
   resources:
     limits:
       cpu: "500m"
-      memory: "512Mi"
+      memory: "812Mi"
     requests:
       cpu: "100m"
-      memory: "250Mi"
+      memory: "450Mi"
   autoscaling:
     enabled: true
     minReplicaCount: 1
