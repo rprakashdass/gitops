@@ -254,6 +254,5 @@ pvcAutoscaler:
     repository: docker.io/rprakashdass/pvc-autoscaler
     tag: latest
   schedule: "0 * * * *"
-  namespace: pos
 
 CreateNamespace: true

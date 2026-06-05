@@ -25,6 +25,9 @@ metadata:
     {{- include "pos.commonLabels" . | nindent 4 }}
 rules:
   - apiGroups: [""]
-    resources: ["persistentvolumeclaims"]
+    resources: ["persistentvolumeclaims", "pods"]
     verbs: ["get", "list", "patch"]
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["pods"]
+    verbs: ["get", "list"]
 {{- end }}
