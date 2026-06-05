@@ -3,6 +3,8 @@ import os
 import sys
 from datetime import datetime, timezone
 
+print("Script is executing!..")
+
 try:
     import requests
     from kubernetes import client, config
@@ -103,6 +105,8 @@ def main():
     print(report, flush=True)
     send_slack(report)
 
+
+print("Execution completed!..")
 
 if __name__ == "__main__":
     main()

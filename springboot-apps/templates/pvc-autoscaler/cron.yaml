@@ -34,6 +34,7 @@ spec:
                     secretKeyRef:
                       name: pvc-autoscaler-secret
                       key: slack-webhook-url
+                      optional: true
               resources:
                 limits:
                   cpu: "100m"
