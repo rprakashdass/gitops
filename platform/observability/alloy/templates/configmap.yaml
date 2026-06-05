@@ -156,17 +156,65 @@ data:
     prometheus.relabel "ksm_relabel" {
       forward_to = [prometheus.remote_write.mimir.receiver]
 
-      // Add cluster name
       rule {
         target_label = "cluster"
         replacement  = "local"
       }
 
-      // Keep only useful labels
+      // Promote namespace from meta label (namespace of the resource, not KSM pod)
+      rule {
+        source_labels = ["namespace"]
+        target_label  = "namespace"
+      }
+
       rule {
         source_labels = ["__name__"]
         regex         = "kube_.*"
         action        = "keep"
+      }
+    }
+
+    // ========== KUBELET METRICS ==========
+
+    discovery.kubernetes "nodes" {
+      role = "node"
+    }
+
+    prometheus.scrape "kubelet_metrics" {
+      targets         = discovery.kubernetes.nodes.targets
+      forward_to      = [prometheus.relabel.kubelet_relabel.receiver]
+      scheme          = "https"
+      scrape_interval = "60s"
+      scrape_timeout  = "10s"
+
+      tls_config {
+        insecure_skip_verify = true
+      }
+
+      authorization {
+        type             = "Bearer"
+        credentials_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+      }
+    }
+
+    prometheus.relabel "kubelet_relabel" {
+      forward_to = [prometheus.remote_write.mimir.receiver]
+
+      rule {
+        target_label = "cluster"
+        replacement  = "local"
+      }
+
+      // Promote node name from discovery metadata
+      rule {
+        source_labels = ["__meta_kubernetes_node_name"]
+        target_label  = "node"
+      }
+
+      // Promote namespace from metric label (present in volume_stats, container metrics, etc.)
+      rule {
+        source_labels = ["namespace"]
+        target_label  = "namespace"
       }
     }
 
