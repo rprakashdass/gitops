@@ -29,6 +29,8 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
+                - name: MIMIR_URL
+                  value: "http://mimir-nginx.monitoring.svc.cluster.local/prometheus"
                 - name: SLACK_WEBHOOK_URL
                   valueFrom:
                     secretKeyRef:

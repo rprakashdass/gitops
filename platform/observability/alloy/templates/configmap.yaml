@@ -180,8 +180,18 @@ data:
       role = "node"
     }
 
+    discovery.relabel "kubelet_nodes" {
+      targets = discovery.kubernetes.nodes.targets
+
+      rule {
+        source_labels = ["__meta_kubernetes_node_address_InternalIP"]
+        target_label  = "__address__"
+        replacement   = "$1:10250"
+      }
+    }
+
     prometheus.scrape "kubelet_metrics" {
-      targets         = discovery.kubernetes.nodes.targets
+      targets         = discovery.relabel.kubelet_nodes.output
       forward_to      = [prometheus.relabel.kubelet_relabel.receiver]
       scheme          = "https"
       scrape_interval = "60s"
