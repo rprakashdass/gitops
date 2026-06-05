@@ -114,7 +114,7 @@ mysql:
     username: root
     password: rootpass
   persistence:
-    size: 200Mi
+    size: 20Mi
 
 config:
   database:
