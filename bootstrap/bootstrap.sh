@@ -83,7 +83,6 @@ fi
 REPO_URL="$(normalize_repo_url "$REPO_URL")"
 
 VALUES_FILE="$SCRIPT_DIR/argocd-values.yaml"
-VALUES_DIR="$SCRIPT_DIR/values"
 
 echo "[preflight] Checking cluster reachability + default StorageClass"
 kubectl version -o yaml >/dev/null 2>&1 || { echo "Cannot reach a cluster (check kubeconfig)." >&2; exit 1; }
@@ -99,10 +98,7 @@ helm upgrade --install "$ARGOCD_RELEASE" argo/argo-cd \
   --namespace "$ARGOCD_NAMESPACE" \
   --create-namespace \
   ${ARGOCD_CHART_VERSION:+--version "$ARGOCD_CHART_VERSION"} \
-  --values "$VALUES_FILE" \
-  --values "$VALUES_DIR/argocd-cm.yaml" \
-  --values "$VALUES_DIR/argocd-rbac.yaml" \
-  --values "$VALUES_DIR/argocd-secret.yaml"
+  --values "$VALUES_FILE"
 
 echo "[1b] Waiting for Argo CD server + the Application CRD"
 kubectl rollout status "deployment/${ARGOCD_RELEASE}-server" -n "$ARGOCD_NAMESPACE" --timeout=300s

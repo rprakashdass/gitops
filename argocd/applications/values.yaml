@@ -12,7 +12,7 @@ repository:
   url: https://github.com/rprakashdass/gitops.git
   branch: main
 
-deploymentNamespace: monitoring
+deploymentNamespace: observability
 argocdNamespace: argocd
 argocdProject: observability
 
@@ -24,7 +24,7 @@ applications:
     enabled: true
     description: "Grafana Alloy — OpenTelemetry collector and log shipper"
     project: observability
-    namespace: monitoring
+    namespace: observability
     syncWave: "1"
     prune: false
     path: platform/observability/alloy
@@ -36,7 +36,7 @@ applications:
     enabled: true
     description: "Grafana dashboards and visualization"
     project: observability
-    namespace: monitoring
+    namespace: observability
     syncWave: "1"
     autoSync: false
     useExternalChart: true
@@ -50,7 +50,7 @@ applications:
     enabled: true
     description: "Loki log aggregation"
     project: observability
-    namespace: monitoring
+    namespace: observability
     syncWave: "1"
     prune: false
     useExternalChart: true
@@ -64,7 +64,7 @@ applications:
     enabled: false
     description: "Mimir distributed metrics storage"
     project: observability
-    namespace: monitoring
+    namespace: observability
     syncWave: "1"
     prune: false
     useExternalChart: true
@@ -78,7 +78,7 @@ applications:
     enabled: false
     description: "Tempo distributed tracing"
     project: observability
-    namespace: monitoring
+    namespace: observability
     syncWave: "1"
     prune: false
     useExternalChart: true
@@ -92,7 +92,7 @@ applications:
     enabled: true
     description: "MinIO S3-compatible object storage"
     project: observability
-    namespace: monitoring
+    namespace: observability
     syncWave: "1"
     prune: false
     useExternalChart: true
@@ -106,7 +106,7 @@ applications:
     enabled: false
     description: "Alerting rules, Alertmanager config, and contact points"
     project: observability
-    namespace: monitoring
+    namespace: observability
     syncWave: "1"
     prune: true
     sources:
@@ -134,7 +134,7 @@ applications:
     enabled: true
     description: "Platform Ingress routing rules"
     project: observability
-    namespace: monitoring
+    namespace: observability
     syncWave: "1"
     prune: false
     path: platform

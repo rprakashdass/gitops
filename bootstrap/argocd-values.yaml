@@ -72,3 +72,4 @@ notifications:
 configs:
   params:
     server.insecure: true
+
