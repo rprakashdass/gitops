@@ -1,0 +1,13 @@
+# Merged into the argo-cd chart's argocd-cm ConfigMap (configs.cm).
+configs:
+  cm:
+    application.instanceLabelKey: argocd.argoproj.io/instance
+    application.resourceTrackingMethod: annotation
+    admin.enabled: "false"
+    exec.enabled: "true"
+
+    accounts.admin: login
+    accounts.dev: login
+    accounts.prakash: login
+
+    timeout.reconciliation: 300s
