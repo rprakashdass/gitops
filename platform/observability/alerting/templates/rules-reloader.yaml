@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mimir-rules-reloader
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mimir-rules-reloader
+  template:
+    metadata:
+      labels:
+        app: mimir-rules-reloader
+    spec:
+      serviceAccountName: mimir-rules-reloader
+      containers:
+      - name: reloader
+        image: bitnami/kubectl:latest
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          while true; do
+            CMS=$(kubectl get cm -n monitoring -l app=mimir-rules \
+              -o jsonpath='{.items[*].metadata.name}')
+            if [ -z "$CMS" ]; then
+              echo "No rule ConfigMaps found"
+            else
+              for cm in $CMS; do
+                namespace="${cm#rule-}"
+                response=$(kubectl get cm -n monitoring "$cm" \
+                  -o jsonpath='{.data.*}' | \
+                  sed -e '/^groups:$/d' -e '/^- name:/s/^- //' -e 's/^  //' | \
+                  curl -s -o /tmp/resp -w "%{http_code}" -X POST \
+                    "{{ .Values.mimir.address }}/prometheus/config/v1/rules/${namespace}" \
+                    -H "X-Scope-OrgID: {{ .Values.mimir.tenantId }}" \
+                    -H "Content-Type: application/yaml" \
+                    --data-binary @-)
+                if [ "$response" = "202" ] || [ "$response" = "200" ]; then
+                  echo "Synced: ${namespace}"
+                else
+                  echo "FAILED ${namespace}: HTTP ${response} - $(cat /tmp/resp)"
+                fi
+              done
+            fi
+            sleep {{ .Values.rulesSync.intervalSeconds }}
+          done

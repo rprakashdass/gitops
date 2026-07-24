@@ -1,0 +1,130 @@
+global:
+  enabled: true
+  env: prod
+  namespace: pos-prod
+  domain: pos.local
+
+backend:
+  enabled: true
+  replicas: 2
+  pdb:
+    enabled: true
+    minAvailable: 1
+  image:
+    tag: latest
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "1500m"
+      memory: "1024Mi"
+    requests:
+      cpu: "500m"
+      memory: "650Mi"
+  envs:
+    SPRING_PROFILES_ACTIVE: "{{ .Values.global.env }}"
+    JAVA_XMS: "600m"
+    JAVA_XMX: "600m"
+    JAVA_MAX_THREADS: "500"
+    JAVA_GC_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+    JAVA_TOOL_OPTIONS: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.javaagent.debug=false"
+    OTEL_RESOURCE_ATTRIBUTES: "env={{ .Values.global.env }},service.version=latest"
+  probes:
+    startup:
+      initialDelaySeconds: 90
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 30
+    readiness:
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    liveness:
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+  autoscaling:
+    enabled: true
+    minReplicaCount: 2
+    maxReplicaCount: 10
+    cpuAverageUtilization: 70
+    memoryAverageUtilization: 80
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+          - type: Percent
+            value: 50
+            periodSeconds: 15
+      scaleUp:
+        stabilizationWindowSeconds: 0
+        selectPolicy: Max
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+
+frontend:
+  enabled: true
+  replicas: 2
+  pdb:
+    enabled: true
+    minAvailable: 1
+  image:
+    tag: latest
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "800m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "150Mi"
+  autoscaling:
+    enabled: true
+    minReplicaCount: 2
+    maxReplicaCount: 8
+    cpuAverageUtilization: 70
+    memoryAverageUtilization: 80
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+          - type: Percent
+            value: 50
+            periodSeconds: 15
+      scaleUp:
+        stabilizationWindowSeconds: 0
+        selectPolicy: Max
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+          - type: Pods
+            value: 2
+            periodSeconds: 15
+
+invoice:
+  enabled: false
+
+mysql:
+  auth:
+    username: root
+    password: rootpass
+  persistence:
+    size: 500Mi
+
+config:
+  database:
+    url: "jdbc:mysql://pos-db-service:3306/posdb"
+  jpa:
+    hibernate_ddl_auto: "validate"
+    show_sql: "false"
+  otel:
+    exporter:
+      otlp:
+        endpoint: "http://alloy-receiver.observability.svc.cluster.local:4317"
+    service_name: "pos-backend"
+
+serviceAccount:
+  create: true
+  name: pos-sa

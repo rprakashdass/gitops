@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: home
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: home
+    app.kubernetes.io/part-of: home-automation-platform
+    app.kubernetes.io/managed-by: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    app.kubernetes.io/description: "ArgoCD project for home automation platform"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: "Home automation platform — personal Kubernetes automations"
+
+  # Repositories this project is allowed to pull from
+  sourceRepos:
+    # Monorepo: charts, values, and secrets all in one place
+    - "https://github.com/rprakashdass/gitops.git"
+
+  # Allowed deployment targets
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: home
+    # cluster-scoped resources (ClusterRole, ClusterRoleBinding) need this:
+    - server: https://kubernetes.default.svc
+      namespace: "*"
+
+  # What cluster-scoped resources this project can manage
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+
+  # All namespace-scoped resources are allowed by default
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
+
+  # Sync windows — optionally restrict when syncs can happen
+  # Uncomment to prevent accidental syncs during sleeping hours:
+  # syncWindows:
+  #   - kind: allow
+  #     schedule: "0 6 * * *"   # open at 6am
+  #     duration: 16h
+  #     applications: ["*"]
+  #     manualSync: true

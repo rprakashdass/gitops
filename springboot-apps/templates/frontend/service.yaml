@@ -1,0 +1,18 @@
+{{- if .Values.frontend.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: pos-frontend-service
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "pos.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+spec:
+  selector:
+    app: pos-frontend
+  ports:
+    - protocol: TCP
+      port: {{ .Values.frontend.service.port }}
+      targetPort: {{ .Values.frontend.service.port }}
+  type: ClusterIP
+{{- end }}

@@ -1,0 +1,34 @@
+# ArgoCD Installation using Helm
+# Official Chart: https://github.com/argoproj/argo-helm
+#
+# INSTALLATION COMMANDS:
+#
+# 1. Add Helm repo:
+#    helm repo add argo https://argoproj.github.io/argo-helm
+#    helm repo update
+#
+# 2. Install ArgoCD:
+#    helm install argocd argo/argo-cd \
+#      --namespace argocd \
+#      --create-namespace \
+#      --values boostrap/argocd-values.yaml
+#
+# 3. Or upgrade:
+#    helm upgrade argocd argo/argo-cd \
+#      --namespace argocd \
+#      --values boostrap/argocd-values.yaml
+#
+# 4. Check status:
+#    helm status argocd -n argocd
+#    helm get values argocd -n argocd
+#
+# VERSION:
+# Chart version: Latest (or pin specific version)
+# App version: Will use chart's default ArgoCD version
+#
+# To pin a specific chart version:
+#    helm install argocd argo/argo-cd \
+#      --version 6.7.3 \
+#      --namespace argocd \
+#      --create-namespace \
+#      --values boostrap/argocd-values.yaml

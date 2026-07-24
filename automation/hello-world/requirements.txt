@@ -1,0 +1,5 @@
+# Hello-World Heartbeat
+# Minimal dependencies - most functionality uses stdlib
+
+# Required: for webhook and telegram-bot support
+requests>=2.31.0

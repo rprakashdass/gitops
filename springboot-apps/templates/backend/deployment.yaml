@@ -1,0 +1,116 @@
+{{- if .Values.backend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pos-backend
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "pos.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+{{- if not .Values.backend.autoscaling.enabled }}
+  replicas: {{ .Values.backend.replicas }}
+{{- end }}
+  selector:
+    matchLabels:
+      app: pos-backend
+  template:
+    metadata:
+      labels:
+        {{- include "pos.commonLabels" . | nindent 8 }}
+        app.kubernetes.io/component: backend
+        app: pos-backend
+    spec:
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.backend.terminationGracePeriodSeconds }}
+      {{- if .Values.backend.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml .Values.backend.topologySpreadConstraints | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: pos-backend
+          image: {{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.backend.probes.port }}
+          env:
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: HAZELCAST_KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            {{- $envs := .Values.backend.envs | default dict }}
+            {{- range $name := keys $envs | sortAlpha }}
+            - name: {{ $name }}
+              value: {{ tpl (index $envs $name) $ | quote }}
+            {{- end }}
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-backend-config
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: pos-secret
+                  key: pos_db_username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pos-secret
+                  key: pos_db_password
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-backend-config
+                  key: SPRING_JPA_HIBERNATE_DDL_AUTO
+            - name: SPRING_JPA_SHOW_SQL
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-backend-config
+                  key: SPRING_JPA_SHOW_SQL
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-backend-config
+                  key: OTEL_EXPORTER_OTLP_ENDPOINT
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-backend-config
+                  key: OTEL_SERVICE_NAME
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-backend-config
+                  key: OTEL_EXPORTER_OTLP_PROTOCOL
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.backend.probes.path }}
+              port: {{ .Values.backend.probes.port }}
+            initialDelaySeconds: {{ .Values.backend.probes.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.backend.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.backend.probes.startup.timeoutSeconds }}
+            failureThreshold: {{ .Values.backend.probes.startup.failureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.backend.probes.path }}
+              port: {{ .Values.backend.probes.port }}
+            periodSeconds: {{ .Values.backend.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.backend.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.backend.probes.readiness.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.backend.probes.path }}
+              port: {{ .Values.backend.probes.port }}
+            periodSeconds: {{ .Values.backend.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.backend.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.backend.probes.liveness.failureThreshold }}
+{{- end }}

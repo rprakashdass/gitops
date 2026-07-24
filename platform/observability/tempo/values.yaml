@@ -1,0 +1,23 @@
+global:
+  commonLabels:
+    app: tempo
+labels:
+  app: tempo
+tempo:
+  reportingEnabled: false
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+  storage:
+    trace:
+      backend: s3
+      s3:
+        bucket: tempo
+        endpoint: minio.monitoring.svc.cluster.local:9000
+        access_key: loki
+        secret_key: loki12345
+        insecure: true

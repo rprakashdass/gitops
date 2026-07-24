@@ -1,0 +1,185 @@
+# Base Chart Values
+# Reusable Helm chart for all personal platform services
+# Supports: Deployment, StatefulSet, CronJob, Job, Service, Ingress, ConfigMap, Secret, PVC, HPA, ServiceAccount, RBAC
+
+# Workload type: deployment, statefulset, cronjob, job
+kind: deployment
+
+# Namespace for all resources
+namespace: home
+
+# Container image
+image:
+  repository: ""  # REQUIRED: container image repository
+  pullPolicy: IfNotPresent
+  tag: ""  # defaults to .Chart.AppVersion
+
+# Number of replicas (ignored for CronJob/Job)
+replicaCount: 1
+
+# CronJob schedule (only used when kind: cronjob)
+schedule: ""  # e.g., "0 7 * * *" for daily at 7am UTC
+
+# Job backoffLimit and ttlSecondsAfterFinished
+job:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 3600  # keep job history for 1 hour
+
+# Container command and args
+command: []
+args: []
+
+# Environment variables
+env:
+  {}
+  # EXAMPLE_VAR: "value"
+  # LOG_LEVEL: "info"
+
+# ConfigMap data (creates ConfigMap and mounts at /config)
+configMap:
+  enabled: false
+  data: {}
+  # config.yaml: |
+  #   key: value
+
+# Secret data (creates Secret and mounts at /secrets)
+# Values here are base64-encoded by Helm
+secret:
+  enabled: false
+  data: {}
+  # API_KEY: ""
+  # PASSWORD: ""
+
+# Mount points for configMap and secret volumes
+volumeMounts:
+  config:
+    path: /config
+    readOnly: true
+  secret:
+    path: /secrets
+    readOnly: true
+
+# Resource requests and limits
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Pod security context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 3000
+  fsGroup: 3000
+
+# Container security context
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# Service account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""  # defaults to release name
+
+# RBAC roles and bindings
+rbac:
+  create: true
+  # List of rules for the Role
+  rules: []
+  # - apiGroups: [""]
+  #   resources: ["pods"]
+  #   verbs: ["get", "list", "watch"]
+
+# Service (optional)
+service:
+  enabled: false
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+# Ingress (optional)
+ingress:
+  enabled: false
+  className: traefik
+  annotations: {}
+  # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  # - secretName: example-tls
+  #   hosts:
+  #     - example.com
+
+# PersistentVolumeClaim (optional)
+persistence:
+  enabled: false
+  storageClassName: "local-path"  # k3s default
+  accessMode: ReadWriteOnce
+  size: 10Gi
+  mountPath: /data
+
+# Horizontal Pod Autoscaler (optional)
+hpa:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Pod annotations (useful for Prometheus scraping)
+podAnnotations:
+  {}
+  # prometheus.io/scrape: "true"
+  # prometheus.io/port: "8080"
+  # prometheus.io/path: "/metrics"
+
+# Pod labels
+podLabels: {}
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Lifecycle hooks
+lifecycle:
+  {}
+  # preStop:
+  #   exec:
+  #     command: ["/bin/sh", "-c", "sleep 15"]
+  # postStart:
+  #   exec:
+  #     command: ["/bin/sh", "-c", "echo started"]
+
+# Enable/disable probes (configurable paths, defaults to /health)
+probes:
+  liveness:
+    enabled: false
+    path: /health  # HTTP GET path for liveness check
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  readiness:
+    enabled: false
+    path: /health  # HTTP GET path for readiness check (default /health, override if needed)
+    initialDelaySeconds: 5
+    periodSeconds: 5
+  startup:
+    enabled: false
+    path: /health  # HTTP GET path for startup check
+    initialDelaySeconds: 0
+    periodSeconds: 10

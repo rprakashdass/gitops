@@ -1,0 +1,139 @@
+global:
+  enabled: true
+  env: dev
+  namespace: pos-dev
+  domain: pos-dev.local
+
+backend:
+  enabled: true
+  replicas: 2
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  image:
+    tag: latest
+    pullPolicy: Always
+  resources:
+    limits:
+      cpu: "800m"
+      memory: "1024Mi"
+    requests:
+      cpu: "250m"
+      memory: "512Mi"
+  envs:
+    SPRING_PROFILES_ACTIVE: "{{ .Values.global.env }}"
+    JAVA_XMS: "320m"
+    JAVA_XMX: "512m"
+    JAVA_MAX_THREADS: "250"
+    JAVA_GC_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+    JAVA_TOOL_OPTIONS: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.javaagent.debug=false"
+    OTEL_RESOURCE_ATTRIBUTES: "env={{ .Values.global.env }},service.version=latest"
+  probes:
+    startup:
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 30
+    readiness:
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    liveness:
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+  autoscaling:
+    enabled: true
+    minReplicaCount: 1
+    maxReplicaCount: 6
+    cpuAverageUtilization: 80
+    memoryAverageUtilization: 85
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+          - type: Percent
+            value: 50
+            periodSeconds: 15
+      scaleUp:
+        stabilizationWindowSeconds: 0
+        selectPolicy: Max
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+          - type: Pods
+            value: 1
+            periodSeconds: 15
+
+frontend:
+  enabled: true
+  replicas: 1
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  image:
+    tag: latest
+    pullPolicy: Always
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "812Mi"
+    requests:
+      cpu: "100m"
+      memory: "450Mi"
+  autoscaling:
+    enabled: true
+    minReplicaCount: 1
+    maxReplicaCount: 4
+    cpuAverageUtilization: 70
+    memoryAverageUtilization: 75
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+          - type: Percent
+            value: 50
+            periodSeconds: 15
+      scaleUp:
+        stabilizationWindowSeconds: 0
+        selectPolicy: Max
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+          - type: Pods
+            value: 1
+            periodSeconds: 15
+
+invoice:
+  enabled: false
+
+mysql:
+  auth:
+    username: root
+    password: rootpass
+  persistence:
+    size: 20Mi
+
+config:
+  database:
+    url: "jdbc:mysql://pos-db-service:3306/posdb"
+  jpa:
+    hibernate_ddl_auto: "validate"
+    show_sql: "true"
+  otel:
+    exporter:
+      otlp:
+        endpoint: "http://alloy-receiver.monitoring.svc.cluster.local:4317"
+    service_name: "pos-backend"
+
+serviceAccount:
+  create: true
+  name: pos-sa
+
+
+pvcAutoscaler:
+  enabled: true
+  name: pvc-autoscaler-sa
+  schedule: "0 * * * *"

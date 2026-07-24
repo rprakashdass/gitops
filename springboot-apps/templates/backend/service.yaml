@@ -1,0 +1,18 @@
+{{- if .Values.backend.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: pos-backend-service
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "pos.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  selector:
+    app: pos-backend
+  ports:
+    - protocol: TCP
+      port: {{ .Values.backend.service.port }}
+      targetPort: {{ .Values.backend.service.port }}
+  type: ClusterIP
+{{- end }}

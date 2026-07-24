@@ -1,0 +1,22 @@
+name: k8s-health-report
+description: "Weekly Kubernetes cluster health report generator"
+
+build:
+  enabled: false  # Uses external image (bitnami/kubectl)
+
+image:
+  registry: docker.io  # External registry for kubectl
+  name: bitnami/kubectl
+
+deploy:
+  enabled: true
+  chart: ./Chart.yaml
+  helmChart: true
+
+versioning:
+  strategy: git-sha
+  autoUpdate: false  # Don't auto-update; uses external tag
+
+domain: automation
+
+dependencies: []

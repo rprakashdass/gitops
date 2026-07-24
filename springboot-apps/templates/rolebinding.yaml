@@ -1,0 +1,35 @@
+{{- if .Values.serviceAccount.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hazelcast-role-binding
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "pos.commonLabels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.serviceAccount.name }}
+    namespace: {{ .Values.global.namespace }}
+roleRef:
+  kind: Role
+  name: hazelcast-role
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+---
+{{- if .Values.pvcAutoscaler.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Values.pvcAutoscaler.name }}-role-binding
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "pos.commonLabels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.pvcAutoscaler.name }}
+    namespace: {{ .Values.global.namespace }}
+roleRef:
+  kind: Role
+  name: pvcAutoscaler-role
+  apiGroup: rbac.authorization.k8s.io
+{{- end}}

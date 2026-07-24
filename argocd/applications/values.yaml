@@ -1,0 +1,191 @@
+repository:
+  url: https://github.com/rprakashdass/gitops.git
+  branch: local-server
+
+deploymentNamespace: monitoring
+argocdNamespace: argocd
+argocdProject: observability
+
+applications:
+  alloy:
+    enabled: true
+    description: "Grafana Alloy — OpenTelemetry collector and log shipper"
+    project: observability
+    namespace: monitoring
+    syncWave: "1"
+    prune: false
+    path: platform/observability/alloy
+    helm:
+      valueFiles:
+        - values.yaml
+
+  grafana:
+    enabled: true
+    description: "Grafana dashboards and visualization"
+    project: observability
+    namespace: monitoring
+    syncWave: "1"
+    autoSync: false
+    useExternalChart: true
+    externalChart:
+      repoURL: https://grafana.github.io/helm-charts
+      chart: grafana
+      targetRevision: 10.5.15
+      valueFile: platform/observability/grafana/values.yaml
+
+  loki:
+    enabled: true
+    description: "Loki log aggregation"
+    project: observability
+    namespace: monitoring
+    syncWave: "1"
+    prune: false
+    useExternalChart: true
+    externalChart:
+      repoURL: https://grafana.github.io/helm-charts
+      chart: loki
+      targetRevision: 6.29.0
+      valueFile: platform/observability/loki/values.yaml
+
+  mimir:
+    enabled: true
+    description: "Mimir distributed metrics storage"
+    project: observability
+    namespace: monitoring
+    syncWave: "1"
+    prune: false
+    useExternalChart: true
+    externalChart:
+      repoURL: https://grafana.github.io/helm-charts
+      chart: mimir-distributed
+      targetRevision: 3.0.x
+      valueFile: platform/observability/mimir/values.yaml
+
+  tempo:
+    enabled: true
+    description: "Tempo distributed tracing"
+    project: observability
+    namespace: monitoring
+    syncWave: "1"
+    prune: false
+    useExternalChart: true
+    externalChart:
+      repoURL: https://grafana.github.io/helm-charts
+      chart: tempo
+      targetRevision: "1.3.0"
+      valueFile: platform/observability/tempo/values.yaml
+
+  minio:
+    enabled: true
+    description: "MinIO S3-compatible object storage"
+    project: observability
+    namespace: monitoring
+    syncWave: "1"
+    prune: false
+    useExternalChart: true
+    externalChart:
+      repoURL: https://charts.min.io/
+      chart: minio
+      targetRevision: 5.*
+      valueFile: platform/observability/minio/values.yaml
+
+  platform-ingress:
+    enabled: true
+    description: "Platform Ingress routing rules"
+    project: observability
+    namespace: monitoring
+    syncWave: "1"
+    prune: false
+    path: platform
+    directory:
+      include: "ingress.yaml"
+
+  argocd-rbac:
+    enabled: true
+    description: "ArgoCD RBAC configuration"
+    project: default
+    namespace: argocd
+    syncWave: "0"
+    prune: false
+    path: argocd/rbac
+
+  vpa:
+    enabled: false
+    description: "Vertical Pod Autoscaler"
+    project: default
+    namespace: kube-system
+    syncWave: "-1"
+    prune: false
+    useExternalChart: true
+    externalChart:
+      repoURL: https://charts.fairwinds.com/stable
+      chart: vpa
+      targetRevision: "4.11.0"
+      values: |
+        recommender:
+          enabled: true
+        updater:
+          enabled: false
+        admissionController:
+          enabled: true
+
+  pos-system:
+    enabled: true
+    description: "POS System — dev environment"
+    project: springboot-apps
+    namespace: pos-dev
+    syncWave: "1"
+    autoSync: false
+    sources:
+      - repoURL: https://github.com/rprakashdass/gitops.git
+        targetRevision: local-server
+        ref: values
+      - repoURL: https://github.com/rprakashdass/gitops.git
+        targetRevision: local-server
+        path: springboot-apps
+        helm:
+          valueFiles:
+            - $values/values/values-dev.yaml
+
+  pos-system-prod:
+    enabled: false
+    description: "POS System — production environment"
+    project: springboot-apps
+    namespace: pos-prod
+    syncWave: "1"
+    autoSync: false
+    sources:
+      - repoURL: https://github.com/rprakashdass/gitops.git
+        targetRevision: local-server
+        ref: values
+      - repoURL: https://github.com/rprakashdass/gitops.git
+        targetRevision: local-server
+        path: springboot-apps
+        helm:
+          valueFiles:
+            - $values/values/values-prod.yaml
+
+  alerting-config:
+    enabled: true
+    description: "Alerting rules, Alertmanager config, and contact points"
+    project: observability
+    namespace: monitoring
+    syncWave: "1"
+    prune: true
+    sources:
+      - repoURL: https://github.com/rprakashdass/gitops.git
+        targetRevision: local-server
+        path: platform/observability/alerting
+        helm:
+          valueFiles:
+            - values.yaml
+      - repoURL: https://github.com/rprakashdass/gitops.git
+        targetRevision: local-server
+        path: platform/alerting/global
+        directory:
+          recurse: false
+      - repoURL: https://github.com/rprakashdass/gitops.git
+        targetRevision: local-server
+        path: platform/alerting/production
+        directory:
+          recurse: false

@@ -1,0 +1,39 @@
+mode: standalone
+
+rootUser: loki
+rootPassword: loki12345
+
+# Lower resources so MinIO can schedule on memory-constrained nodes
+resources:
+  requests:
+    memory: 128Mi
+    cpu: 100m
+  limits:
+    memory: 258Mi
+    cpu: 300m
+
+persistence:
+  enabled: true
+  size: 20Gi
+
+# Create buckets Loki, Mimir, and Tempo will use
+buckets:
+  - name: loki-chunks
+    policy: none
+    purge: false
+  - name: loki-admin
+    policy: none
+    purge: false
+  - name: mimir-blocks
+    policy: none
+    purge: false
+  - name: mimir-ruler
+    policy: none
+    purge: false
+  - name: tempo
+    policy: none
+    purge: false
+
+# Optional: enable console ingress
+# consoleIngress:
+#   enabled: true

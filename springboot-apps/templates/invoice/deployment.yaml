@@ -1,0 +1,116 @@
+{{- if .Values.invoice.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pos-invoice
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "pos.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: invoice
+spec:
+{{- if not .Values.invoice.autoscaling.enabled }}
+  replicas: {{ .Values.invoice.replicas }}
+{{- end }}
+  selector:
+    matchLabels:
+      app: pos-invoice
+  template:
+    metadata:
+      labels:
+        {{- include "pos.commonLabels" . | nindent 8 }}
+        app.kubernetes.io/component: invoice
+        app: pos-invoice
+    spec:
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.invoice.terminationGracePeriodSeconds }}
+      {{- if .Values.invoice.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml .Values.invoice.topologySpreadConstraints | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: pos-invoice
+          image: {{ .Values.invoice.image.repository }}:{{ .Values.invoice.image.tag }}
+          imagePullPolicy: {{ .Values.invoice.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.invoice.probes.port }}
+          env:
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: HAZELCAST_KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            {{- $envs := .Values.invoice.envs | default dict }}
+            {{- range $name := keys $envs | sortAlpha }}
+            - name: {{ $name }}
+              value: {{ tpl (index $envs $name) $ | quote }}
+            {{- end }}
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-backend-config
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: pos-secret
+                  key: pos_db_username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pos-secret
+                  key: pos_db_password
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-backend-config
+                  key: SPRING_JPA_HIBERNATE_DDL_AUTO
+            - name: SPRING_JPA_SHOW_SQL
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-backend-config
+                  key: SPRING_JPA_SHOW_SQL
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-backend-config
+                  key: OTEL_EXPORTER_OTLP_ENDPOINT
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-backend-config
+                  key: OTEL_SERVICE_NAME
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-backend-config
+                  key: OTEL_EXPORTER_OTLP_PROTOCOL
+          resources:
+            {{- toYaml .Values.invoice.resources | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.invoice.probes.path }}
+              port: {{ .Values.invoice.probes.port }}
+            initialDelaySeconds: {{ .Values.invoice.probes.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.invoice.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.invoice.probes.startup.timeoutSeconds }}
+            failureThreshold: {{ .Values.invoice.probes.startup.failureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.invoice.probes.path }}
+              port: {{ .Values.invoice.probes.port }}
+            periodSeconds: {{ .Values.invoice.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.invoice.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.invoice.probes.readiness.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.invoice.probes.path }}
+              port: {{ .Values.invoice.probes.port }}
+            periodSeconds: {{ .Values.invoice.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.invoice.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.invoice.probes.liveness.failureThreshold }}
+{{- end }}

@@ -1,0 +1,24 @@
+name: telegram-bot
+description: "Centralized Telegram bot for messaging, notifications, commands, and integrations"
+
+build:
+  enabled: true
+  dockerfile: ./Dockerfile
+  context: ./
+
+image:
+  registry: ghcr.io/rprakashdass
+  name: telegram-bot
+
+deploy:
+  enabled: true
+  chart: ./Chart.yaml
+  helmChart: true
+
+versioning:
+  strategy: git-sha
+  autoUpdate: true
+
+domain: messaging
+
+dependencies: []

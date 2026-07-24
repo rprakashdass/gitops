@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: springboot-apps
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  description: Spring Boot applications
+  sourceRepos:
+    - 'https://github.com/rprakashdass/gitops.git'
+  destinations:
+    - namespace: pos-dev
+      server: https://kubernetes.default.svc
+    - namespace: pos-prod
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'

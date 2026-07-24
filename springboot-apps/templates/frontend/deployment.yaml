@@ -1,0 +1,67 @@
+{{- if .Values.frontend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pos-frontend
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "pos.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+spec:
+{{- if not .Values.frontend.autoscaling.enabled }}
+  replicas: {{ .Values.frontend.replicas }}
+{{- end }}
+  selector:
+    matchLabels:
+      app: pos-frontend
+  template:
+    metadata:
+      labels:
+        {{- include "pos.commonLabels" . | nindent 8 }}
+        app.kubernetes.io/component: frontend
+        app: pos-frontend
+    spec:
+      terminationGracePeriodSeconds: {{ .Values.frontend.terminationGracePeriodSeconds }}
+      {{- if .Values.frontend.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml .Values.frontend.topologySpreadConstraints | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: pos-frontend
+          image: {{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.frontend.service.port }}
+          env:
+            - name: NEXT_PUBLIC_API_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: pos-frontend-config
+                  key: NEXT_PUBLIC_API_BASE_URL
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.frontend.probes.path }}
+              port: {{ .Values.frontend.probes.port }}
+            initialDelaySeconds: {{ .Values.frontend.probes.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.frontend.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.frontend.probes.startup.timeoutSeconds }}
+            failureThreshold: {{ .Values.frontend.probes.startup.failureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.frontend.probes.path }}
+              port: {{ .Values.frontend.probes.port }}
+            initialDelaySeconds: {{ .Values.frontend.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.frontend.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.frontend.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.frontend.probes.readiness.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.frontend.probes.path }}
+              port: {{ .Values.frontend.probes.port }}
+            initialDelaySeconds: {{ .Values.frontend.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.frontend.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.frontend.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.frontend.probes.liveness.failureThreshold }}
+{{- end }}

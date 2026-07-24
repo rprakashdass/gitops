@@ -1,0 +1,106 @@
+name: Build Changed Services
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "services/**"
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  OWNER: ${{ github.repository_owner }}
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+
+    steps:
+      - uses: actions/checkout@v4.2.0
+        with:
+          fetch-depth: 0
+
+      - id: matrix
+        run: |
+          if [ -z "${{ github.event.before }}" ] || [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            if git rev-parse HEAD~1 >/dev/null 2>&1; then
+              CHANGED=$(git diff --name-only HEAD~1..HEAD)
+            else
+              # First push - get all files in services/
+              CHANGED=$(git ls-files "services/")
+            fi
+          else
+            # Try to diff against before commit, fallback if it fails
+            if CHANGED=$(git diff --name-only ${{ github.event.before }}..${{ github.sha }} 2>/dev/null); then
+              :
+            else
+              CHANGED=$(git diff --name-only HEAD~1..HEAD)
+            fi
+          fi
+
+          SERVICES=$(echo "$CHANGED" \
+            | grep "^services/" \
+            | cut -d'/' -f2-3 \
+            | sort -u)
+
+          BUILDABLE=()
+          for SERVICE in $SERVICES; do
+            # Only include services with both Dockerfile and service.yaml
+            if [ -f "services/$SERVICE/Dockerfile" ] && [ -f "services/$SERVICE/service.yaml" ]; then
+              BUILDABLE+=("services/$SERVICE")
+            fi
+          done
+
+          if [ ${#BUILDABLE[@]} -eq 0 ]; then
+            echo "matrix={\"include\":[]}" >> $GITHUB_OUTPUT
+          else
+            JSON=$(printf '%s\n' "${BUILDABLE[@]}" | jq -R '{path:.}' | jq -sc '{include:.}')
+            echo "matrix=$JSON" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    needs: detect
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.detect.outputs.matrix) }}
+
+    steps:
+      - uses: actions/checkout@v4.2.0
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute Image Name
+        id: vars
+        run: |
+          NAME=$(basename "${{ matrix.path }}")
+          TAG=$(git rev-parse --short HEAD)
+
+          echo "name=$NAME" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Build and Push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.path }}
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ghcr.io/${{ env.OWNER }}/${{ steps.vars.outputs.name }}:${{ steps.vars.outputs.tag }}
+            ghcr.io/${{ env.OWNER }}/${{ steps.vars.outputs.name }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

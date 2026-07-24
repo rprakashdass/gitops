@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rule-node-cpu-usage
+  namespace: monitoring
+  labels:
+    app: mimir-rules
+data:
+  node-cpu-usage.yaml: |
+    groups:
+    - name: node-cpu-usage
+      rules:
+      - alert: NodeCPUUsage
+        expr: (100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[1m])) * 100)) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Node CPU usage is high on {{ $labels.instance }}"
+          description: "CPU usage on node {{ $labels.instance }} has been above 80% for 5 minutes."

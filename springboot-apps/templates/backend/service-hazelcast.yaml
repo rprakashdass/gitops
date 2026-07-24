@@ -1,0 +1,19 @@
+{{- if and .Values.backend.enabled .Values.serviceAccount.create }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: pos-backend-hazelcast
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "pos.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  clusterIP: None
+  selector:
+    app: pos-backend
+  ports:
+    - name: hazelcast
+      protocol: TCP
+      port: 5701
+      targetPort: 5701
+{{- end }}

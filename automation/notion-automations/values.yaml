@@ -1,0 +1,46 @@
+# Notion Monthly Chart Values
+# Placeholder for monthly Notion workspace generation
+
+base-chart:
+  kind: cronjob
+  schedule: "0 0 1 * *" # Monthly at 00:00 UTC on the 1st
+  namespace: home
+
+  image:
+    repository: busybox
+    tag: "latest"
+
+  # Placeholder: Not yet integrated
+  command: ["/bin/sh"]
+  args:
+    - -c
+    - |
+      echo "Notion monthly generation - PLACEHOLDER"
+      echo "Scheduled time: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+      echo ""
+      echo "Integration status: PENDING"
+      echo "  - Notion API token configuration needed"
+      echo "  - Workspace ID configuration needed"
+      echo "  - Template design needed"
+      echo ""
+      echo "This will generate a monthly page structure in Notion."
+
+  resources:
+    limits:
+      cpu: 100m
+      memory: 64Mi
+    requests:
+      cpu: 50m
+      memory: 32Mi
+
+  job:
+    backoffLimit: 1
+    ttlSecondsAfterFinished: 2592000 # keep for 30 days
+
+
+  # Secret configuration (when integrated)
+  # secret:
+  #   enabled: true
+  #   data:
+  #     NOTION_TOKEN: ""  # base64-encoded: your-notion-token-here
+  #     NOTION_WORKSPACE_ID: ""  # base64-encoded: your-workspace-id

@@ -1,0 +1,19 @@
+apiVersion: v2
+name: base-chart
+description: "Base Helm chart for all personal platform services"
+type: application
+version: 1.0.0
+appVersion: "1.0"
+
+keywords:
+  - platform
+  - kubernetes
+  - reusable
+
+home: https://github.com/rprakashdass/homelab-gitops
+sources:
+  - https://github.com/rprakashdass/homelab-gitops
+
+maintainers:
+  - name: rprakashdass
+    email: rprakashdass@gmail.com

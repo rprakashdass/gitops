@@ -1,0 +1,47 @@
+{{- if .Values.pvcAutoscaler.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pvc-autoscaler
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "pos.commonLabels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.pvcAutoscaler.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: pvc-autoscaler
+        spec:
+          serviceAccountName: {{ .Values.pvcAutoscaler.name }}
+          restartPolicy: OnFailure
+          containers:
+            - name: pvc-autoscaler
+              image: {{ .Values.pvcAutoscaler.image.repository }}:{{ .Values.pvcAutoscaler.image.tag }}
+              imagePullPolicy: Always
+              env:
+                - name: NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+                - name: MIMIR_URL
+                  value: "http://mimir-nginx.monitoring.svc.cluster.local/prometheus"
+                - name: SLACK_WEBHOOK_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: pvc-autoscaler-secret
+                      key: slack-webhook-url
+                      optional: true
+              resources:
+                limits:
+                  cpu: "100m"
+                  memory: "128Mi"
+                requests:
+                  cpu: "50m"
+                  memory: "64Mi"
+{{- end }}

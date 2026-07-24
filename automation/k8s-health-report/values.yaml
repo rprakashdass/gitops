@@ -1,0 +1,109 @@
+# Kubernetes Health Report Chart Values
+# Weekly cluster health report
+
+base-chart:
+  kind: cronjob
+  schedule: "0 6 * * 0" # Weekly at 06:00 UTC on Sunday
+  namespace: home
+
+  image:
+    repository: bitnami/kubectl
+    tag: "latest"
+
+  env:
+    TELEGRAM_BOT_HOST: "telegram-bot"
+    TELEGRAM_BOT_PORT: "9999"
+    TELEGRAM_BOT_URL: "http://telegram-bot:9999"
+    TELEGRAM_BOT_NOTIFY_ENDPOINT: "http://telegram-bot:9999/api/notify"
+    TELEGRAM_BOT_HEALTH_ENDPOINT: "http://telegram-bot:9999/health"
+
+  # Run cluster health check script and send to telegram-bot
+  command: ["/bin/bash"]
+  args:
+    - -c
+    - |
+      set -e
+
+      REPORT=$(cat <<EOF
+      === Kubernetes Cluster Health Report ===
+      Generated at: $(date -u +'%Y-%m-%d %H:%M:%S UTC')
+
+      ## Node Status
+      $(kubectl get nodes -o wide)
+
+      ## Pods in home namespace
+      $(kubectl get pods -n home -o wide)
+
+      ## Failed pods (all namespaces)
+      $(kubectl get pods --all-namespaces --field-selector=status.phase!=Running,status.phase!=Succeeded 2>/dev/null || echo "None")
+
+      ## PVCs
+      $(kubectl get pvc -n home)
+
+      ## Ingresses
+      $(kubectl get ingress -n home)
+
+      ## System Information
+      Kubernetes Version: $(kubectl version --short 2>/dev/null | grep Server || echo 'N/A')
+      Node count: $(kubectl get nodes --no-headers | wc -l)
+      Pod count (home): $(kubectl get pods -n home --no-headers | wc -l)
+
+      Report complete.
+      EOF
+      )
+
+      echo "$REPORT"
+
+      # Send report to telegram-bot with proper JSON escaping
+      if [ -n "$TELEGRAM_BOT_HOST" ] && [ -n "$TELEGRAM_BOT_PORT" ]; then
+        if command -v jq &> /dev/null; then
+          # Use jq for safe JSON encoding
+          REPORT_JSON=$(echo "$REPORT" | jq -Rs \
+            --arg title "📊 Weekly Kubernetes Health Report" \
+            --arg service "k8s-health-report" \
+            '{title: $title, message: "```\n" + . + "\n```", service: $service}')
+        else
+          # Fallback: manual escaping
+          REPORT_ESCAPED=$(echo "$REPORT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/$/\\n/' | tr -d '\n')
+          REPORT_JSON="{\"title\":\"📊 Weekly Kubernetes Health Report\",\"message\":\"${REPORT_ESCAPED}\",\"service\":\"k8s-health-report\"}"
+        fi
+
+        curl -s -X POST "http://$TELEGRAM_BOT_HOST:$TELEGRAM_BOT_PORT/api/notify" \
+          -H "Content-Type: application/json" \
+          -d "$REPORT_JSON" || echo "[WARNING] Failed to send telegram notification"
+      fi
+
+  resources:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 64Mi
+
+  # RBAC: allow reading cluster resources
+  serviceAccount:
+    create: true
+
+  rbac:
+    create: true
+    rules:
+      - apiGroups: [""]
+        resources: ["nodes", "pods", "persistentvolumeclaims"]
+        verbs: ["get", "list"]
+      - apiGroups: [""]
+        resources: ["pods/log"]
+        verbs: ["get"]
+      - apiGroups: ["apps"]
+        resources: ["deployments", "statefulsets", "daemonsets"]
+        verbs: ["get", "list"]
+      - apiGroups: ["networking.k8s.io"]
+        resources: ["ingresses"]
+        verbs: ["get", "list"]
+      - apiGroups: ["batch"]
+        resources: ["cronjobs", "jobs"]
+        verbs: ["get", "list"]
+
+  job:
+    backoffLimit: 1
+    ttlSecondsAfterFinished: 604800 # keep for 7 days

@@ -1,0 +1,159 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alloy-receiver
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: alloy-receiver
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  config.alloy: |
+    // ==========================================
+    // Grafana Alloy Receiver Configuration
+    // Purpose: Receive OTLP telemetry from applications
+    // ==========================================
+
+    otelcol.receiver.otlp "default" {
+      grpc {
+        endpoint = "0.0.0.0:4317"
+      }
+      http {
+        endpoint = "0.0.0.0:4318"
+      }
+      output {
+        metrics = [otelcol.processor.k8sattributes.default.input]
+        logs    = [otelcol.processor.k8sattributes.default.input]
+        traces  = [otelcol.processor.k8sattributes.default.input]
+      }
+    }
+
+    // ========== Enrich with Kubernetes Metadata ==========
+    otelcol.processor.k8sattributes "default" {
+      auth_type = "serviceAccount"
+      passthrough = false
+      extract {
+        metadata = [
+          "k8s.namespace.name",
+          "k8s.pod.name",
+          "k8s.node.name",
+          "k8s.deployment.name",
+          "k8s.container.name",
+        ]
+      }
+      output {
+        metrics = [otelcol.processor.batch.default.input]
+        logs    = [otelcol.processor.filter.drop_noisy_logs.input]
+        traces  = [otelcol.processor.batch.default.input]
+      }
+    }
+
+    // Drop INFO and below from noisy framework packages — keep app-level logs intact
+    otelcol.processor.filter "drop_noisy_logs" {
+      error_mode = "ignore"
+      logs {
+        log_record = [
+          `IsMatch(instrumentation_scope.name, "org\\.springframework\\..*") and severity_number < SEVERITY_NUMBER_WARN`,
+          `IsMatch(instrumentation_scope.name, "org\\.hibernate\\..*") and severity_number < SEVERITY_NUMBER_WARN`,
+          `IsMatch(instrumentation_scope.name, "com\\.zaxxer\\.hikari\\..*") and severity_number < SEVERITY_NUMBER_WARN`,
+          `IsMatch(instrumentation_scope.name, "org\\.apache\\.catalina\\..*") and severity_number < SEVERITY_NUMBER_WARN`,
+          `IsMatch(instrumentation_scope.name, "org\\.apache\\.tomcat\\..*") and severity_number < SEVERITY_NUMBER_WARN`,
+        ]
+      }
+      output {
+        logs = [otelcol.processor.batch.default.input]
+      }
+    }
+
+    otelcol.processor.batch "default" {
+      send_batch_size = 100
+      timeout = "10s"
+      output {
+        metrics = [otelcol.processor.transform.enrich.input]
+        logs    = [otelcol.processor.transform.enrich.input]
+        traces  = [otelcol.processor.transform.enrich.input]
+      }
+    }
+
+    // ========== Promote resource attributes into signal scope ==========
+    // otelcol.processor.attributes "from_attribute" cannot cross resource→datapoint
+    // scope for metrics (works for logs by accident). otelcol.processor.transform
+    // uses OTTL which can explicitly read resource.attributes from any context.
+    otelcol.processor.transform "enrich" {
+      error_mode = "ignore"
+
+      metric_statements {
+        context = "datapoint"
+        statements = [
+          `set(attributes["job"],       resource.attributes["service.name"])`,
+          `set(attributes["version"],   resource.attributes["service.version"])`,
+          `set(attributes["env"],       resource.attributes["env"])`,
+          `set(attributes["pod"],       resource.attributes["k8s.pod.name"])`,
+          `set(attributes["namespace"], resource.attributes["k8s.namespace.name"])`,
+          `set(attributes["deploy"],    resource.attributes["k8s.deployment.name"])`,
+          `set(attributes["container"], resource.attributes["k8s.container.name"])`,
+          `set(attributes["instance"],  resource.attributes["k8s.pod.name"])`,
+        ]
+      }
+
+      log_statements {
+        context = "log"
+        statements = [
+          `set(attributes["job"],       resource.attributes["service.name"])`,
+          `set(attributes["version"],   resource.attributes["service.version"])`,
+          `set(attributes["env"],       resource.attributes["env"])`,
+          `set(attributes["pod"],       resource.attributes["k8s.pod.name"])`,
+          `set(attributes["namespace"], resource.attributes["k8s.namespace.name"])`,
+          `set(attributes["deploy"],    resource.attributes["k8s.deployment.name"])`,
+          `set(attributes["container"], resource.attributes["k8s.container.name"])`,
+          `set(attributes["instance"],  resource.attributes["k8s.pod.name"])`,
+        ]
+      }
+
+      trace_statements {
+        context = "span"
+        statements = [
+          `set(attributes["job"],       resource.attributes["service.name"])`,
+          `set(attributes["version"],   resource.attributes["service.version"])`,
+          `set(attributes["env"],       resource.attributes["env"])`,
+          `set(attributes["pod"],       resource.attributes["k8s.pod.name"])`,
+          `set(attributes["namespace"], resource.attributes["k8s.namespace.name"])`,
+          `set(attributes["deploy"],    resource.attributes["k8s.deployment.name"])`,
+          `set(attributes["container"], resource.attributes["k8s.container.name"])`,
+          `set(attributes["instance"],  resource.attributes["k8s.pod.name"])`,
+        ]
+      }
+
+      output {
+        metrics = [otelcol.exporter.prometheus.mimir.input]
+        logs    = [otelcol.exporter.loki.default.input]
+        traces  = [otelcol.exporter.otlphttp.tempo.input]
+      }
+    }
+
+    otelcol.exporter.prometheus "mimir" {
+      forward_to = [prometheus.remote_write.mimir.receiver]
+    }
+
+    otelcol.exporter.loki "default" {
+      forward_to = [loki.write.loki_endpoint.receiver]
+    }
+
+    otelcol.exporter.otlphttp "tempo" {
+      client {
+        endpoint = "http://tempo.monitoring.svc.cluster.local:4318"
+      }
+    }
+
+    prometheus.remote_write "mimir" {
+      endpoint {
+        url = "http://mimir-nginx.monitoring.svc.cluster.local/api/v1/push"
+      }
+    }
+
+    loki.write "loki_endpoint" {
+      endpoint {
+        url = "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
+      }
+    }
+

@@ -1,0 +1,19 @@
+{{- if .Values.backend.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pos-backend-pdb
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "pos.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  {{- if hasKey .Values.backend.pdb "minAvailable" }}
+  minAvailable: {{ .Values.backend.pdb.minAvailable }}
+  {{- else }}
+  maxUnavailable: {{ .Values.backend.pdb.maxUnavailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: pos-backend
+{{- end }}

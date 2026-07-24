@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rule-kube-pod-crash-looping
+  namespace: monitoring
+  labels:
+    app: mimir-rules
+data:
+  kube-pod-crash-looping.yaml: |
+    groups:
+    - name: kube-pod-crash-looping
+      rules:
+      - alert: KubePodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total[5m]) * 60 * 5 > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is crash looping"
+          description: "Pod {{ $labels.pod }} is restarting frequently."

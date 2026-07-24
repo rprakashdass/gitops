@@ -1,0 +1,78 @@
+# No PSP (removed in K8s 1.25) or SCC (OpenShift-only); skip chart RBAC and use default SA
+rbac:
+  create: false
+
+# Disable memcached caches (no memcached deployed) to avoid SRV lookup errors
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
+
+ruler:
+  enabled: false
+
+# Deployment mode: SingleBinary (simple), SimpleScalable (medium), Distributed (large)
+deploymentMode: SingleBinary
+
+# Explicitly set SimpleScalable components to 0 to avoid validation error
+write:
+  replicas: 0
+read:
+  replicas: 0
+backend:
+  replicas: 0
+
+singleBinary:
+  replicas: 1
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
+  # Add emptyDir for writable Loki data (tsdb-shipper, rules) at /tmp/loki
+  extraVolumes:
+    - name: loki-writable
+      emptyDir: {}
+  extraVolumeMounts:
+    - name: loki-writable
+      mountPath: /tmp/loki
+
+loki:
+  # So volumes are writable by Loki user 10001
+  podSecurityContext:
+    fsGroup: 10001
+
+  auth_enabled: false
+
+  commonConfig:
+    replication_factor: 1
+    # Use /tmp/loki for writable data (tsdb-shipper, rules) - emptyDir is writable
+    path_prefix: /tmp/loki
+
+  storage:
+    type: s3
+    bucketNames:
+      chunks: loki-chunks
+      ruler: loki-ruler
+      admin: loki-admin
+    s3:
+      endpoint: http://minio.monitoring.svc.cluster.local:9000
+      accessKeyId: loki
+      secretAccessKey: loki12345
+      s3ForcePathStyle: true
+      insecure: true
+
+  # Required: schema_config for index/object store (S3)
+  schemaConfig:
+    configs:
+      - from: "2020-10-24"
+        store: tsdb
+        object_store: s3
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h

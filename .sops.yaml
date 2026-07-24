@@ -1,0 +1,41 @@
+# SOPS Configuration for secrets encryption
+# SOPS (Secrets Operations) encrypts/decrypts sensitive files
+
+# Encryption configuration
+creation_rules:
+  # Encrypt secrets.enc.yaml in service directories (colocated with Helm charts)
+  - path_regex: 'services/.*\.enc\.yaml$'
+    key_groups:
+      - age:
+          - age1p4u42ltpqj0jxpuhx47pm0dhpmuqw2x8utyrxsr6xrgnzx0slq7q9u5jcw
+
+  # Encrypt all .enc.yaml files in infrastructure/security/secrets/
+  - path_regex: 'infrastructure/security/secrets/.*\.enc\.yaml$'
+    key_groups:
+      - age:
+          - age1p4u42ltpqj0jxpuhx47pm0dhpmuqw2x8utyrxsr6xrgnzx0slq7q9u5jcw
+
+# SOPS Workflow Commands (uncomment and modify as needed):
+#
+# Encrypt a file:
+#   sops -e -i <file.yaml>
+#
+# Decrypt a file:
+#   sops -d <file.enc.yaml>
+#
+# Decrypt and apply to Kubernetes:
+#   sops -d infrastructure/security/secrets/telegram-bot-secrets.enc.yaml | kubectl apply -f -
+#
+# Edit encrypted file directly:
+#   sops infrastructure/security/secrets/telegram-bot-secrets.enc.yaml
+#
+# Rotate encryption keys:
+#   sops -r <file.enc.yaml>
+#
+# Check what's encrypted in a file:
+#   cat infrastructure/security/secrets/telegram-bot-secrets.enc.yaml | head -20
+#
+# Use with ArgoCD (requires ArgoCD SOPS integration):
+#   - ArgoCD will automatically decrypt .enc.yaml files
+#   - Configure ArgoCD secret management plugin to use SOPS
+#   - See docs/ENCRYPTION.md for ArgoCD integration

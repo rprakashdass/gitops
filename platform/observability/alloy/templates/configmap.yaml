@@ -1,0 +1,237 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alloy
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: alloy
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  config.alloy: |
+    // ==========================================
+    // Grafana Alloy Configuration
+    // Purpose: Collect logs AND metrics from applications
+    // ==========================================
+
+    // ========== LOGS COLLECTION ==========
+
+    // Discover ALL pods across multiple namespaces
+    discovery.kubernetes "pods" {
+      role = "pod"
+      namespaces {
+        names = ["pos", "pos-prod"]
+      }
+    }
+
+    // Filter, drop noise, and promote all Kubernetes metadata as labels
+    discovery.relabel "filtered_pods" {
+      targets = discovery.kubernetes.pods.targets
+
+      // Drop storage layer pods (loki, mimir, minio)
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+        regex         = "loki|mimir|minio"
+        action        = "drop"
+      }
+
+      // Also drop by pod name pattern as fallback
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        regex         = "loki-.*|mimir-.*|minio-.*"
+        action        = "drop"
+      }
+
+      // Promote core Kubernetes metadata to log labels
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        target_label  = "pod"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_namespace"]
+        target_label  = "namespace"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_container_name"]
+        target_label  = "container"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        target_label  = "instance"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_app"]
+        target_label  = "job"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_app"]
+        target_label  = "deploy"
+      }
+
+      // env: use pod label if set, else fall back to namespace
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_env"]
+        target_label  = "env"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_env", "__meta_kubernetes_namespace"]
+        separator     = ";"
+        regex         = ";(.*)"
+        target_label  = "env"
+        replacement   = "$1"
+      }
+    }
+
+    // Collect logs from filtered pods
+    loki.source.kubernetes "app_logs" {
+      targets    = discovery.relabel.filtered_pods.output
+      forward_to = [loki.process.parse_logs.receiver]
+    }
+
+    // Parse log content only — Kubernetes labels are already set above
+    loki.process "parse_logs" {
+      forward_to = [loki.write.loki_endpoint.receiver]
+
+      // Drop internal labels added by Alloy
+      stage.label_drop {
+        values = ["filename", "stream"]
+      }
+
+      // Parse Spring Boot plain text logs
+      stage.regex {
+        expression = "^(?P<timestamp>\\S+)\\s+(?P<level>\\w+)\\s+.+?\\[(?P<app_name>[^\\]]+)\\]\\s+\\[(?P<thread>[^\\]]+)\\]\\s+(?P<logger>\\S+)\\s+:\\s+(?P<message>.+)$"
+      }
+
+      // Parse JSON logs (if configured)
+      stage.json {
+        expressions = {
+          level     = "level",
+          timestamp = "timestamp",
+          logger    = "logger",
+          message   = "message",
+        }
+      }
+
+      // Promote parsed log fields to labels
+      stage.labels {
+        values = {
+          level    = "level",
+          logger   = "logger",
+          app_name = "app_name",
+        }
+      }
+    }
+
+    // Write logs to Loki
+    loki.write "loki_endpoint" {
+      endpoint {
+        url = "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
+      }
+    }
+
+    // ========== METRICS COLLECTION ==========
+
+    // Discover KSM (Kube-State-Metrics) service
+    discovery.kubernetes "ksm" {
+      role = "service"
+      namespaces {
+        names = ["monitoring"]
+      }
+      selectors {
+        role  = "service"
+        label = "app.kubernetes.io/name=kube-state-metrics"
+      }
+    }
+
+    // Scrape metrics from KSM
+    prometheus.scrape "ksm_metrics" {
+      targets = discovery.kubernetes.ksm.targets
+      forward_to = [prometheus.relabel.ksm_relabel.receiver]
+
+      scrape_interval = "30s"
+      scrape_timeout  = "10s"
+    }
+
+    // KSM-specific relabel: add cluster label and keep only kube_* metrics
+    prometheus.relabel "ksm_relabel" {
+      forward_to = [prometheus.remote_write.mimir.receiver]
+
+      rule {
+        target_label = "cluster"
+        replacement  = "local"
+      }
+
+      // Promote namespace from meta label (namespace of the resource, not KSM pod)
+      rule {
+        source_labels = ["namespace"]
+        target_label  = "namespace"
+      }
+
+      rule {
+        source_labels = ["__name__"]
+        regex         = "kube_.*"
+        action        = "keep"
+      }
+    }
+
+    // ========== KUBELET METRICS ==========
+
+    discovery.kubernetes "nodes" {
+      role = "node"
+    }
+
+    discovery.relabel "kubelet_nodes" {
+      targets = discovery.kubernetes.nodes.targets
+
+      rule {
+        source_labels = ["__meta_kubernetes_node_address_InternalIP"]
+        target_label  = "__address__"
+        replacement   = "$1:10250"
+      }
+    }
+
+    prometheus.scrape "kubelet_metrics" {
+      targets         = discovery.relabel.kubelet_nodes.output
+      forward_to      = [prometheus.relabel.kubelet_relabel.receiver]
+      scheme          = "https"
+      scrape_interval = "60s"
+      scrape_timeout  = "10s"
+
+      tls_config {
+        insecure_skip_verify = true
+      }
+
+      authorization {
+        type             = "Bearer"
+        credentials_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+      }
+    }
+
+    prometheus.relabel "kubelet_relabel" {
+      forward_to = [prometheus.remote_write.mimir.receiver]
+
+      rule {
+        target_label = "cluster"
+        replacement  = "local"
+      }
+
+      // Promote node name from discovery metadata
+      rule {
+        source_labels = ["__meta_kubernetes_node_name"]
+        target_label  = "node"
+      }
+
+      // Promote namespace from metric label (present in volume_stats, container metrics, etc.)
+      rule {
+        source_labels = ["namespace"]
+        target_label  = "namespace"
+      }
+    }
+
+    // Write metrics to Mimir
+    prometheus.remote_write "mimir" {
+      endpoint {
+        url = "http://mimir-nginx.monitoring.svc.cluster.local/api/v1/push"
+      }
+    }
+

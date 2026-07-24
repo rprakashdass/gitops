@@ -1,0 +1,22 @@
+name: notion-automations
+description: "Monthly Notion workspace generation (placeholder)"
+
+build:
+  enabled: false  # Uses external image (busybox)
+
+image:
+  registry: docker.io
+  name: busybox
+
+deploy:
+  enabled: true
+  chart: ./Chart.yaml
+  helmChart: true
+
+versioning:
+  strategy: git-sha
+  autoUpdate: false  # Don't auto-update; uses external tag
+
+domain: automation
+
+dependencies: []
