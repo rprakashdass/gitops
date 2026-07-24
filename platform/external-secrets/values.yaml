@@ -1,0 +1,22 @@
+# External Secrets Operator — watches ExternalSecret resources and syncs the
+# named keys out of Vault into native Kubernetes Secrets.
+installCRDs: true
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 256Mi
+
+webhook:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+certController:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi

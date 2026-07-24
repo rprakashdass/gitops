@@ -1,0 +1,39 @@
+# Transit Vault — the root of trust for auto-unsealing the MAIN vault.
+# Small, single node, file storage. Uses the default Shamir seal, so THIS
+# vault is the one you unseal by hand on a cold boot (rare). It exposes a
+# `transit/` engine whose key the main vault uses to auto-unseal.
+global:
+  enabled: true
+
+injector:
+  enabled: false
+
+server:
+  image:
+    tag: "1.17.6"
+
+  dataStorage:
+    enabled: true
+    size: 1Gi
+
+  standalone:
+    enabled: true
+    config: |
+      ui = true
+      listener "tcp" {
+        address     = "[::]:8200"
+        tls_disable = 1
+      }
+      storage "file" {
+        path = "/vault/data"
+      }
+
+  ui:
+    enabled: true
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 256Mi

@@ -171,6 +171,65 @@ applications:
           enabled: true
 
   # ─────────────────────────────────────────────────────────────
+  # Secrets management — project: security
+  # Vault (+ transit auto-unseal) + External Secrets Operator.
+  # Requires a manual bootstrap (init/unseal/config) — enable IN ORDER,
+  # following docs/secrets.md. Left disabled until you walk that runbook.
+  # ─────────────────────────────────────────────────────────────
+  vault-transit:
+    enabled: false
+    description: "Transit Vault — root of trust for auto-unsealing main Vault"
+    project: security
+    namespace: vault
+    syncWave: "0"
+    prune: false
+    useExternalChart: true
+    externalChart:
+      repoURL: https://helm.releases.hashicorp.com
+      chart: vault
+      targetRevision: 0.28.1
+      valueFile: platform/vault/transit/values.yaml
+
+  vault:
+    enabled: false
+    description: "Main Vault — KV secrets store, auto-unsealed via transit Vault"
+    project: security
+    namespace: vault
+    syncWave: "1"
+    prune: false
+    useExternalChart: true
+    externalChart:
+      repoURL: https://helm.releases.hashicorp.com
+      chart: vault
+      targetRevision: 0.28.1
+      valueFile: platform/vault/values.yaml
+
+  external-secrets:
+    enabled: false
+    description: "External Secrets Operator — syncs Vault keys into K8s Secrets"
+    project: security
+    namespace: external-secrets
+    syncWave: "1"
+    prune: false
+    useExternalChart: true
+    externalChart:
+      repoURL: https://charts.external-secrets.io
+      chart: external-secrets
+      targetRevision: 0.10.7
+      valueFile: platform/external-secrets/values.yaml
+
+  external-secrets-stores:
+    enabled: false
+    description: "ClusterSecretStore + ExternalSecrets (Vault backend)"
+    project: security
+    namespace: external-secrets
+    syncWave: "2"
+    prune: true
+    path: platform/external-secrets/stores
+    directory:
+      recurse: false
+
+  # ─────────────────────────────────────────────────────────────
   # Spring Boot demo workloads — project: springboot-apps
   # ─────────────────────────────────────────────────────────────
   pos-system:

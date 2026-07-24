@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: security
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  description: Secrets management — Vault (+ transit auto-unseal) and External Secrets Operator
+  sourceRepos:
+    - 'https://github.com/rprakashdass/gitops.git'
+    - 'https://helm.releases.hashicorp.com'   # Vault
+    - 'https://charts.external-secrets.io'     # External Secrets Operator
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: vault
+    - server: https://kubernetes.default.svc
+      namespace: external-secrets
+    - server: https://kubernetes.default.svc
+      namespace: home             # where ExternalSecrets materialize app secrets
+    - server: https://kubernetes.default.svc
+      namespace: '*'              # ESO/Vault install cluster-scoped resources
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'

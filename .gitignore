@@ -12,10 +12,12 @@ charts/*.tgz
 **/charts/*.tgz
 **/Chart.lock
 
-# Decrypted secrets — never commit plaintext (only *.enc.yaml belongs in git)
+# Plaintext secrets must never be committed — Vault + ESO hold the real values
 *.dec.yaml
 *.decrypted.yaml
-secrets/*.plain.yaml
+*.plain.yaml
+vault-init.txt
+vault-keys.json
 
 # Local env / creds
 .env

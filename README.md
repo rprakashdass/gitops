@@ -33,10 +33,9 @@ bootstrap.sh ─► root Application ─► argocd/applications (Helm)
 |------|---------|
 | [`bootstrap/`](bootstrap) | One-command cluster init + the root App-of-Apps |
 | [`argocd/`](argocd) | Argo CD self-management: `applications/` (App-of-Apps), `app-projects/`, `rbac/` |
-| [`platform/`](platform) | Shared cluster infra: `observability/`, `alerting/`, `ingress.yaml` |
+| [`platform/`](platform) | Shared cluster infra: `observability/`, `alerting/`, `ingress.yaml`, `vault/`, `external-secrets/` |
 | [`springboot-apps/`](springboot-apps) | Spring Boot POS demo Helm chart (dev/prod values) |
-| [`secrets/`](secrets) | SOPS-encrypted secrets (`*.enc.yaml`) — see [`.sops.yaml`](.sops.yaml) |
-| [`docs/`](docs) | Architecture notes ([repos.md](docs/repos.md)) |
+| [`docs/`](docs) | Architecture notes: [repos.md](docs/repos.md), [secrets.md](docs/secrets.md) |
 
 ## Quickstart
 
@@ -66,8 +65,9 @@ with a `repoURL` pointing at that repo — full steps in
 - **`main` is the branch.** Applications default to `gitops.git @ main`.
 - **Sync waves** order rollout: `-1` cluster add-ons → `0` foundational →
   `1` platform/apps.
-- **Secrets** are committed only as SOPS-encrypted `*.enc.yaml`; plaintext is
-  gitignored.
+- **Secrets** never live in git. Vault holds the values; External Secrets
+  Operator syncs them into K8s Secrets from committed `ExternalSecret`
+  references. See [docs/secrets.md](docs/secrets.md).
 
 ## Learnings
 

@@ -1,0 +1,58 @@
+# Main Vault — holds your actual secrets (KV v2 @ secret/).
+# Standalone + file storage on a PVC (survives restarts).
+# Auto-unseals against the TRANSIT vault via a `seal "transit"` stanza whose
+# address/key/mount come from env vars, and whose TOKEN is injected from a
+# Kubernetes Secret (vault-transit-unseal) that you create during bootstrap —
+# so no token ever lives in git.
+global:
+  enabled: true
+
+injector:
+  enabled: false
+
+server:
+  image:
+    tag: "1.17.6"
+
+  dataStorage:
+    enabled: true
+    size: 2Gi
+
+  # Non-secret transit-seal settings (address / key / mount path)
+  extraEnvironmentVars:
+    VAULT_TRANSIT_SEAL_ADDRESS: "http://vault-transit.vault.svc:8200"
+    VAULT_TRANSIT_SEAL_KEY_NAME: "autounseal"
+    VAULT_TRANSIT_SEAL_MOUNT_PATH: "transit/"
+
+  # The transit token — injected from a K8s Secret you create at bootstrap:
+  #   kubectl -n vault create secret generic vault-transit-unseal \
+  #     --from-literal=token=<transit-token>
+  extraSecretEnvironmentVars:
+    - envName: VAULT_TRANSIT_SEAL_TOKEN
+      secretName: vault-transit-unseal
+      secretKey: token
+
+  standalone:
+    enabled: true
+    config: |
+      ui = true
+      listener "tcp" {
+        address     = "[::]:8200"
+        tls_disable = 1
+      }
+      storage "file" {
+        path = "/vault/data"
+      }
+      # Auto-unseal via the transit vault. Remaining params come from
+      # VAULT_TRANSIT_SEAL_* env vars above.
+      seal "transit" {}
+
+  ui:
+    enabled: true
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
