@@ -1,12 +1,25 @@
+# App-of-Apps values — single source of truth for every ArgoCD Application.
+#
+# Each entry becomes one ArgoCD Application (see templates/applications.yaml).
+# Toggle experiments on/off with `enabled: true|false` — this is the seam for
+# "experiment with lots of things": add a block, flip enabled, commit.
+#
+# Repo/branch below are the DEFAULTS inherited by every app. Override per-app
+# with `repoURL:` / `targetRevision:` — e.g. to pull homelab apps from a
+# separate `homelab-gitops` repo without touching anything else here.
+
 repository:
   url: https://github.com/rprakashdass/gitops.git
-  branch: local-server
+  branch: main
 
 deploymentNamespace: monitoring
 argocdNamespace: argocd
 argocdProject: observability
 
 applications:
+  # ─────────────────────────────────────────────────────────────
+  # Observability (Grafana stack) — project: observability
+  # ─────────────────────────────────────────────────────────────
   alloy:
     enabled: true
     description: "Grafana Alloy — OpenTelemetry collector and log shipper"
@@ -89,6 +102,34 @@ applications:
       targetRevision: 5.*
       valueFile: platform/observability/minio/values.yaml
 
+  alerting-config:
+    enabled: true
+    description: "Alerting rules, Alertmanager config, and contact points"
+    project: observability
+    namespace: monitoring
+    syncWave: "1"
+    prune: true
+    sources:
+      - repoURL: https://github.com/rprakashdass/gitops.git
+        targetRevision: main
+        path: platform/observability/alerting
+        helm:
+          valueFiles:
+            - values.yaml
+      - repoURL: https://github.com/rprakashdass/gitops.git
+        targetRevision: main
+        path: platform/alerting/global
+        directory:
+          recurse: false
+      - repoURL: https://github.com/rprakashdass/gitops.git
+        targetRevision: main
+        path: platform/alerting/production
+        directory:
+          recurse: false
+
+  # ─────────────────────────────────────────────────────────────
+  # Networking / cluster config
+  # ─────────────────────────────────────────────────────────────
   platform-ingress:
     enabled: true
     description: "Platform Ingress routing rules"
@@ -129,6 +170,9 @@ applications:
         admissionController:
           enabled: true
 
+  # ─────────────────────────────────────────────────────────────
+  # Spring Boot demo workloads — project: springboot-apps
+  # ─────────────────────────────────────────────────────────────
   pos-system:
     enabled: true
     description: "POS System — dev environment"
@@ -138,14 +182,14 @@ applications:
     autoSync: false
     sources:
       - repoURL: https://github.com/rprakashdass/gitops.git
-        targetRevision: local-server
+        targetRevision: main
         ref: values
       - repoURL: https://github.com/rprakashdass/gitops.git
-        targetRevision: local-server
+        targetRevision: main
         path: springboot-apps
         helm:
           valueFiles:
-            - $values/values/values-dev.yaml
+            - $values/springboot-apps/values-dev.yaml
 
   pos-system-prod:
     enabled: false
@@ -156,36 +200,51 @@ applications:
     autoSync: false
     sources:
       - repoURL: https://github.com/rprakashdass/gitops.git
-        targetRevision: local-server
+        targetRevision: main
         ref: values
       - repoURL: https://github.com/rprakashdass/gitops.git
-        targetRevision: local-server
+        targetRevision: main
         path: springboot-apps
         helm:
           valueFiles:
-            - $values/values/values-prod.yaml
+            - $values/springboot-apps/values-prod.yaml
 
-  alerting-config:
-    enabled: true
-    description: "Alerting rules, Alertmanager config, and contact points"
-    project: observability
-    namespace: monitoring
+  # ─────────────────────────────────────────────────────────────
+  # Homelab services — project: home, namespace: home
+  # Built by .github/workflows/build-and-push.yml (services/**) → ghcr.io.
+  # DISABLED until the first CI build publishes each image; flip to true
+  # once the image exists. To serve these from a separate repo instead,
+  # add `repoURL:`/`targetRevision:` pointing at homelab-gitops.
+  # ─────────────────────────────────────────────────────────────
+  telegram-bot:
+    enabled: false
+    description: "Centralized Telegram bot for messaging and commands"
+    project: home
+    namespace: home
+    syncWave: "0"
+    path: services/messaging/telegram-bot
+
+  hello-world:
+    enabled: false
+    description: "Daily heartbeat logger — self-built CI/CD, notifies via telegram-bot"
+    project: home
+    namespace: home
     syncWave: "1"
-    prune: true
-    sources:
-      - repoURL: https://github.com/rprakashdass/gitops.git
-        targetRevision: local-server
-        path: platform/observability/alerting
-        helm:
-          valueFiles:
-            - values.yaml
-      - repoURL: https://github.com/rprakashdass/gitops.git
-        targetRevision: local-server
-        path: platform/alerting/global
-        directory:
-          recurse: false
-      - repoURL: https://github.com/rprakashdass/gitops.git
-        targetRevision: local-server
-        path: platform/alerting/production
-        directory:
-          recurse: false
+    path: services/automation/hello-world
+
+  # Stubs — chart scaffolded but no Dockerfile/src yet. Complete before enabling.
+  k8s-health-report:
+    enabled: false
+    description: "Weekly Kubernetes cluster health report (stub — needs Dockerfile)"
+    project: home
+    namespace: home
+    syncWave: "1"
+    path: services/automation/k8s-health-report
+
+  notion-automations:
+    enabled: false
+    description: "Notion automations (stub — needs Dockerfile)"
+    project: home
+    namespace: home
+    syncWave: "1"
+    path: services/automation/notion-automations

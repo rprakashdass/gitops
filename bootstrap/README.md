@@ -7,15 +7,15 @@ Install ArgoCD using its **official Helm chart** for easy customization and GitO
 This starter kit is designed to be **one command** for new clusters.
 
 ```bash
-chmod +x boostrap/bootstrap.sh
-./boostrap/bootstrap.sh
+chmod +x bootstrap/bootstrap.sh
+./bootstrap/bootstrap.sh
 ```
 
 By default it auto-detects your `git remote origin` repo URL and applies the root app.
 To override:
 
 ```bash
-./boostrap/bootstrap.sh --repo-url https://github.com/<you>/<repo>.git --revision main
+./bootstrap/bootstrap.sh --repo-url https://github.com/<you>/<repo>.git --revision main
 ```
 
 ## 🔧 Manual Installation (Step-by-step)
@@ -29,7 +29,7 @@ helm repo update
 helm install argocd argo/argo-cd \
   --namespace argocd \
   --create-namespace \
-  --values boostrap/argocd-values.yaml
+  --values bootstrap/argocd-values.yaml
 
 # 3. Wait for pods to be ready
 kubectl wait --for=condition=available --timeout=300s \
@@ -50,7 +50,7 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 # https://localhost:8080
 
 # 6. Deploy root app (activate GitOps!)
-kubectl apply -f boostrap/root.yaml
+kubectl apply -f bootstrap/root.yaml
 
 # 7. Watch applications being created
 kubectl get applications -n argocd -w
@@ -133,13 +133,13 @@ helm repo update
 # Upgrade ArgoCD
 helm upgrade argocd argo/argo-cd \
   --namespace argocd \
-  --values boostrap/argocd-values.yaml
+  --values bootstrap/argocd-values.yaml
 
 # Or upgrade to specific version
 helm upgrade argocd argo/argo-cd \
   --version 6.7.3 \
   --namespace argocd \
-  --values boostrap/argocd-values.yaml
+  --values bootstrap/argocd-values.yaml
 ```
 
 ---
@@ -182,7 +182,7 @@ helm repo add argo https://argoproj.github.io/argo-helm
 helm install argocd argo/argo-cd \
   --namespace argocd \
   --create-namespace \
-  --values boostrap/argocd-values.yaml
+  --values bootstrap/argocd-values.yaml
 
 # Step 2: Get credentials
 kubectl -n argocd get secret argocd-initial-admin-secret \
@@ -193,7 +193,7 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 # https://localhost:8080 (admin + password)
 
 # Step 4: Deploy root app
-kubectl apply -f boostrap/root.yaml
+kubectl apply -f bootstrap/root.yaml
 
 # Step 5: Everything else syncs automatically!
 ```
@@ -214,7 +214,7 @@ helm get values argocd -n argocd
 ```bash
 helm template argocd argo/argo-cd \
   --namespace argocd \
-  --values boostrap/argocd-values.yaml
+  --values bootstrap/argocd-values.yaml
 ```
 
 ### Reinstall if needed
@@ -230,7 +230,7 @@ kubectl delete namespace argocd
 helm install argocd argo/argo-cd \
   --namespace argocd \
   --create-namespace \
-  --values boostrap/argocd-values.yaml
+  --values bootstrap/argocd-values.yaml
 ```
 
 ### Check ArgoCD logs

@@ -6,14 +6,14 @@ usage() {
 Bootstrap Argo CD + GitOps root app.
 
 Usage:
-  boostrap/bootstrap.sh [--repo-url <url>] [--revision <rev>] [--namespace <ns>] [--release <name>]
+  bootstrap/bootstrap.sh [--repo-url <url>] [--revision <rev>] [--namespace <ns>] [--release <name>]
 
 Env vars (optional):
   REPO_URL, TARGET_REVISION, ARGOCD_NAMESPACE, ARGOCD_RELEASE
 
 Examples:
-  ./boostrap/bootstrap.sh
-  ./boostrap/bootstrap.sh --repo-url https://github.com/you/gitops.git --revision main
+  ./bootstrap/bootstrap.sh
+  ./bootstrap/bootstrap.sh --repo-url https://github.com/you/gitops.git --revision main
 EOF
 }
 

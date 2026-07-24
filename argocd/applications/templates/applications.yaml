@@ -1,4 +1,4 @@
-{{- $defaultGitRepo := .Values.repository.url | default "https://github.com/rprakashdass/homelab-gitops.git" }}
+{{- $defaultGitRepo := .Values.repository.url | default "https://github.com/rprakashdass/gitops.git" }}
 {{- $defaultGitBranch := .Values.repository.branch | default "main" }}
 {{- $argocdNamespace := .Values.argocdNamespace | default "argocd" }}
 {{- $defaultDeployNamespace := .Values.deploymentNamespace | default "home" }}

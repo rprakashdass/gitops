@@ -1,0 +1,32 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+*.swp
+.vscode/
+
+# Helm
+charts/*.tgz
+**/charts/*.tgz
+**/Chart.lock
+
+# Decrypted secrets — never commit plaintext (only *.enc.yaml belongs in git)
+*.dec.yaml
+*.decrypted.yaml
+secrets/*.plain.yaml
+
+# Local env / creds
+.env
+.env.*
+*.key
+age.key
+kubeconfig
+*.kubeconfig
+
+# Python (services)
+__pycache__/
+*.pyc
+.venv/
+venv/

@@ -11,12 +11,12 @@
 #    helm install argocd argo/argo-cd \
 #      --namespace argocd \
 #      --create-namespace \
-#      --values boostrap/argocd-values.yaml
+#      --values bootstrap/argocd-values.yaml
 #
 # 3. Or upgrade:
 #    helm upgrade argocd argo/argo-cd \
 #      --namespace argocd \
-#      --values boostrap/argocd-values.yaml
+#      --values bootstrap/argocd-values.yaml
 #
 # 4. Check status:
 #    helm status argocd -n argocd
@@ -31,4 +31,4 @@
 #      --version 6.7.3 \
 #      --namespace argocd \
 #      --create-namespace \
-#      --values boostrap/argocd-values.yaml
+#      --values bootstrap/argocd-values.yaml
