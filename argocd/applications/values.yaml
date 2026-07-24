@@ -61,7 +61,7 @@ applications:
       valueFile: platform/observability/loki/values.yaml
 
   mimir:
-    enabled: true
+    enabled: false
     description: "Mimir distributed metrics storage"
     project: observability
     namespace: monitoring
@@ -75,7 +75,7 @@ applications:
       valueFile: platform/observability/mimir/values.yaml
 
   tempo:
-    enabled: true
+    enabled: false
     description: "Tempo distributed tracing"
     project: observability
     namespace: monitoring
@@ -103,7 +103,7 @@ applications:
       valueFile: platform/observability/minio/values.yaml
 
   alerting-config:
-    enabled: true
+    enabled: false
     description: "Alerting rules, Alertmanager config, and contact points"
     project: observability
     namespace: monitoring
