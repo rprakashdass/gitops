@@ -210,11 +210,10 @@ applications:
             - $values/springboot-apps/values-prod.yaml
 
   # ─────────────────────────────────────────────────────────────
-  # Homelab services — project: home, namespace: home
-  # Built by .github/workflows/build-and-push.yml (services/**) → ghcr.io.
-  # DISABLED until the first CI build publishes each image; flip to true
-  # once the image exists. To serve these from a separate repo instead,
-  # add `repoURL:`/`targetRevision:` pointing at homelab-gitops.
+  # Homelab services — SOURCE lives in the separate homelab-gitops repo.
+  # This control plane (gitops) deploys them via repoURL overrides.
+  # homelab-gitops CI builds services/** → ghcr.io. Keep DISABLED until
+  # the first image is published, then flip enabled: true.
   # ─────────────────────────────────────────────────────────────
   telegram-bot:
     enabled: false
@@ -222,12 +221,16 @@ applications:
     project: home
     namespace: home
     syncWave: "0"
+    repoURL: https://github.com/rprakashdass/homelab-gitops.git
+    targetRevision: main
     path: services/messaging/telegram-bot
 
   hello-world:
     enabled: false
-    description: "Daily heartbeat logger — self-built CI/CD, notifies via telegram-bot"
+    description: "Daily heartbeat logger — notifies via telegram-bot"
     project: home
     namespace: home
     syncWave: "1"
+    repoURL: https://github.com/rprakashdass/homelab-gitops.git
+    targetRevision: main
     path: services/automation/hello-world

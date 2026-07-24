@@ -17,8 +17,10 @@ spec:
 
   # Repositories this project is allowed to pull from
   sourceRepos:
-    # Monorepo: charts, values, and secrets all in one place
+    # Control plane (this repo) may define home apps directly...
     - "https://github.com/rprakashdass/gitops.git"
+    # ...but homelab app source lives in the homelab-gitops repo.
+    - "https://github.com/rprakashdass/homelab-gitops.git"
 
   # Allowed deployment targets
   destinations:

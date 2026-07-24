@@ -7,14 +7,10 @@
 #   Apply:    sops -d path/to/secret.enc.yaml | kubectl apply -f -
 
 creation_rules:
-  # Central secrets store (e.g. secrets/telegram-bot-secrets.enc.yaml)
+  # Central secrets store (e.g. secrets/telegram-bot-secrets.enc.yaml).
+  # NOTE: service-colocated secrets (services/**) live in the homelab-gitops
+  # repo and are governed by that repo's own .sops.yaml.
   - path_regex: 'secrets/.*\.enc\.yaml$'
-    key_groups:
-      - age:
-          - age1p4u42ltpqj0jxpuhx47pm0dhpmuqw2x8utyrxsr6xrgnzx0slq7q9u5jcw
-
-  # Secrets colocated with a service chart (services/<domain>/<name>/*.enc.yaml)
-  - path_regex: 'services/.*\.enc\.yaml$'
     key_groups:
       - age:
           - age1p4u42ltpqj0jxpuhx47pm0dhpmuqw2x8utyrxsr6xrgnzx0slq7q9u5jcw

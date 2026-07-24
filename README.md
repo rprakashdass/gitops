@@ -1,9 +1,13 @@
-# GitOps — Homelab Platform (Argo CD)
+# GitOps — Cluster Control Plane (Argo CD)
 
-A single Git repository that drives an entire Kubernetes cluster: platform
-infrastructure, observability, demo workloads, and self-built homelab services.
-Cluster state is declared here and reconciled by Argo CD — nothing is applied
-by hand.
+The **standard control-plane repo** for a personal Kubernetes platform. It
+bootstraps a single Argo CD, runs one shared observability stack, and declares
+every workload as an Argo CD Application. Cluster state is driven from Git —
+nothing is applied by hand.
+
+Homelab application *source* lives in a separate repo,
+[`homelab-gitops`](https://github.com/rprakashdass/homelab-gitops); this repo
+**deploys** it. See [docs/repos.md](docs/repos.md) for the two-repo model.
 
 ## How it works
 
@@ -19,7 +23,8 @@ bootstrap.sh ─► root Application ─► argocd/applications (Helm)
                                         ├─ observability: alloy, loki, mimir, tempo, grafana, minio
                                         ├─ platform:      ingress, alerting, argocd-rbac
                                         ├─ springboot:    pos-system (demo)
-                                        └─ homelab:       telegram-bot, hello-world, … (services/**)
+                                        └─ homelab:       telegram-bot, hello-world, …
+                                                          (source in homelab-gitops, via repoURL)
 ```
 
 ## Repository layout
@@ -28,23 +33,10 @@ bootstrap.sh ─► root Application ─► argocd/applications (Helm)
 |------|---------|
 | [`bootstrap/`](bootstrap) | One-command cluster init + the root App-of-Apps |
 | [`argocd/`](argocd) | Argo CD self-management: `applications/` (App-of-Apps), `app-projects/`, `rbac/` |
-| [`platform/`](platform) | Cluster infra: `observability/`, `alerting/`, `ingress.yaml`, and the reusable `base-chart/` |
-| [`services/`](services) | Self-built homelab apps, grouped by domain (`services/<domain>/<name>/`) — see below |
+| [`platform/`](platform) | Shared cluster infra: `observability/`, `alerting/`, `ingress.yaml` |
 | [`springboot-apps/`](springboot-apps) | Spring Boot POS demo Helm chart (dev/prod values) |
 | [`secrets/`](secrets) | SOPS-encrypted secrets (`*.enc.yaml`) — see [`.sops.yaml`](.sops.yaml) |
-
-## Services (self-discovering CI/CD)
-
-Anything under `services/<domain>/<name>/` with a `Dockerfile` **and** a
-`service.yaml` is automatically built and pushed to `ghcr.io` by
-[`.github/workflows/build-and-push.yml`](.github/workflows/build-and-push.yml)
-on every push to `main`. Each service chart depends on the shared
-[`platform/base-chart`](platform/base-chart), so a new service is mostly just
-`values.yaml` + a Dockerfile.
-
-To deploy a service, add a block to
-[`argocd/applications/values.yaml`](argocd/applications/values.yaml) and set
-`enabled: true` (do this **after** the first CI build publishes the image).
+| [`docs/`](docs) | Architecture notes ([repos.md](docs/repos.md)) |
 
 ## Quickstart
 
@@ -59,13 +51,19 @@ chmod +x bootstrap/bootstrap.sh
 kubectl get applications -n argocd
 ```
 
+## Deploying a homelab app
+
+The app's source + chart live in `homelab-gitops`. To deploy it, add/enable an
+entry in [`argocd/applications/values.yaml`](argocd/applications/values.yaml)
+with a `repoURL` pointing at that repo — full steps in
+[docs/repos.md](docs/repos.md).
+
 ## Conventions
 
-- **One repo, one branch (`main`).** All Applications default to
-  `gitops.git @ main`. Per-app `repoURL:`/`targetRevision:` overrides exist for
-  when a workload should be pulled from a *different* repo — e.g. splitting
-  homelab apps into a separate `homelab-gitops` repo later, without changing
-  this control plane.
+- **One control plane.** This repo bootstraps the single Argo CD and the single
+  observability stack; other repos supply app source, deployed via per-app
+  `repoURL:`/`targetRevision:` overrides.
+- **`main` is the branch.** Applications default to `gitops.git @ main`.
 - **Sync waves** order rollout: `-1` cluster add-ons → `0` foundational →
   `1` platform/apps.
 - **Secrets** are committed only as SOPS-encrypted `*.enc.yaml`; plaintext is
@@ -77,5 +75,5 @@ kubectl get applications -n argocd
   cluster reproducible from `bootstrap.sh`.
 - A per-app `enabled` toggle turns the repo into an experiment board — add a
   block, flip it on, commit.
-- Splitting alerting config into global vs environment-specific directories
-  keeps changes reviewable and reduces chart churn.
+- Keeping app *source* out of the control-plane repo (in `homelab-gitops`) keeps
+  this repo purely declarative: it describes desired state, it doesn't build it.
