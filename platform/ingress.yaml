@@ -2,7 +2,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: platform-ingress-subdomains
-  namespace: monitoring
+  namespace: observability
+  annotations:
+    kubernetes.io/ingress.class: traefik
 spec:
   ingressClassName: traefik
   rules:

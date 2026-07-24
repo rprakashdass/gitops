@@ -12,9 +12,15 @@ bundled, so this does not install an ingress controller or StorageClass).
 | `argocd-values.yaml` | Helm values for the Argo CD install |
 | `README.md` | This file |
 
-The root Application is defined **inline in `bootstrap.sh`** (parameterized by
-`--repo-url`/`--revision`) — there is intentionally no separate `root.yaml`, to
-avoid two sources of truth.
+The root Application lives at [`argocd/root.yaml`](../argocd/root.yaml) — a
+plain manifest you can `kubectl apply -f argocd/root.yaml` directly. Once
+applied, it's self-managing: it's synced from `argocd/` (with
+`exclude: 'applications/**'`) by the same Application it defines, so future
+edits just need a git commit.
+
+`bootstrap.sh` applies this same file (via `sed`, to honor `--repo-url` /
+`--revision` / `--namespace` overrides on first bootstrap) rather than
+keeping its own inline copy, to avoid two sources of truth.
 
 ## Run
 

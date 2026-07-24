@@ -21,7 +21,7 @@ applications:
   # Observability (Grafana stack) — project: observability
   # ─────────────────────────────────────────────────────────────
   alloy:
-    enabled: true
+    enabled: false
     description: "Grafana Alloy — OpenTelemetry collector and log shipper"
     project: observability
     namespace: observability
@@ -33,7 +33,7 @@ applications:
         - values.yaml
 
   grafana:
-    enabled: true
+    enabled: false
     description: "Grafana dashboards and visualization"
     project: observability
     namespace: observability
@@ -89,7 +89,7 @@ applications:
       valueFile: platform/observability/tempo/values.yaml
 
   minio:
-    enabled: true
+    enabled: false
     description: "MinIO S3-compatible object storage"
     project: observability
     namespace: observability
@@ -131,7 +131,7 @@ applications:
   # Networking / cluster config
   # ─────────────────────────────────────────────────────────────
   platform-ingress:
-    enabled: true
+    enabled: false
     description: "Platform Ingress routing rules"
     project: observability
     namespace: observability
@@ -233,7 +233,7 @@ applications:
   # Spring Boot demo workloads — project: springboot-apps
   # ─────────────────────────────────────────────────────────────
   pos-system:
-    enabled: true
+    enabled: false
     description: "POS System — dev environment"
     project: springboot-apps
     namespace: pos-dev
@@ -293,3 +293,45 @@ applications:
     repoURL: https://github.com/rprakashdass/homelab-gitops.git
     targetRevision: main
     path: services/automation/hello-world
+
+
+  # ─────────────────────────────────────────────────────────────
+  # AI platform — project: ai
+  # ─────────────────────────────────────────────────────────────
+  ollama:
+    enabled: true
+    description: "Ollama LLM platform — local LLMs, chatbots, and vector search"
+    project: ai
+    namespace: ollama
+    syncWave: "1"
+    autoSync: false
+    sources:
+      - repoURL: https://github.com/otwld/ollama-helm.git
+        targetRevision: main
+        path: .
+        helm:
+          releaseName: ollama
+          valueFiles:
+            - $values/platform/ai/ollama/values.yaml
+      - repoURL: https://github.com/rprakashdass/gitops.git
+        targetRevision: main
+        ref: values
+
+  open-webui:
+    enabled: true
+    description: "Open WebUI — chat interface for Ollama"
+    project: ai
+    namespace: ollama
+    syncWave: "2"
+    autoSync: false
+    sources:
+      - repoURL: https://helm.openwebui.com/
+        chart: open-webui
+        targetRevision: "15.2.0"
+        helm:
+          releaseName: open-webui
+          valueFiles:
+            - $values/platform/ai/open-webui/values.yaml
+      - repoURL: https://github.com/rprakashdass/gitops.git
+        targetRevision: main
+        ref: values

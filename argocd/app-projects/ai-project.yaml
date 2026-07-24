@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ai
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: ai
+    app.kubernetes.io/managed-by: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    app.kubernetes.io/description: "ArgoCD project for AI platform"
+spec:
+  description: AI applications
+  sourceRepos:
+    - 'https://github.com/otwld/ollama-helm.git'
+    - 'https://helm.openwebui.com/'
+    - 'https://github.com/rprakashdass/gitops.git'
+  destinations:
+    - namespace: ai
+      server: https://kubernetes.default.svc
+    - namespace: ollama
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io

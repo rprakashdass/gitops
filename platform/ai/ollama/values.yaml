@@ -1,0 +1,38 @@
+knative:
+  enabled: false
+
+replicaCount: 3
+
+ollama:
+  models:
+    pull: [llama3.2:1b]
+    run: [llama3.2:1b]
+    create: []
+
+ingress:
+  enabled: true
+  className: traefik
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1536Mi"
+  limits:
+    cpu: "1500m"
+    memory: "2048Mi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+
+persistentVolume:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "local-path"
+  size: 30Gi
+
+extraEnv:
+  - name: OLLAMA_KEEP_ALIVE
+    value: "1m"
