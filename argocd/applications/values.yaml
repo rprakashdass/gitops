@@ -231,20 +231,3 @@ applications:
     namespace: home
     syncWave: "1"
     path: services/automation/hello-world
-
-  # Stubs — chart scaffolded but no Dockerfile/src yet. Complete before enabling.
-  k8s-health-report:
-    enabled: false
-    description: "Weekly Kubernetes cluster health report (stub — needs Dockerfile)"
-    project: home
-    namespace: home
-    syncWave: "1"
-    path: services/automation/k8s-health-report
-
-  notion-automations:
-    enabled: false
-    description: "Notion automations (stub — needs Dockerfile)"
-    project: home
-    namespace: home
-    syncWave: "1"
-    path: services/automation/notion-automations
