@@ -11,8 +11,8 @@ Homelab application *source* lives in a separate repo,
 
 ## How it works
 
-`bootstrap/bootstrap.sh` installs ingress-nginx, Argo CD, and KEDA, then applies
-one **root** Application (the "App of Apps"). The root app renders
+`bootstrap/bootstrap.sh` installs Argo CD and KEDA (k3s already provides traefik
+ingress + storage), then applies one **root** Application (the "App of Apps"). The root app renders
 [`argocd/applications`](argocd/applications), whose
 [`values.yaml`](argocd/applications/values.yaml) is the **single source of truth**
 for every workload. Each entry becomes one Argo CD Application; toggle it with

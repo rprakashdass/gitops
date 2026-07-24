@@ -1,294 +1,63 @@
-# ArgoCD Bootstrap - Helm Installation
+# bootstrap/
 
-Install ArgoCD using its **official Helm chart** for easy customization and GitOps management.
+One-command cluster bootstrap. Installs Argo CD + KEDA, then applies the root
+"App of Apps" — after which Argo CD syncs everything else from git.
 
-## 🚀 Quick Installation (Starter Kit)
-
-This starter kit is designed to be **one command** for new clusters.
-
-```bash
-chmod +x bootstrap/bootstrap.sh
-./bootstrap/bootstrap.sh
-```
-
-By default it auto-detects your `git remote origin` repo URL and applies the root app.
-To override:
-
-```bash
-./bootstrap/bootstrap.sh --repo-url https://github.com/<you>/<repo>.git --revision main
-```
-
-## 🔧 Manual Installation (Step-by-step)
-
-```bash
-# 1. Add ArgoCD Helm repo
-helm repo add argo https://argoproj.github.io/argo-helm
-helm repo update
-
-# 2. Install ArgoCD with your custom values
-helm install argocd argo/argo-cd \
-  --namespace argocd \
-  --create-namespace \
-  --values bootstrap/argocd-values.yaml
-
-# 3. Wait for pods to be ready
-kubectl wait --for=condition=available --timeout=300s \
-  deployment/argocd-server -n argocd
-
-# 4. Get admin password
-kubectl -n argocd get secret argocd-initial-admin-secret \
-  -o jsonpath="{.data.password}" | base64 -d; echo
-
-# 5. Access ArgoCD
-# Option A: NodePort (already configured in values.yaml)
-MINIKUBE_IP=$(minikube ip)
-echo "ArgoCD UI: https://$MINIKUBE_IP:30443"
-echo "Username: admin"
-
-# Option B: Port-forward
-kubectl port-forward svc/argocd-server -n argocd 8080:443
-# https://localhost:8080
-
-# 6. Deploy root app (activate GitOps!)
-kubectl apply -f bootstrap/root.yaml
-
-# 7. Watch applications being created
-kubectl get applications -n argocd -w
-```
-
----
-
-## 📁 Files in This Directory
+Targets **k3s** (traefik ingress, local-path storage, and metrics-server are
+bundled, so this does not install an ingress controller or StorageClass).
 
 | File | Purpose |
 |------|---------|
-| `argocd-namespace.yaml` | Creates argocd namespace |
-| `argocd-values.yaml` | **Helm values** - customize ArgoCD here |
-| `argocd-install.yaml` | Installation commands reference |
-| `root.yaml` | Root application (App-of-Apps) |
-| `bootstrap.sh` | One-command bootstrap for new clusters |
+| `bootstrap.sh` | The bootstrap script (idempotent — safe to re-run) |
+| `argocd-values.yaml` | Helm values for the Argo CD install |
 | `README.md` | This file |
 
----
+The root Application is defined **inline in `bootstrap.sh`** (parameterized by
+`--repo-url`/`--revision`) — there is intentionally no separate `root.yaml`, to
+avoid two sources of truth.
 
-## ⚙️ Customization
-
-Edit `argocd-values.yaml` to customize ArgoCD:
-
-### Change Service Type
-
-```yaml
-server:
-  service:
-    type: LoadBalancer  # or ClusterIP
-```
-
-### Enable Ingress
-
-```yaml
-server:
-  ingress:
-    enabled: true
-    ingressClassName: nginx
-    hosts:
-      - argocd.example.com
-    tls:
-      - secretName: argocd-tls
-        hosts:
-          - argocd.example.com
-```
-
-### Enable High Availability
-
-```yaml
-controller:
-  replicas: 2
-server:
-  replicas: 2
-repoServer:
-  replicas: 2
-```
-
-### Increase Resources
-
-```yaml
-controller:
-  resources:
-    limits:
-      cpu: 1000m
-      memory: 2Gi
-    requests:
-      cpu: 500m
-      memory: 1Gi
-```
-
----
-
-## 🔄 Update ArgoCD
+## Run
 
 ```bash
-# Pull latest chart
-helm repo update
-
-# Upgrade ArgoCD
-helm upgrade argocd argo/argo-cd \
-  --namespace argocd \
-  --values bootstrap/argocd-values.yaml
-
-# Or upgrade to specific version
-helm upgrade argocd argo/argo-cd \
-  --version 6.7.3 \
-  --namespace argocd \
-  --values bootstrap/argocd-values.yaml
+chmod +x bootstrap/bootstrap.sh
+./bootstrap/bootstrap.sh                       # auto-detects git remote as repoURL
+# or pin the repo/branch explicitly:
+./bootstrap/bootstrap.sh --repo-url https://github.com/rprakashdass/gitops.git --revision main
 ```
 
----
-
-## 🔍 Verify Installation
+For **reproducible** re-bootstraps, pin the chart versions (otherwise you get
+"latest"):
 
 ```bash
-# Check Helm release
-helm list -n argocd
-
-# Check pods
-kubectl get pods -n argocd
-
-# Get ArgoCD version
-helm get values argocd -n argocd | grep version
-
-# Check service
-kubectl get svc argocd-server -n argocd
+helm search repo argo/argo-cd --versions | head      # find a version
+ARGOCD_CHART_VERSION=<x.y.z> KEDA_CHART_VERSION=<x.y.z> ./bootstrap/bootstrap.sh
 ```
 
----
-
-## 🎯 Benefits of Helm Installation
-
-| Feature | Benefit |
-|---------|---------|
-| **Easy Updates** | `helm upgrade` command |
-| **Templating** | Helm values for customization |
-| **Rollback** | `helm rollback argocd` |
-| **Version Control** | Pin chart versions |
-| **Less Verbose** | Values file vs raw manifests |
-
----
-
-## 📝 Complete Bootstrap Flow
+## After bootstrap
 
 ```bash
-# Step 1: Install ArgoCD via Helm
-helm repo add argo https://argoproj.github.io/argo-helm
-helm install argocd argo/argo-cd \
-  --namespace argocd \
-  --create-namespace \
-  --values bootstrap/argocd-values.yaml
-
-# Step 2: Get credentials
+# admin password
 kubectl -n argocd get secret argocd-initial-admin-secret \
-  -o jsonpath="{.data.password}" | base64 -d
+  -o jsonpath="{.data.password}" | base64 -d; echo
 
-# Step 3: Access UI
-kubectl port-forward svc/argocd-server -n argocd 8080:443
-# https://localhost:8080 (admin + password)
+# UI (traefik ingress → http://argocd.local once DNS/hosts points at the node),
+# or just port-forward:
+kubectl port-forward svc/argocd-server -n argocd 8080:80   # http://localhost:8080
 
-# Step 4: Deploy root app
-kubectl apply -f bootstrap/root.yaml
-
-# Step 5: Everything else syncs automatically!
+# watch apps sync
+kubectl get applications -n argocd -w
 ```
 
----
+## Customize
 
-## 🐛 Troubleshooting
+Edit `argocd-values.yaml` (ingress class, resources, HA replicas, SSO). On a
+non-k3s cluster, install an ingress controller + default StorageClass first and
+set `server.ingress.ingressClassName` to match.
 
-### Check Helm release status
+## Troubleshooting
 
 ```bash
 helm status argocd -n argocd
-helm get values argocd -n argocd
-```
-
-### See what Helm will install
-
-```bash
-helm template argocd argo/argo-cd \
-  --namespace argocd \
-  --values bootstrap/argocd-values.yaml
-```
-
-### Reinstall if needed
-
-```bash
-# Uninstall
-helm uninstall argocd -n argocd
-
-# Clean up
-kubectl delete namespace argocd
-
-# Reinstall
-helm install argocd argo/argo-cd \
-  --namespace argocd \
-  --create-namespace \
-  --values bootstrap/argocd-values.yaml
-```
-
-### Check ArgoCD logs
-
-```bash
+kubectl get pods -n argocd
 kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server --tail=100
-kubectl logs -n argocd -l app.kubernetes.io/name=argocd-application-controller --tail=100
 ```
-
----
-
-## 🔒 Security Best Practices
-
-After installation:
-
-1. **Change admin password**
-   ```bash
-   argocd login localhost:8080
-   argocd account update-password
-   ```
-
-2. **Delete initial secret**
-   ```bash
-   kubectl delete secret argocd-initial-admin-secret -n argocd
-   ```
-
-3. **Enable SSO** (edit argocd-values.yaml)
-   ```yaml
-   configs:
-     cm:
-       dex.config: |
-         connectors:
-         - type: github
-           id: github
-           name: GitHub
-   ```
-
-4. **Enable RBAC** (already configured in values)
-
----
-
-## 📚 Resources
-
-- [ArgoCD Helm Chart](https://github.com/argoproj/argo-helm/tree/main/charts/argo-cd)
-- Local users + RBAC runbook: ARGOCD-LOCAL-USERS-RBAC.md
-- Values snippet: argocd-local-users-rbac-example.yaml
-- [Chart Values Reference](https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml)
-- [ArgoCD Documentation](https://argo-cd.readthedocs.io/)
-
----
-
-## ✅ What Happens After Bootstrap
-
-1. ✅ ArgoCD installed via Helm
-2. ✅ Accessible via NodePort (30443) or port-forward
-3. ✅ Root app deployed → watches Git repo
-4. ✅ All applications auto-created and synced:
-   - POS System (backend, frontend, MySQL)
-   - Monitoring (Grafana, Prometheus, Loki, Mimir, MinIO)
-   - Platform Ingress
-5. ✅ Future changes via Git + `helm upgrade`
