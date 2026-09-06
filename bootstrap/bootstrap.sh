@@ -27,6 +27,13 @@ EOF
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+ALLOWED_CONTEXT="k3s-remote"
+current_ctx="$(kubectl config current-context 2>/dev/null || true)"
+if [[ "$current_ctx" != "$ALLOWED_CONTEXT" ]]; then
+  echo "Refusing to bootstrap: current kubectl context '${current_ctx}' is not '${ALLOWED_CONTEXT}'." >&2
+  exit 1
+fi
+
 ARGOCD_NAMESPACE="${ARGOCD_NAMESPACE:-argocd}"
 ARGOCD_RELEASE="${ARGOCD_RELEASE:-argocd}"
 TARGET_REVISION="${TARGET_REVISION:-main}"
@@ -91,7 +98,7 @@ if ! kubectl get storageclass 2>/dev/null | grep -q '(default)'; then
   echo "           will stay Pending. On k3s this is 'local-path' and is normally present." >&2
 fi
 
-echo "[1/3] Installing/Upgrading Argo CD via Helm"
+echo "[1/2] Installing/Upgrading Argo CD via Helm"
 helm repo add argo https://argoproj.github.io/argo-helm >/dev/null 2>&1 || true
 helm repo update >/dev/null
 helm upgrade --install "$ARGOCD_RELEASE" argo/argo-cd \
@@ -104,16 +111,8 @@ echo "[1b] Waiting for Argo CD server + the Application CRD"
 kubectl rollout status "deployment/${ARGOCD_RELEASE}-server" -n "$ARGOCD_NAMESPACE" --timeout=300s
 kubectl wait --for=condition=established --timeout=60s crd/applications.argoproj.io
 
-echo "[2/3] Installing/Upgrading KEDA"
-helm repo add kedacore https://kedacore.github.io/charts >/dev/null 2>&1 || true
-helm repo update >/dev/null
-helm upgrade --install keda kedacore/keda \
-  --namespace keda \
-  --create-namespace \
-  ${KEDA_CHART_VERSION:+--version "$KEDA_CHART_VERSION"} \
-  --set installCRDs=true
 
-echo "[3/3] Applying root app (App-of-Apps)"
+echo "[2/2] Applying root app (App-of-Apps)"
 ROOT_APP_FILE="$SCRIPT_DIR/../argocd/root.yaml"
 sed \
   -e "s#repoURL: .*#repoURL: ${REPO_URL}#" \

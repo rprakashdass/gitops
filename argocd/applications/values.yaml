@@ -21,7 +21,7 @@ applications:
   # Observability (Grafana stack) — project: observability
   # ─────────────────────────────────────────────────────────────
   alloy:
-    enabled: false
+    enabled: true
     description: "Grafana Alloy — OpenTelemetry collector and log shipper"
     project: observability
     namespace: observability
@@ -33,7 +33,7 @@ applications:
         - values.yaml
 
   grafana:
-    enabled: false
+    enabled: true
     description: "Grafana dashboards and visualization"
     project: observability
     namespace: observability
@@ -47,7 +47,7 @@ applications:
       valueFile: platform/observability/grafana/values.yaml
 
   loki:
-    enabled: true
+    enabled: false
     description: "Loki log aggregation"
     project: observability
     namespace: observability
@@ -89,7 +89,7 @@ applications:
       valueFile: platform/observability/tempo/values.yaml
 
   minio:
-    enabled: false
+    enabled: true
     description: "MinIO S3-compatible object storage"
     project: observability
     namespace: observability
@@ -131,7 +131,7 @@ applications:
   # Networking / cluster config
   # ─────────────────────────────────────────────────────────────
   platform-ingress:
-    enabled: false
+    enabled: true
     description: "Platform Ingress routing rules"
     project: observability
     namespace: observability
