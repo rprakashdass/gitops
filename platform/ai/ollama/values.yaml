@@ -13,13 +13,26 @@ ingress:
   enabled: true
   className: traefik
 
+# Prefer the lighter-loaded worker node (more free memory, master is already 48% used)
+nodeSelector: {}
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - k3s.worker.1
+
 resources:
   requests:
-    cpu: "3000m"
-    memory: "4Gi"
+    cpu: "1500m"
+    memory: "3Gi"
   limits:
-    cpu: "6000m"
-    memory: "6Gi"
+    cpu: "3000m"
+    memory: "5Gi"
 
 autoscaling:
   enabled: false
