@@ -1,7 +1,7 @@
 knative:
   enabled: false
 
-replicaCount: 3
+replicaCount: 1
 
 ollama:
   models:
@@ -15,14 +15,14 @@ ingress:
 
 resources:
   requests:
-    cpu: "500m"
-    memory: "1536Mi"
+    cpu: "2500m"
+    memory: "2536Mi"
   limits:
-    cpu: "1500m"
-    memory: "2048Mi"
+    cpu: "4500m"
+    memory: "6048Mi"
 
 autoscaling:
-  enabled: true
+  enabled: false
   minReplicas: 1
   maxReplicas: 3
 
