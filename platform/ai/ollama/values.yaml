@@ -5,8 +5,8 @@ replicaCount: 1
 
 ollama:
   models:
-    pull: [llama3.2:1b]
-    run: [llama3.2:1b]
+    pull: [llama3.2:3b]
+    run: [llama3.2:3b]
     create: []
 
 ingress:
@@ -15,11 +15,11 @@ ingress:
 
 resources:
   requests:
-    cpu: "2500m"
-    memory: "2536Mi"
+    cpu: "3000m"
+    memory: "4Gi"
   limits:
-    cpu: "4500m"
-    memory: "6048Mi"
+    cpu: "6000m"
+    memory: "6Gi"
 
 autoscaling:
   enabled: false
@@ -31,8 +31,8 @@ persistentVolume:
   accessModes:
     - ReadWriteOnce
   storageClassName: "local-path"
-  size: 30Gi
+  size: 20Gi
 
 extraEnv:
   - name: OLLAMA_KEEP_ALIVE
-    value: "1m"
+    value: "10m"
