@@ -4,10 +4,17 @@ rabbitmq-cluster-operator:
 
   useCertManager: false        # avoids a hard cert-manager dependency
 
+  # Broadcom pruned these exact tags from the free bitnami/* Docker Hub namespace
+  # (moved to bitnamilegacy/*, same tag) — chart's shipped defaults still point at
+  # bitnami/*, which now 404s. Override both operator images to the legacy path.
   msgTopologyOperator:
     enabled: true               # bundles the Topology Operator too
+    image:
+      repository: bitnamilegacy/rmq-messaging-topology-operator
 
   clusterOperator:
+    image:
+      repository: bitnamilegacy/rabbitmq-cluster-operator
     resources:
       requests:
         cpu: 100m

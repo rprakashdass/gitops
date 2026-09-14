@@ -27,7 +27,7 @@ EOF
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-ALLOWED_CONTEXT="k3s-remote"
+ALLOWED_CONTEXT="k3d-rabbitmq-test"
 current_ctx="$(kubectl config current-context 2>/dev/null || true)"
 if [[ "$current_ctx" != "$ALLOWED_CONTEXT" ]]; then
   echo "Refusing to bootstrap: current kubectl context '${current_ctx}' is not '${ALLOWED_CONTEXT}'." >&2

@@ -21,7 +21,7 @@ applications:
   # Observability (Grafana stack) — project: observability
   # ─────────────────────────────────────────────────────────────
   alloy:
-    enabled: true
+    enabled: false
     description: "Grafana Alloy — OpenTelemetry collector and log shipper"
     project: observability
     namespace: observability
@@ -33,7 +33,7 @@ applications:
         - values.yaml
 
   grafana:
-    enabled: true
+    enabled: false
     description: "Grafana dashboards and visualization"
     project: observability
     namespace: observability
@@ -147,7 +147,7 @@ applications:
   # Networking / cluster config
   # ─────────────────────────────────────────────────────────────
   platform-ingress:
-    enabled: true
+    enabled: false
     description: "Platform Ingress routing rules"
     project: observability
     namespace: observability
