@@ -1,0 +1,14 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: broker
+  namespace: rabbitmq
+  labels:
+    purpose: "message-queue"
+spec:
+  replicas: 3
+  rabbitmq:
+    additionalConfig: |
+      - rabbitmq_prometheus
+    extraConfig: |
+      - prometheus.return_per_object_metrics = true
