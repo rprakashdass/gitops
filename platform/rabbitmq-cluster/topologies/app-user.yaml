@@ -1,0 +1,10 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: User
+metadata:
+  name: app-user
+  namespace: rabbitmq
+spec:
+  rabbitmqClusterReference:
+    name: broker
+  tags:
+    - management
