@@ -18,17 +18,21 @@ server:
     enabled: true
     size: 2Gi
 
-  # Non-secret transit-seal settings (address / key / mount path)
+  # Non-secret transit-seal settings (key / mount path — VAULT_TRANSIT_SEAL_*
+  # prefix only applies to these two; address/token use plain VAULT_ADDR /
+  # VAULT_TOKEN per https://developer.hashicorp.com/vault/docs/configuration/seal/transit,
+  # so address is set inline in the seal stanza below instead).
   extraEnvironmentVars:
-    VAULT_TRANSIT_SEAL_ADDRESS: "http://vault-transit.vault.svc:8200"
     VAULT_TRANSIT_SEAL_KEY_NAME: "autounseal"
     VAULT_TRANSIT_SEAL_MOUNT_PATH: "transit/"
 
   # The transit token — injected from a K8s Secret you create at bootstrap:
   #   kubectl -n vault create secret generic vault-transit-unseal \
   #     --from-literal=token=<transit-token>
+  # Maps to VAULT_TOKEN (not VAULT_TRANSIT_SEAL_TOKEN) — that's the env var
+  # the transit seal's `token` param actually reads.
   extraSecretEnvironmentVars:
-    - envName: VAULT_TRANSIT_SEAL_TOKEN
+    - envName: VAULT_TOKEN
       secretName: vault-transit-unseal
       secretKey: token
 
@@ -43,9 +47,11 @@ server:
       storage "file" {
         path = "/vault/data"
       }
-      # Auto-unseal via the transit vault. Remaining params come from
-      # VAULT_TRANSIT_SEAL_* env vars above.
-      seal "transit" {}
+      # Auto-unseal via the transit vault. key_name/mount_path come from
+      # VAULT_TRANSIT_SEAL_* env vars above; token comes from VAULT_TOKEN.
+      seal "transit" {
+        address = "http://vault-transit.vault.svc:8200"
+      }
 
   ui:
     enabled: true
