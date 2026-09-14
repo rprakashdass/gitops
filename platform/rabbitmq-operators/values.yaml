@@ -1,0 +1,17 @@
+rabbitmq-cluster-operator:
+  commonLabels:
+    purpose: "message-queue-operator"
+
+  useCertManager: false        # avoids a hard cert-manager dependency
+
+  msgTopologyOperator:
+    enabled: true               # bundles the Topology Operator too
+
+  clusterOperator:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi

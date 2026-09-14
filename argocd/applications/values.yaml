@@ -128,6 +128,22 @@ applications:
           recurse: false
 
   # ─────────────────────────────────────────────────────────────
+  # Platform infrastructure — project: platform
+  # ─────────────────────────────────────────────────────────────
+  rabbitmq-operators:
+    enabled: true
+    description: "RabbitMQ Cluster Operator + Messaging Topology Operator"
+    project: platform
+    namespace: rabbitmq-system
+    syncWave: "0"
+    autoSync: false
+    prune: false
+    path: platform/rabbitmq-operators
+    helm:
+      valueFiles:
+        - values.yaml
+
+  # ─────────────────────────────────────────────────────────────
   # Networking / cluster config
   # ─────────────────────────────────────────────────────────────
   platform-ingress:

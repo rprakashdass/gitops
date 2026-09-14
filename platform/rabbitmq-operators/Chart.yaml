@@ -1,0 +1,10 @@
+apiVersion: v2
+name: rabbitmq-operators
+description: Umbrella chart for RabbitMQ Cluster Operator + Messaging Topology Operator
+type: application
+version: 0.1.0
+appVersion: "2.16.1"
+dependencies:
+  - name: rabbitmq-cluster-operator
+    version: 4.4.34
+    repository: oci://registry-1.docker.io/bitnamicharts

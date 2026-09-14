@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  description: Shared cluster-wide platform infrastructure not specific to observability/security/ai
+  sourceRepos:
+    - 'https://github.com/rprakashdass/gitops.git'
+    - 'oci://registry-1.docker.io/bitnamicharts'   # RabbitMQ Cluster Operator
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: rabbitmq-system
+    - server: https://kubernetes.default.svc
+      namespace: '*'              # operator installs CRDs + ClusterRoles (cluster-scoped)
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
