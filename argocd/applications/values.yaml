@@ -138,7 +138,7 @@ applications:
     syncWave: "0"
     autoSync: false
     prune: false
-    path: platform/rabbitmq-operators
+    path: platform/rabbitmq-operator
     helm:
       valueFiles:
         - values.yaml
@@ -201,11 +201,11 @@ applications:
   # ─────────────────────────────────────────────────────────────
   # Secrets management — project: security
   # Vault (+ transit auto-unseal) + External Secrets Operator.
-  # Requires a manual bootstrap (init/unseal/config) — enable IN ORDER,
-  # following docs/secrets.md. Left disabled until you walk that runbook.
+  # Requires a manual bootstrap (init/unseal/config) — sync IN ORDER,
+  # following docs/secrets.md.
   # ─────────────────────────────────────────────────────────────
   vault-transit:
-    enabled: false
+    enabled: true
     description: "Transit Vault — root of trust for auto-unsealing main Vault"
     project: security
     namespace: vault
@@ -219,7 +219,7 @@ applications:
       valueFile: platform/vault/transit/values.yaml
 
   vault:
-    enabled: false
+    enabled: true
     description: "Main Vault — KV secrets store, auto-unsealed via transit Vault"
     project: security
     namespace: vault
@@ -233,7 +233,7 @@ applications:
       valueFile: platform/vault/values.yaml
 
   external-secrets:
-    enabled: false
+    enabled: true
     description: "External Secrets Operator — syncs Vault keys into K8s Secrets"
     project: security
     namespace: external-secrets
@@ -247,7 +247,7 @@ applications:
       valueFile: platform/external-secrets/values.yaml
 
   external-secrets-stores:
-    enabled: false
+    enabled: true
     description: "ClusterSecretStore + ExternalSecrets (Vault backend)"
     project: security
     namespace: external-secrets
