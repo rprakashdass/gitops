@@ -143,17 +143,17 @@ applications:
       valueFiles:
         - values.yaml
 
-rabbitmq-broker:
-  enabled: true
-  description: "RabbitMQ broker instance (dev)"
-  project: platform
-  namespace: rabbitmq
-  syncWave: "1"
-  autoSync: false
-  prune: false
-  path: platform/rabbitmq-cluster
-  directory:
-    recurse: false
+  rabbitmq-broker:
+    enabled: true
+    description: "RabbitMQ broker instance (dev)"
+    project: platform
+    namespace: rabbitmq
+    syncWave: "1"
+    autoSync: false
+    prune: true
+    path: platform/rabbitmq-cluster
+    directory:
+      recurse: false
 
   # ─────────────────────────────────────────────────────────────
   # Networking / cluster config
