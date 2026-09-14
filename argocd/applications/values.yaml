@@ -153,7 +153,7 @@ applications:
     prune: true
     path: platform/rabbitmq-cluster
     directory:
-      recurse: false
+      recurse: true
 
   # ─────────────────────────────────────────────────────────────
   # Networking / cluster config
