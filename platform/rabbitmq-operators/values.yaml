@@ -22,3 +22,8 @@ rabbitmq-cluster-operator:
       limits:
         cpu: 250m
         memory: 256Mi
+
+  # Operator-wide default broker image, used for any RabbitmqCluster CR that doesn't
+  # set spec.image itself. Same bitnami -> bitnamilegacy pruning as the operator images above.
+  rabbitmqImage:
+    repository: bitnamilegacy/rabbitmq
