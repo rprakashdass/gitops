@@ -45,6 +45,12 @@ extraEnv:
   - name: LANGFUSE_HOST
     value: "http://langfuse.ollama.svc.cluster.local:3000"
   - name: LANGFUSE_PUBLIC_KEY
-    value: "pk-lf-change-me"
+    valueFrom:
+      secretKeyRef:
+        name: langfuse-secrets
+        key: LANGFUSE_PUBLIC_KEY
   - name: LANGFUSE_SECRET_KEY
-    value: "sk-lf-change-me"
+    valueFrom:
+      secretKeyRef:
+        name: langfuse-secrets
+        key: LANGFUSE_SECRET_KEY

@@ -363,6 +363,12 @@ applications:
       - repoURL: https://github.com/rprakashdass/gitops.git
         targetRevision: main
         ref: values
+      - repoURL: https://github.com/rprakashdass/gitops.git
+        targetRevision: main
+        path: platform/ai/open-webui
+        directory:
+          recurse: true
+          include: "externalsecret.yaml"
 
   langfuse:
     enabled: true
