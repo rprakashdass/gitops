@@ -45,6 +45,7 @@ persistentVolume:
     - ReadWriteOnce
   storageClassName: "local-path"
   size: 20Gi
+  volumeBindingMode: Immediate
 
 extraEnv:
   - name: OLLAMA_KEEP_ALIVE
