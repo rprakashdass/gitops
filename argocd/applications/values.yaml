@@ -383,12 +383,9 @@ applications:
     namespace: ollama
     syncWave: "1"
     autoSync: false
-    useExternalChart: true
-    externalChart:
-      repoURL: oci://registry-1.docker.io/bitnamilegacy
-      chart: postgresql
-      targetRevision: "16.2.5"
-      valueFile: platform/ai/postgresql/values.yaml
+    path: platform/ai/postgresql
+    directory:
+      recurse: true
 
   redis:
     enabled: true
@@ -397,11 +394,8 @@ applications:
     namespace: ollama
     syncWave: "1"
     autoSync: false
-    useExternalChart: true
-    externalChart:
-      repoURL: oci://registry-1.docker.io/bitnamilegacy
-      chart: redis
-      targetRevision: "20.6.1"
-      valueFile: platform/ai/redis/values.yaml
+    path: platform/ai/redis
+    directory:
+      recurse: true
 
 
