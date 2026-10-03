@@ -1,0 +1,81 @@
+# Langfuse — LLM observability platform
+# Self-hosted: all data stays in-cluster
+
+replicaCount: 1
+
+image:
+  repository: langfuse/langfuse
+  tag: "3"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: true
+  className: traefik
+  host: langfuse.local
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "1000m"
+    memory: "2Gi"
+
+# Database — PostgreSQL (subchart)
+postgresql:
+  enabled: true
+  auth:
+    username: langfuse
+    password: langfuse-password-change-me
+    database: langfuse
+  primary:
+    persistence:
+      enabled: true
+      storageClass: local-path
+      size: 5Gi
+    resources:
+      requests:
+        cpu: "250m"
+        memory: "512Mi"
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
+
+# Cache — Redis (subchart)
+redis:
+  enabled: true
+  auth:
+    password: redis-password-change-me
+  master:
+    persistence:
+      enabled: true
+      storageClass: local-path
+      size: 1Gi
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+      limits:
+        cpu: "250m"
+        memory: "512Mi"
+
+# Langfuse configuration
+config:
+  # Generate with: openssl rand -base64 32
+  NEXTAUTH_SECRET: "change-me-to-a-random-string"
+  NEXTAUTH_URL: "http://langfuse.local"
+  SALT: "change-me-to-a-random-string"
+  # Optional: enable telemetry (set to false for privacy)
+  TELEMETRY_ENABLED: "false"
+  # Optional: enable experimental features
+  ENABLE_EXPERIMENTAL_FEATURES: "false"
+
+# Persistence for Langfuse data
+persistence:
+  enabled: true
+  size: 2Gi
+  storageClass: local-path

@@ -363,3 +363,15 @@ applications:
       - repoURL: https://github.com/rprakashdass/gitops.git
         targetRevision: main
         ref: values
+
+  langfuse:
+    enabled: true
+    description: "Langfuse — LLM observability, prompt tracking, and tracing"
+    project: ai
+    namespace: ollama
+    syncWave: "2"
+    autoSync: false
+    path: platform/ai/langfuse
+    helm:
+      valueFiles:
+        - values.yaml

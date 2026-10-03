@@ -15,3 +15,36 @@ ingress:
 persistence:
   enabled: true
   size: 2Gi
+
+# Privacy: disable all external calls, analytics, and telemetry
+extraEnv:
+  # Disable Open WebUI telemetry
+  - name: WEBUI_TELEMETRY
+    value: "0"
+  - name: ENABLE_TELEMETRY
+    value: "0"
+  # Disable external API calls (OpenAI, Anthropic, etc.)
+  - name: ENABLE_OPENAI_API
+    value: "false"
+  - name: ENABLE_ANTHROPIC_API
+    value: "false"
+  # Use local embeddings only (no external embedding API)
+  - name: RAG_EMBEDDING_ENGINE
+    value: "ollama"
+  - name: OLLAMA_BASE_URL
+    value: "http://ollama.ollama.svc.cluster.local:11434"
+  # Disable model directory fetching from external sources
+  - name: ENABLE_MODEL_FILTER
+    value: "false"
+  # Ensure all data stays in-cluster
+  - name: DO_NOT_TRACK
+    value: "1"
+  # Langfuse — LLM observability (self-hosted, in-cluster)
+  - name: ENABLE_LANGFUSE
+    value: "true"
+  - name: LANGFUSE_HOST
+    value: "http://langfuse.ollama.svc.cluster.local:3000"
+  - name: LANGFUSE_PUBLIC_KEY
+    value: "pk-lf-change-me"
+  - name: LANGFUSE_SECRET_KEY
+    value: "sk-lf-change-me"

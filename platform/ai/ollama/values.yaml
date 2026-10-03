@@ -5,8 +5,8 @@ replicaCount: 1
 
 ollama:
   models:
-    pull: [llama3.2:3b]
-    run: [llama3.2:3b]
+    pull: [qwen2.5:7b]
+    run: [qwen2.5:7b]
     create: []
 
 ingress:
@@ -28,11 +28,11 @@ affinity:
 
 resources:
   requests:
-    cpu: "1500m"
-    memory: "3Gi"
+    cpu: "2000m"
+    memory: "6Gi"
   limits:
-    cpu: "3000m"
-    memory: "5Gi"
+    cpu: "4000m"
+    memory: "7500Mi"
 
 autoscaling:
   enabled: false
@@ -49,3 +49,17 @@ persistentVolume:
 extraEnv:
   - name: OLLAMA_KEEP_ALIVE
     value: "10m"
+  # Privacy: disable all telemetry/analytics
+  - name: OLLAMA_TELEMETRY
+    value: "0"
+  - name: OLLAMA_ORIGINS
+    value: "http://localhost:11434"
+  # Bind to localhost only — no external access
+  - name: OLLAMA_HOST
+    value: "0.0.0.0"
+
+# Metrics: expose Prometheus-compatible metrics for Grafana
+metrics:
+  enabled: true
+  port: 11434
+  path: /api/metrics
