@@ -54,9 +54,6 @@ extraEnv:
     value: "0"
   - name: OLLAMA_ORIGINS
     value: "http://localhost:11434"
-  # Bind to localhost only — no external access
-  - name: OLLAMA_HOST
-    value: "0.0.0.0"
 
 # Metrics: expose Prometheus-compatible metrics for Grafana
 metrics:
