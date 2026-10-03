@@ -385,7 +385,7 @@ applications:
     autoSync: false
     useExternalChart: true
     externalChart:
-      repoURL: https://charts.bitnami.com/bitnami
+      repoURL: oci://registry-1.docker.io/bitnamicharts
       chart: postgresql
       targetRevision: "16.2.5"
       valueFile: platform/ai/postgresql/values.yaml
@@ -399,7 +399,7 @@ applications:
     autoSync: false
     useExternalChart: true
     externalChart:
-      repoURL: https://charts.bitnami.com/bitnami
+      repoURL: oci://registry-1.docker.io/bitnamicharts
       chart: redis
       targetRevision: "20.6.1"
       valueFile: platform/ai/redis/values.yaml
