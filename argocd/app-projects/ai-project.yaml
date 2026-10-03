@@ -13,8 +13,9 @@ spec:
   description: AI applications
   sourceRepos:
     - 'https://github.com/otwld/ollama-helm.git'
-    - 'https://helm.openwebui.com/'
     - 'https://github.com/rprakashdass/gitops.git'
+    - 'https://helm.openwebui.com/'
+    - 'https://charts.bitnami.com/bitnami'
   destinations:
     - namespace: ai
       server: https://kubernetes.default.svc
