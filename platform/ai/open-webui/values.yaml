@@ -17,7 +17,8 @@ persistence:
   size: 2Gi
 
 # Privacy: disable all external calls, analytics, and telemetry
-extraEnv:
+# NOTE: Open WebUI chart uses "extraEnvVars", not "extraEnv"
+extraEnvVars:
   # Disable Open WebUI telemetry
   - name: WEBUI_TELEMETRY
     value: "0"
@@ -31,8 +32,6 @@ extraEnv:
   # Use local embeddings only (no external embedding API)
   - name: RAG_EMBEDDING_ENGINE
     value: "ollama"
-  - name: OLLAMA_BASE_URL
-    value: "http://ollama.ollama.svc.cluster.local:11434"
   # Disable model directory fetching from external sources
   - name: ENABLE_MODEL_FILTER
     value: "false"
