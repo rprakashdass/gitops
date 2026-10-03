@@ -4,9 +4,6 @@ ollama:
 ollamaUrls:
   - http://ollama.ollama.svc.cluster.local:11434
 
-pipelines:
-  enabled: false
-
 ingress:
   enabled: true
   class: traefik
@@ -16,40 +13,50 @@ persistence:
   enabled: true
   size: 2Gi
 
-# Privacy: disable all external calls, analytics, and telemetry
-# NOTE: Open WebUI chart uses "extraEnvVars", not "extraEnv"
+# Privacy: disable external calls, analytics, telemetry
 extraEnvVars:
-  # Disable Open WebUI telemetry
   - name: WEBUI_TELEMETRY
     value: "0"
   - name: ENABLE_TELEMETRY
     value: "0"
-  # Disable external API calls (OpenAI, Anthropic, etc.)
   - name: ENABLE_OPENAI_API
     value: "false"
   - name: ENABLE_ANTHROPIC_API
     value: "false"
-  # Use local embeddings only (no external embedding API)
   - name: RAG_EMBEDDING_ENGINE
     value: "ollama"
-  # Disable model directory fetching from external sources
   - name: ENABLE_MODEL_FILTER
     value: "false"
-  # Ensure all data stays in-cluster
   - name: DO_NOT_TRACK
     value: "1"
-  # Langfuse — LLM observability (self-hosted, in-cluster)
-  - name: ENABLE_LANGFUSE
-    value: "true"
-  - name: LANGFUSE_HOST
-    value: "http://langfuse.ollama.svc.cluster.local:3000"
-  - name: LANGFUSE_PUBLIC_KEY
-    valueFrom:
-      secretKeyRef:
-        name: langfuse-secrets
-        key: LANGFUSE_PUBLIC_KEY
-  - name: LANGFUSE_SECRET_KEY
-    valueFrom:
-      secretKeyRef:
-        name: langfuse-secrets
-        key: LANGFUSE_SECRET_KEY
+
+# Pipelines — Open WebUI's extension service.
+# Langfuse integration in Open WebUI 0.10.x runs THROUGH Pipelines
+# (direct ENABLE_LANGFUSE env vars were removed). The langfuse filter
+# pipeline is loaded from GitHub on startup and forwards traces to Langfuse.
+pipelines:
+  enabled: true
+  extraEnvVars:
+    # Load the official Langfuse filter pipeline
+    - name: PIPELINES_URLS
+      value: "https://github.com/open-webui/pipelines/blob/main/examples/filters/langfuse_filter_pipeline.py"
+    # Langfuse connection (keys from the existing ESO/Vault secret)
+    - name: LANGFUSE_PUBLIC_KEY
+      valueFrom:
+        secretKeyRef:
+          name: langfuse-secrets
+          key: LANGFUSE_PUBLIC_KEY
+    - name: LANGFUSE_SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: langfuse-secrets
+          key: LANGFUSE_SECRET_KEY
+    - name: LANGFUSE_HOST
+      value: "http://langfuse.ollama.svc.cluster.local:3000"
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
