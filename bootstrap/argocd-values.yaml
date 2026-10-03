@@ -21,11 +21,11 @@ server:
 
   resources:
     requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 300m
+      cpu: 200m
       memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
 
 # Controller configuration
 # NOTE: the argo-cd chart expects resources under `.resources`, not directly
@@ -33,29 +33,29 @@ server:
 controller:
   resources:
     requests:
-      cpu: 200m
-      memory: 256Mi
-    limits:
       cpu: 500m
       memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
 
 repoServer:
   resources:
     requests:
-      cpu: 200m
-      memory: 256Mi
-    limits:
       cpu: 500m
       memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
 
 redis:
   resources:
     requests:
-      cpu: 50m
-      memory: 64Mi
-    limits:
-      cpu: 200m
+      cpu: 100m
       memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
 
 # Dex (SSO)
 dex:
