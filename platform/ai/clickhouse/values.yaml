@@ -1,0 +1,26 @@
+# ClickHouse for Langfuse — deployed as separate Argo CD app
+# Langfuse v3 requires ClickHouse for trace/analytics storage
+
+shards: 1
+replicas: 1
+
+persistence:
+  enabled: true
+  storageClass: local-path
+  size: 10Gi
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "1000m"
+    memory: "2Gi"
+
+auth:
+  username: default
+  password: clickhouse
+
+service:
+  type: ClusterIP
+  port: 8123

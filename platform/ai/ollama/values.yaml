@@ -5,8 +5,8 @@ replicaCount: 1
 
 ollama:
   models:
-    pull: [qwen2.5:7b]
-    run: [qwen2.5:7b]
+    pull: [qwen2.5:3b, llama3.2:1b]
+    run: [qwen2.5:3b]
     create: []
 
 ingress:
@@ -28,11 +28,11 @@ affinity:
 
 resources:
   requests:
-    cpu: "2000m"
-    memory: "6Gi"
+    cpu: "1500m"
+    memory: "3Gi"
   limits:
-    cpu: "4000m"
-    memory: "7500Mi"
+    cpu: "3000m"
+    memory: "5Gi"
 
 autoscaling:
   enabled: false

@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: langfuse/langfuse
-  tag: "3"
+  tag: "2"
   pullPolicy: IfNotPresent
 
 service:

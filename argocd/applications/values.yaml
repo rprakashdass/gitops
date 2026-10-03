@@ -403,3 +403,5 @@ applications:
       chart: redis
       targetRevision: "20.6.1"
       valueFile: platform/ai/redis/values.yaml
+
+
