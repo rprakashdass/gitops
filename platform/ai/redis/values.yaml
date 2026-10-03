@@ -1,7 +1,7 @@
 # Redis for Langfuse — deployed as separate Argo CD app
 image:
-  repository: bitnami/redis
-  tag: "7.4.1-debian-12-r0"
+  repository: bitnamilegacy/redis
+  tag: "8.2.1-debian-12-r0"
   pullPolicy: IfNotPresent
 
 auth:

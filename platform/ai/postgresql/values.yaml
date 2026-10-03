@@ -1,7 +1,7 @@
 # PostgreSQL for Langfuse — deployed as separate Argo CD app
 image:
-  repository: bitnami/postgresql
-  tag: "17.2.0-debian-12-r0"
+  repository: bitnamilegacy/postgresql
+  tag: "17.6.0-debian-12-r4"
   pullPolicy: IfNotPresent
 
 auth:
