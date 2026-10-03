@@ -1,5 +1,6 @@
 # Langfuse — LLM observability platform
 # Self-hosted: all data stays in-cluster
+# PostgreSQL and Redis are deployed as separate Argo CD apps
 
 replicaCount: 1
 
@@ -25,56 +26,18 @@ resources:
     cpu: "1000m"
     memory: "2Gi"
 
-# Database — PostgreSQL (subchart)
-postgresql:
-  enabled: true
-  auth:
-    username: langfuse
-    password: langfuse-password-change-me
-    database: langfuse
-  primary:
-    persistence:
-      enabled: true
-      storageClass: local-path
-      size: 5Gi
-    resources:
-      requests:
-        cpu: "250m"
-        memory: "512Mi"
-      limits:
-        cpu: "500m"
-        memory: "1Gi"
-
-# Cache — Redis (subchart)
-redis:
-  enabled: true
-  auth:
-    password: redis-password-change-me
-  master:
-    persistence:
-      enabled: true
-      storageClass: local-path
-      size: 1Gi
-    resources:
-      requests:
-        cpu: "100m"
-        memory: "256Mi"
-      limits:
-        cpu: "250m"
-        memory: "512Mi"
-
-# Langfuse configuration
+# External database connections (deployed as separate apps)
 config:
-  # Generate with: openssl rand -base64 32
+  DATABASE_URL: "postgresql://langfuse:langfuse@postgresql.ollama.svc.cluster.local:5432/langfuse"
+  REDIS_HOST: "redis.ollama.svc.cluster.local"
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: "redis"
   NEXTAUTH_SECRET: "change-me-to-a-random-string"
   NEXTAUTH_URL: "http://langfuse.local"
   SALT: "change-me-to-a-random-string"
-  # Optional: enable telemetry (set to false for privacy)
   TELEMETRY_ENABLED: "false"
-  # Optional: enable experimental features
   ENABLE_EXPERIMENTAL_FEATURES: "false"
 
-# Persistence for Langfuse data
 persistence:
   enabled: true
   size: 2Gi

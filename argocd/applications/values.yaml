@@ -375,3 +375,31 @@ applications:
     helm:
       valueFiles:
         - values.yaml
+
+  postgresql:
+    enabled: true
+    description: "PostgreSQL — database for Langfuse"
+    project: ai
+    namespace: ollama
+    syncWave: "1"
+    autoSync: false
+    useExternalChart: true
+    externalChart:
+      repoURL: https://charts.bitnami.com/bitnami
+      chart: postgresql
+      targetRevision: "16.2.5"
+      valueFile: platform/ai/postgresql/values.yaml
+
+  redis:
+    enabled: true
+    description: "Redis — cache for Langfuse"
+    project: ai
+    namespace: ollama
+    syncWave: "1"
+    autoSync: false
+    useExternalChart: true
+    externalChart:
+      repoURL: https://charts.bitnami.com/bitnami
+      chart: redis
+      targetRevision: "20.6.1"
+      valueFile: platform/ai/redis/values.yaml

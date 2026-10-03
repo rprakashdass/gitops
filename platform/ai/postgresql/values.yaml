@@ -1,0 +1,22 @@
+# PostgreSQL for Langfuse — deployed as separate Argo CD app
+auth:
+  username: langfuse
+  password: langfuse
+  database: langfuse
+
+primary:
+  persistence:
+    enabled: true
+    storageClass: local-path
+    size: 5Gi
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "512Mi"
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+
+service:
+  type: ClusterIP
+  port: 5432

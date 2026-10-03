@@ -4,12 +4,3 @@ description: Langfuse — open-source LLM observability platform
 type: application
 version: 1.0.0
 appVersion: "3.0"
-dependencies:
-  - name: postgresql
-    version: 16.2.5
-    repository: https://charts.bitnami.com/bitnami
-    condition: postgresql.enabled
-  - name: redis
-    version: 20.6.1
-    repository: https://charts.bitnami.com/bitnami
-    condition: redis.enabled

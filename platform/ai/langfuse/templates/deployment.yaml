@@ -23,16 +23,19 @@ spec:
               containerPort: 3000
           env:
             - name: DATABASE_URL
-              value: "postgresql://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ include "langfuse.fullname" . }}-postgresql:5432/{{ .Values.postgresql.auth.database }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "langfuse.fullname" . }}-config
+                  key: DATABASE_URL
             - name: REDIS_HOST
-              value: "{{ include "langfuse.fullname" . }}-redis-master"
+              value: {{ .Values.config.REDIS_HOST | quote }}
             - name: REDIS_PORT
-              value: "6379"
+              value: {{ .Values.config.REDIS_PORT | quote }}
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "langfuse.fullname" . }}-redis
-                  key: redis-password
+                  name: {{ include "langfuse.fullname" . }}-config
+                  key: REDIS_PASSWORD
             - name: NEXTAUTH_SECRET
               valueFrom:
                 secretKeyRef:
