@@ -78,6 +78,7 @@ configs:
     timeout.reconciliation: 180s
   rbac:
     policy.csv: |
-      g, role:admin, role,admin
+      p, role:admin, *, *, *, allow
+      g, admin, role:admin
     policy.default: role:readonly
 
