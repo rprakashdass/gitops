@@ -37,7 +37,12 @@ kubectl -n vault exec -it vault-transit-0 -- sh -c '
 path "transit/encrypt/autounseal" { capabilities = ["update"] }
 path "transit/decrypt/autounseal" { capabilities = ["update"] }
 EOF
-  vault token create -policy=autounseal -period=24h -orphan
+  # Periodic token: the main Vault's use renews it, so it only
+  # expires if vault-0 is stopped longer than the period. Vault
+  # caps the period at the system max_ttl (768h/32d by default)
+  # — plenty, since the token is used on every seal/unseal.
+  # For a longer period: vault auth tune -max-lease-ttl=87600h token
+  vault token create -policy=autounseal -period=87600h -orphan
 '                                            # SAVE this token
 ```
 
@@ -97,6 +102,9 @@ kubectl -n home get secret telegram-bot-secrets           # created by ESO
   homelab-gitops next to its consumer). Commit — ESO does the rest.
 - **After a full cluster cold boot:** unseal *only* the transit Vault
   (`vault operator unseal`); the main Vault auto-unseals off it.
+- **Transit token expired** (only if vault-0 was down longer than the
+  token's period): recreate it, update the `vault-transit-unseal`
+  secret, and restart `vault-0`.
 - **Save the init material** (unseal/recovery keys + root tokens) in a password
   manager. Losing the transit unseal key means re-initializing.
 
