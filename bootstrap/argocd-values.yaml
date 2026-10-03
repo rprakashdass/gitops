@@ -72,4 +72,12 @@ notifications:
 configs:
   params:
     server.insecure: true
+  cm:
+    admin.enabled: true
+    exec.enabled: true
+    timeout.reconciliation: 180s
+  rbac:
+    policy.csv: |
+      g, role:admin, role,admin
+    policy.default: role:readonly
 

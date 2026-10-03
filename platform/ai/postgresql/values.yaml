@@ -1,4 +1,9 @@
 # PostgreSQL for Langfuse — deployed as separate Argo CD app
+image:
+  repository: bitnami/postgresql
+  tag: "17.2.0-debian-12-r0"
+  pullPolicy: IfNotPresent
+
 auth:
   username: langfuse
   password: langfuse
