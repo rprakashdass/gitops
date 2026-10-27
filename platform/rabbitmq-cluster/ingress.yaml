@@ -8,7 +8,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: rabbitmq.local
+    - host: rabbitmq.rprakashdass.in
       http:
         paths:
           - path: /

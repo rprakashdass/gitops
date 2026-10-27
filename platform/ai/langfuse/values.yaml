@@ -16,7 +16,7 @@ service:
 ingress:
   enabled: true
   className: traefik
-  host: langfuse.local
+  host: langfuse.rprakashdass.in
 
 resources:
   requests:
@@ -33,7 +33,7 @@ config:
   REDIS_PORT: "6379"
   REDIS_PASSWORD: "redis"
   NEXTAUTH_SECRET: "change-me-to-a-random-string"
-  NEXTAUTH_URL: "http://langfuse.local"
+  NEXTAUTH_URL: "https://langfuse.rprakashdass.in"
   SALT: "change-me-to-a-random-string"
   TELEMETRY_ENABLED: "false"
   ENABLE_EXPERIMENTAL_FEATURES: "false"

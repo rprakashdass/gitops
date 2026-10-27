@@ -26,6 +26,8 @@ spec:
             - redis-server
             - --appendonly
             - "yes"
+            - --requirepass
+            - "redis"
           resources:
             requests:
               cpu: "100m"

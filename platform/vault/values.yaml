@@ -62,7 +62,7 @@ server:
     annotations:
       kubernetes.io/ingress.class: traefik
     hosts:
-      - host: vault.local
+      - host: vault.rprakashdass.in
         paths:
           - /
     tls: []
