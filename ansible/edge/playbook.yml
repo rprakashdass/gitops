@@ -1,0 +1,107 @@
+- name: Configure Caddy edge proxy
+  hosts: edge
+  become: true
+  force_handlers: true
+
+  vars:
+    cf_api_token: "{{ lookup('env', 'CADDY_CF_TOKEN') }}"
+
+  pre_tasks:
+    - name: Require upstreams
+      ansible.builtin.assert:
+        that:
+          - platform_upstream | length > 0
+          - pos_upstream | length > 0
+        fail_msg: Set platform_upstream and pos_upstream in group_vars/edge.yml
+
+    - name: Require Cloudflare token
+      ansible.builtin.assert:
+        that: cf_api_token | length > 0
+        fail_msg: CADDY_CF_TOKEN is empty; apply terraform/envs/edge first
+      no_log: true
+
+  tasks:
+    - name: Install apt prerequisites
+      ansible.builtin.apt:
+        name: [debian-keyring, debian-archive-keyring, apt-transport-https, curl, gpg]
+        update_cache: true
+
+    - name: Add Caddy apt repository
+      ansible.builtin.deb822_repository:
+        name: caddy-stable
+        types: deb
+        uris: https://dl.cloudsmith.io/public/caddy/stable/deb/debian
+        suites: any-version
+        components: main
+        signed_by: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
+
+    - name: Install Caddy
+      ansible.builtin.apt:
+        name: caddy
+        update_cache: true
+
+    - name: Check for Cloudflare DNS module
+      ansible.builtin.shell: caddy list-modules | grep -q '^dns.providers.cloudflare$'
+      register: cloudflare_module
+      changed_when: false
+      check_mode: false
+      failed_when: false
+
+    - name: Add Cloudflare DNS module
+      ansible.builtin.command: caddy add-package github.com/caddy-dns/cloudflare
+      when: cloudflare_module.rc != 0
+      notify: Restart caddy
+
+    - name: Create systemd drop-in directory
+      ansible.builtin.file:
+        path: /etc/systemd/system/caddy.service.d
+        state: directory
+        mode: "0755"
+
+    - name: Install systemd drop-in
+      ansible.builtin.template:
+        src: caddy-env.conf.j2
+        dest: /etc/systemd/system/caddy.service.d/env.conf
+        mode: "0644"
+      notify: Restart caddy
+
+    - name: Reload systemd units
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Install Caddy environment file
+      ansible.builtin.template:
+        src: caddy.env.j2
+        dest: /etc/caddy/caddy.env
+        owner: root
+        group: root
+        mode: "0600"
+      no_log: true
+      notify: Restart caddy
+
+    - name: Install Caddyfile
+      ansible.builtin.template:
+        src: Caddyfile.j2
+        dest: /etc/caddy/Caddyfile
+        owner: root
+        group: caddy
+        mode: "0640"
+        validate: env CF_API_TOKEN=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa caddy validate --config %s --adapter caddyfile
+      notify: Reload caddy
+
+    - name: Enable and start Caddy
+      ansible.builtin.systemd:
+        name: caddy
+        enabled: true
+        state: started
+
+  handlers:
+    - name: Restart caddy
+      ansible.builtin.systemd:
+        name: caddy
+        state: restarted
+
+    - name: Reload caddy
+      ansible.builtin.systemd:
+        name: caddy
+        state: reloaded

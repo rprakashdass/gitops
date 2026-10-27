@@ -32,3 +32,15 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+
+# Local, non-public values
+terraform/envs/edge/terraform.tfvars
+ansible/edge/group_vars/edge/local.yml

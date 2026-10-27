@@ -1,0 +1,21 @@
+{
+	email {{ caddy_email }}
+}
+
+*.{{ caddy_domain }} {
+	tls {
+		dns cloudflare {env.CF_API_TOKEN}
+	}
+{% for route in caddy_routes %}
+
+	@route{{ loop.index }} host {% for h in route.hosts %}{{ h }}.{{ caddy_domain }}{{ ' ' if not loop.last }}{% endfor %}
+
+	handle @route{{ loop.index }} {
+		reverse_proxy {{ route.upstream }}
+	}
+{% endfor %}
+
+	handle {
+		respond "not found" 404
+	}
+}

@@ -1,0 +1,10 @@
+caddy_domain: rprakashdass.in
+
+platform_upstream: "127.0.0.1:8080"
+pos_upstream: "127.0.0.1:8080"
+
+caddy_routes:
+  - hosts: [chat, langfuse, grafana]
+    upstream: "{{ platform_upstream }}"
+  - hosts: [pos, pos-dev]
+    upstream: "{{ pos_upstream }}"
