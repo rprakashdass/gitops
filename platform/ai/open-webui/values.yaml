@@ -7,7 +7,7 @@ ollamaUrls:
 ingress:
   enabled: true
   class: traefik
-  host: chat.local
+  host: chat.rprakashdass.in
 
 persistence:
   enabled: true
