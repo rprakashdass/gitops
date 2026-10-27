@@ -218,6 +218,15 @@ applications:
       targetRevision: 0.28.1
       valueFile: platform/vault/transit/values.yaml
 
+  vault-transit-unseal:
+    enabled: true
+    description: "CronJob that auto-unseals the transit Vault after restarts"
+    project: security
+    namespace: vault
+    syncWave: "0"
+    prune: true
+    path: platform/vault/transit-unseal
+
   vault:
     enabled: true
     description: "Main Vault — KV secrets store, auto-unsealed via transit Vault"
