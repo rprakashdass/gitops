@@ -57,8 +57,8 @@ spec:
                 - name: VAULT_UNSEAL_KEY
                   valueFrom:
                     secretKeyRef:
-                      name: vault-transit-unseal
-                      key: token
+                      name: vault-transit-unseal-key
+                      key: unseal-key
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
