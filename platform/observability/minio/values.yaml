@@ -1,5 +1,13 @@
 mode: standalone
 
+image:
+  repository: coollabsio/minio
+  tag: RELEASE.2025-10-15T17-29-55Z@sha256:69b55a1c1c5dc285ce04db96689f5b2102317fc77a50680a1874ca6efd1c87f9
+
+mcImage:
+  repository: cgr.dev/chainguard/minio-client
+  tag: latest@sha256:5b759d9e248ad9f1ab8455f8168b86a47acb1e08207d38603b504bdc5a555d7a
+
 nodeSelector:
   kubernetes.io/hostname: k3s.worker.1
 
