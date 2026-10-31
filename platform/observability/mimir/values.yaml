@@ -10,6 +10,8 @@ zoneAwareReplication:
 
 gateway:
   enabled: true
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
   resources:
     requests:
       cpu: 20m
@@ -21,6 +23,8 @@ gateway:
 # Run without PVC dependencies; store long-term blocks in MinIO (S3)
 ingester:
   replicas: 1
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
   persistentVolume:
     enabled: false
   resources:
@@ -37,6 +41,8 @@ ingester:
 
 store_gateway:
   replicas: 1
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
   persistentVolume:
     enabled: false
   resources:
@@ -52,6 +58,8 @@ store_gateway:
         fieldRef: { fieldPath: status.podIP }
 
 compactor:
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
   persistentVolume:
     enabled: false
   resources:
@@ -64,6 +72,8 @@ compactor:
 
 distributor:
   replicas: 1
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
   resources:
     requests:
       cpu: 50m
@@ -78,6 +88,8 @@ distributor:
 
 querier:
   replicas: 1
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
   resources:
     requests:
       cpu: 50m
@@ -92,6 +104,8 @@ querier:
 
 query_frontend:
   replicas: 1
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
   resources:
     requests:
       cpu: 30m
@@ -170,6 +184,8 @@ mimir:
 
 alertmanager:
   enabled: false
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
   extraVolumes:
   - name: alertmanager-config
     configMap:
@@ -188,6 +204,8 @@ alertmanager:
 
 ruler:
   enabled: false
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
   extraVolumes:
   - name: ruler-tmp
     emptyDir: {}
@@ -195,3 +213,27 @@ ruler:
   extraVolumeMounts:
   - name: ruler-tmp
     mountPath: /ruler-tmp
+
+nginx:
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
+
+overrides_exporter:
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
+
+chunks-cache:
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
+
+index-cache:
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
+
+metadata-cache:
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
+
+results-cache:
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1

@@ -1,5 +1,8 @@
 mode: standalone
 
+nodeSelector:
+  kubernetes.io/hostname: k3s.worker.1
+
 rootUser: loki
 rootPassword: loki12345
 

@@ -58,10 +58,14 @@ receiver:
 
   controller:
     type: "deployment"
+    nodeSelector:
+      kubernetes.io/hostname: k3s.worker.1
 
 # KSM (Kube-State-Metrics) configuration
 ksm:
   nameOverride: kube-state-metrics
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
   prometheusScrape: false
   
   resources:

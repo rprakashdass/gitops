@@ -11,6 +11,13 @@ resultsCache:
 ruler:
   enabled: false
 
+gateway:
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
+lokiCanary:
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
+
 # Deployment mode: SingleBinary (simple), SimpleScalable (medium), Distributed (large)
 deploymentMode: SingleBinary
 
@@ -24,6 +31,8 @@ backend:
 
 singleBinary:
   replicas: 1
+  nodeSelector:
+    kubernetes.io/hostname: k3s.worker.1
   persistence:
     enabled: false
   resources:

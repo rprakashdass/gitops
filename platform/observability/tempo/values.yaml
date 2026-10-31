@@ -3,6 +3,8 @@ global:
     app: tempo
 labels:
   app: tempo
+nodeSelector:
+  kubernetes.io/hostname: k3s.worker.1
 tempo:
   reportingEnabled: false
   receivers:

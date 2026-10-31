@@ -1,6 +1,9 @@
 service:
   type: ClusterIP
 
+nodeSelector:
+  kubernetes.io/hostname: k3s.worker.1
+
 # persistence:
 #   enabled: true
 #   storageClassName: standard
