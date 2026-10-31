@@ -17,8 +17,16 @@ resources:
     cpu: 750m
     memory: 756Mi
 
-adminUser: admin
-adminPassword: ChangeMeStrong
+admin:
+  existingSecret: grafana-admin
+  userKey: admin-user
+  passwordKey: admin-password
+
+envFromSecrets:
+  - name: grafana-clickhouse
+
+plugins:
+  - grafana-clickhouse-datasource
 
 dashboardProviders:
   dashboardproviders.yaml:
@@ -458,7 +466,13 @@ datasources:
           implementation: mimir
           handleGrafanaManagedAlerts: false
       - name: Clickhouse
-        type: clickhouse
-        access: proxy
-        url: http://clickhouse.observability.svc.cluster.local:8123
+        type: grafana-clickhouse-datasource
         isDefault: false
+        jsonData:
+          host: clickhouse.clickhouse.svc.cluster.local
+          port: 9000
+          protocol: native
+          secure: false
+          username: ${CLICKHOUSE_USER}
+        secureJsonData:
+          password: ${CLICKHOUSE_PASSWORD}

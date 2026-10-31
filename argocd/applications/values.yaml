@@ -39,12 +39,23 @@ applications:
     namespace: observability
     syncWave: "1"
     autoSync: false
-    useExternalChart: true
-    externalChart:
-      repoURL: https://grafana.github.io/helm-charts
-      chart: grafana
-      targetRevision: 10.5.15
-      valueFile: platform/observability/grafana/values.yaml
+    sources:
+      - repoURL: https://grafana-community.github.io/helm-charts
+        chart: grafana
+        targetRevision: 14.3.0
+        helm:
+          releaseName: grafana
+          valueFiles:
+            - $values/platform/observability/grafana/values.yaml
+      - repoURL: https://github.com/rprakashdass/gitops.git
+        targetRevision: main
+        ref: values
+      - repoURL: https://github.com/rprakashdass/gitops.git
+        targetRevision: main
+        path: platform/observability/grafana
+        directory:
+          recurse: false
+          include: "externalsecret.yaml"
 
   loki:
     enabled: true
