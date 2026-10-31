@@ -123,7 +123,7 @@ mimir:
     blocks_storage:
       backend: s3
       s3:
-        endpoint: minio.monitoring.svc.cluster.local:9000
+        endpoint: minio.observability.svc.cluster.local:9000
         bucket_name: mimir-blocks
         access_key_id: loki
         secret_access_key: loki12345
@@ -162,7 +162,7 @@ mimir:
     ruler_storage:
       backend: s3
       s3:
-        endpoint: minio.monitoring.svc.cluster.local:9000
+        endpoint: minio.observability.svc.cluster.local:9000
         bucket_name: mimir-ruler
         access_key_id: loki
         secret_access_key: loki12345
