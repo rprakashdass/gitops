@@ -6,7 +6,7 @@ image:
 
 mcImage:
   repository: cgr.dev/chainguard/minio-client
-  tag: latest@sha256:5b759d9e248ad9f1ab8455f8168b86a47acb1e08207d38603b504bdc5a555d7a
+  tag: latest-dev@sha256:a8a0480cb7356bf1c1f6e348b483a161c727a5c77ca574899e5a045686492bbe
 
 nodeSelector:
   kubernetes.io/hostname: k3s.worker.1
