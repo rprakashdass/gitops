@@ -148,7 +148,7 @@ mimir:
         replication_factor: 1
 
     frontend_worker:
-      frontend_address: "mimir-query-frontend-headless.monitoring.svc.cluster.local.:9095"
+      frontend_address: "mimir-query-frontend-headless.observability.svc.cluster.local.:9095"
 
     alertmanager:
       data_dir: /data/alertmanager
@@ -157,7 +157,7 @@ mimir:
     ruler:
       enable_api: false
       rule_path: /ruler-tmp/rules
-      alertmanager_url: http://mimir-alertmanager.monitoring.svc.cluster.local:8080/alertmanager
+      alertmanager_url: http://mimir-alertmanager.observability.svc.cluster.local:8080/alertmanager
 
     ruler_storage:
       backend: s3
