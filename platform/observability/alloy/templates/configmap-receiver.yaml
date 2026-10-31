@@ -141,19 +141,19 @@ data:
 
     otelcol.exporter.otlphttp "tempo" {
       client {
-        endpoint = "http://tempo.monitoring.svc.cluster.local:4318"
+        endpoint = "http://tempo.observability.svc.cluster.local:4318"
       }
     }
 
     prometheus.remote_write "mimir" {
       endpoint {
-        url = "http://mimir-nginx.monitoring.svc.cluster.local/api/v1/push"
+        url = "http://mimir-nginx.observability.svc.cluster.local/api/v1/push"
       }
     }
 
     loki.write "loki_endpoint" {
       endpoint {
-        url = "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
+        url = "http://loki-gateway.observability.svc.cluster.local/loki/api/v1/push"
       }
     }
 
