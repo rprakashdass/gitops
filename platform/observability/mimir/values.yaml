@@ -155,7 +155,7 @@ mimir:
       fallback_config_file: /etc/alertmanager/config/alertmanager.yaml
 
     ruler:
-      enable_api: true
+      enable_api: false
       rule_path: /ruler-tmp/rules
       alertmanager_url: http://mimir-alertmanager.monitoring.svc.cluster.local:8080/alertmanager
 
@@ -169,7 +169,7 @@ mimir:
         insecure: true
 
 alertmanager:
-  enabled: true
+  enabled: false
   extraVolumes:
   - name: alertmanager-config
     configMap:
@@ -187,7 +187,7 @@ alertmanager:
     readOnly: true
 
 ruler:
-  enabled: true
+  enabled: false
   extraVolumes:
   - name: ruler-tmp
     emptyDir: {}
