@@ -11,11 +11,11 @@ nodeSelector:
 
 resources:
   requests:
-    cpu: 50m
-    memory: 128Mi
+    cpu: 150m
+    memory: 228Mi
   limits:
-    cpu: 450m
-    memory: 656Mi
+    cpu: 750m
+    memory: 756Mi
 
 adminUser: admin
 adminPassword: ChangeMeStrong
@@ -457,3 +457,8 @@ datasources:
         jsonData:
           implementation: mimir
           handleGrafanaManagedAlerts: false
+      - name: Clickhouse
+        type: clickhouse
+        access: proxy
+        url: http://clickhouse.observability.svc.cluster.local:8123
+        isDefault: false
