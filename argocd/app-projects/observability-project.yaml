@@ -10,6 +10,7 @@ spec:
   sourceRepos:
     - 'https://github.com/rprakashdass/gitops.git'
     - 'https://grafana.github.io/helm-charts'      # Grafana, Loki, Mimir
+    - 'https://grafana-community.github.io/helm-charts'  # Grafana (community chart)
     - 'https://prometheus-community.github.io/helm-charts'  # Prometheus
     - 'https://charts.min.io/'                     # MinIO
   destinations:
