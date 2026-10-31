@@ -21,7 +21,7 @@ applications:
   # Observability (Grafana stack) — project: observability
   # ─────────────────────────────────────────────────────────────
   alloy:
-    enabled: false
+    enabled: true
     description: "Grafana Alloy — OpenTelemetry collector and log shipper"
     project: observability
     namespace: observability
@@ -33,7 +33,7 @@ applications:
         - values.yaml
 
   grafana:
-    enabled: false
+    enabled: true
     description: "Grafana dashboards and visualization"
     project: observability
     namespace: observability
@@ -47,7 +47,7 @@ applications:
       valueFile: platform/observability/grafana/values.yaml
 
   loki:
-    enabled: false
+    enabled: true
     description: "Loki log aggregation"
     project: observability
     namespace: observability
@@ -61,7 +61,7 @@ applications:
       valueFile: platform/observability/loki/values.yaml
 
   mimir:
-    enabled: false
+    enabled: true
     description: "Mimir distributed metrics storage"
     project: observability
     namespace: observability
@@ -75,7 +75,7 @@ applications:
       valueFile: platform/observability/mimir/values.yaml
 
   tempo:
-    enabled: false
+    enabled: true
     description: "Tempo distributed tracing"
     project: observability
     namespace: observability
