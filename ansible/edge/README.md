@@ -21,7 +21,7 @@ Add `--check` for a dry run. On a fresh VM the dry run fails at "Enable and star
 
 | Piece | Location |
 |---|---|
-| Hostnames and upstreams | `group_vars/edge/main.yml` (`caddy_routes`) |
+| Domain and upstream | `group_vars/edge/main.yml` |
 | Caddyfile | `templates/Caddyfile.j2` |
 | Cloudflare token (DNS-01) | `/etc/caddy/caddy.env` on the VM, mode 0600, from `CADDY_CF_TOKEN` |
 | Wildcard DNS record | `terraform/envs/edge` |
@@ -29,9 +29,7 @@ Add `--check` for a dry run. On a fresh VM the dry run fails at "Enable and star
 
 ## Adding an app
 
-1. Add its hostname to a route in `group_vars/edge/main.yml`.
-2. Set the host on its Ingress in this repo and let ArgoCD sync.
-3. Rerun the playbook.
+Set `host: <name>.rprakashdass.in` on its Ingress in this repo and let ArgoCD sync. Caddy forwards every `*.rprakashdass.in` request to Traefik, so no proxy change is needed. Anything with an `.in` host is public; keep internal apps on `.local` hosts.
 
 ## Tunnel
 

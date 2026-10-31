@@ -7,12 +7,11 @@
     cf_api_token: "{{ lookup('env', 'CADDY_CF_TOKEN') }}"
 
   pre_tasks:
-    - name: Require upstreams
+    - name: Require upstream
       ansible.builtin.assert:
         that:
-          - platform_upstream | length > 0
-          - pos_upstream | length > 0
-        fail_msg: Set platform_upstream and pos_upstream in group_vars/edge.yml
+          - caddy_upstream | length > 0
+        fail_msg: Set caddy_upstream in group_vars/edge/main.yml
 
     - name: Require Cloudflare token
       ansible.builtin.assert:
