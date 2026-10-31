@@ -131,7 +131,7 @@ applications:
   # Platform infrastructure — project: platform
   # ─────────────────────────────────────────────────────────────
   rabbitmq-operators:
-    enabled: true
+    enabled: false
     description: "RabbitMQ Cluster Operator + Messaging Topology Operator"
     project: platform
     namespace: rabbitmq-system
@@ -144,7 +144,7 @@ applications:
         - values.yaml
 
   rabbitmq-broker:
-    enabled: true
+    enabled: false
     description: "RabbitMQ broker instance (dev)"
     project: platform
     namespace: rabbitmq
@@ -159,7 +159,7 @@ applications:
   # Networking / cluster config
   # ─────────────────────────────────────────────────────────────
   platform-ingress:
-    enabled: false
+    enabled: true
     description: "Platform Ingress routing rules"
     project: observability
     namespace: observability
@@ -269,7 +269,7 @@ applications:
   # AI platform — project: ai
   # ─────────────────────────────────────────────────────────────
   ollama:
-    enabled: true
+    enabled: false
     description: "Ollama LLM platform — local LLMs, chatbots, and vector search"
     project: ai
     namespace: ollama
@@ -288,7 +288,7 @@ applications:
         ref: values
 
   open-webui:
-    enabled: true
+    enabled: false
     description: "Open WebUI — chat interface for Ollama"
     project: ai
     namespace: ollama
@@ -313,7 +313,7 @@ applications:
           include: "externalsecret.yaml"
 
   langfuse:
-    enabled: true
+    enabled: false
     description: "Langfuse — LLM observability, prompt tracking, and tracing"
     project: ai
     namespace: ollama
@@ -325,7 +325,7 @@ applications:
         - values.yaml
 
   postgresql:
-    enabled: true
+    enabled: false
     description: "PostgreSQL — database for Langfuse"
     project: ai
     namespace: ollama
@@ -336,7 +336,7 @@ applications:
       recurse: true
 
   redis:
-    enabled: true
+    enabled: false
     description: "Redis — cache for Langfuse"
     project: ai
     namespace: ollama
