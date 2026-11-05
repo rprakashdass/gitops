@@ -26,6 +26,11 @@ Enable `vault-transit: true`, sync, then:
 kubectl -n vault exec -it vault-transit-0 -- vault operator init \
   -key-shares=1 -key-threshold=1            # SAVE the unseal key + root token
 kubectl -n vault exec -it vault-transit-0 -- vault operator unseal <unseal-key>
+
+# Let the vault-transit-unseal CronJob unseal it automatically after every
+# restart. Key stays out of git — create this Secret out-of-band:
+kubectl -n vault create secret generic vault-transit-unseal-key \
+  --from-literal=unseal-key=<unseal-key>
 ```
 Configure the transit key + a token the main Vault will use:
 ```bash
@@ -100,8 +105,9 @@ kubectl -n home get secret telegram-bot-secrets           # created by ESO
 - **Add a secret:** `vault kv put secret/<name> KEY=val`, then add an
   `ExternalSecret` under `platform/external-secrets/stores/` (or in
   homelab-gitops next to its consumer). Commit — ESO does the rest.
-- **After a full cluster cold boot:** unseal *only* the transit Vault
-  (`vault operator unseal`); the main Vault auto-unseals off it.
+- **After a full cluster cold boot:** the `vault-transit-unseal` CronJob
+  unseals the transit Vault within ~2 min; the main Vault then auto-unseals
+  off it. Manual fallback: `vault operator unseal` on `vault-transit-0`.
 - **Transit token expired** (only if vault-0 was down longer than the
   token's period): recreate it, update the `vault-transit-unseal`
   secret, and restart `vault-0`.

@@ -1,0 +1,3 @@
+zone_id               = "<cloudflare zone id>"
+vm_public_ip          = "<azure vm public ip>"
+azure_subscription_id = "<azure subscription id>"
